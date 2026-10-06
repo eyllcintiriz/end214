@@ -654,10 +654,10 @@
         <button class="sol-btn sol-btn-i" onclick="toggleSolution(this)">&#9658; Çözümü Göster</button>
         <div class="solution solution-i">
           <div class="sol-title sol-title-i">Çözüm</div>
-          <div class="sol-step"><span class="step-n sn-indigo">a</span><div class="step-text">n=30 → m ≥ √30 ≈ 5.5 → m=6 (kitap yaklaşımı)<br>L=44&minus;4=40, c ≥ 40/6 ≈ 6.7 → c=7<br>4&le;x&lt;11: f=3 &nbsp;|&nbsp; 11&le;x&lt;18: f=7 &nbsp;|&nbsp; 18&le;x&lt;25: f=5 &nbsp;|&nbsp; 25&le;x&lt;32: f=8 &nbsp;|&nbsp; 32&le;x&lt;39: f=4 &nbsp;|&nbsp; 39&le;x&lt;46: f=3<br>Toplam: 30 ✓</div></div>
-          <div class="sol-step"><span class="step-n sn-indigo">b</span><div class="step-text">Nispi: 0.10, 0.23, 0.17, 0.27, 0.13, 0.10<br>Birikimli: 3, 10, 15, 23, 27, 30</div></div>
+          <div class="sol-step"><span class="step-n sn-indigo">a</span><div class="step-text">n=30 → m ≥ √30 ≈ 5.5 → m=6 (kitap yaklaşımı)<br>L=44&minus;4=40, c ≥ 40/6 ≈ 6.7 → c=7<br>4&le;x&lt;11: f=3 &nbsp;|&nbsp; 11&le;x&lt;18: f=8 &nbsp;|&nbsp; 18&le;x&lt;25: f=4 &nbsp;|&nbsp; 25&le;x&lt;32: f=8 &nbsp;|&nbsp; 32&le;x&lt;39: f=3 &nbsp;|&nbsp; 39&le;x&lt;46: f=4<br>Toplam: 30 ✓</div></div>
+          <div class="sol-step"><span class="step-n sn-indigo">b</span><div class="step-text">Nispi: 0.10, 0.27, 0.13, 0.27, 0.10, 0.13<br>Birikimli: 3, 11, 15, 23, 26, 30</div></div>
           <div class="sol-step"><span class="step-n sn-indigo">c &mdash; Histogram</span><div class="step-text">
-            <!-- f: 3,7,5,8,4,3  maks=8  barH=f/8*100  barW=60 -->
+            <!-- f: 3,8,4,8,3,4  maks=8  barH=f*12.5  barW=67 -->
             <!-- y=120-f*12.5 -->
             <div class="svg-wrap">
               <svg viewBox="0 0 460 155" xmlns="http://www.w3.org/2000/svg" font-family="monospace" font-size="9">
@@ -669,20 +669,20 @@
                 <text x="35" y="73"  text-anchor="end" fill="#7a8099">4</text>
                 <text x="35" y="23"  text-anchor="end" fill="#7a8099">8</text>
                 <!-- bars barW=67, start=40 -->
-                <!-- f: 3,7,5,8,4,3  y=120-f*12.5 -->
+                <!-- f: 3,8,4,8,3,4  y=120-f*12.5 -->
                 <rect x="40"  y="82"  width="67" height="37" fill="rgba(129,140,248,.3)"  stroke="#818cf8" stroke-width="1.2"/><!-- f=3 -->
-                <rect x="107" y="32"  width="67" height="87" fill="rgba(129,140,248,.55)" stroke="#818cf8" stroke-width="1.2"/><!-- f=7 -->
-                <rect x="174" y="57"  width="67" height="62" fill="rgba(129,140,248,.4)"  stroke="#818cf8" stroke-width="1.2"/><!-- f=5 -->
+                <rect x="107" y="20"  width="67" height="100" fill="rgba(129,140,248,.65)" stroke="#818cf8" stroke-width="1.2"/><!-- f=8 -->
+                <rect x="174" y="70"  width="67" height="50" fill="rgba(129,140,248,.38)" stroke="#818cf8" stroke-width="1.2"/><!-- f=4 -->
                 <rect x="241" y="20"  width="67" height="100" fill="rgba(129,140,248,.65)" stroke="#818cf8" stroke-width="1.2"/><!-- f=8 -->
-                <rect x="308" y="70"  width="67" height="50" fill="rgba(129,140,248,.38)" stroke="#818cf8" stroke-width="1.2"/><!-- f=4 -->
-                <rect x="375" y="82"  width="67" height="37" fill="rgba(129,140,248,.3)"  stroke="#818cf8" stroke-width="1.2"/><!-- f=3 -->
+                <rect x="308" y="82"  width="67" height="37" fill="rgba(129,140,248,.3)"  stroke="#818cf8" stroke-width="1.2"/><!-- f=3 -->
+                <rect x="375" y="70"  width="67" height="50" fill="rgba(129,140,248,.38)" stroke="#818cf8" stroke-width="1.2"/><!-- f=4 -->
                 <!-- f labels -->
                 <text x="73"  y="77"  text-anchor="middle" fill="#818cf8">3</text>
-                <text x="140" y="27"  text-anchor="middle" fill="#818cf8">7</text>
-                <text x="207" y="52"  text-anchor="middle" fill="#818cf8">5</text>
+                <text x="140" y="15"  text-anchor="middle" fill="#818cf8">8</text>
+                <text x="207" y="65"  text-anchor="middle" fill="#818cf8">4</text>
                 <text x="274" y="15"  text-anchor="middle" fill="#818cf8">8</text>
-                <text x="341" y="65"  text-anchor="middle" fill="#818cf8">4</text>
-                <text x="408" y="77"  text-anchor="middle" fill="#818cf8">3</text>
+                <text x="341" y="77"  text-anchor="middle" fill="#818cf8">3</text>
+                <text x="408" y="65"  text-anchor="middle" fill="#818cf8">4</text>
                 <!-- x labels -->
                 <text x="40"  y="134" text-anchor="middle" fill="#7a8099">4</text>
                 <text x="107" y="134" text-anchor="middle" fill="#7a8099">11</text>
@@ -695,7 +695,7 @@
                 <text x="14" y="65" text-anchor="middle" fill="#7a8099" font-size="8" transform="rotate(-90,14,65)">f</text>
               </svg>
             </div>
-            Doruk 25–32 saat sınıfında (f=8). Değerler bu aralık etrafında yoğunlaşıyor, hafif sağa çarpık görünüm.
+            İki doruk var: 11–18 ve 25–32 saat sınıfları (her ikisi de f=8). Dağılım iki tepeli (bimodal) görünümdedir; belirgin bir çarpıklık yoktur (x̄ ≈ 23.5 saat, medyan = 24.5 saat).
           </div></div>
         </div>
       </div>
