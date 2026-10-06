@@ -11,7 +11,7 @@
 .boxplot-wrap svg { width:100%; max-width:520px; display:block; margin:0 auto; }
 </style>
 </head>
-<body>
+<body data-konu="dag">
 <nav class="topnav">
   <a href="index.html" class="brand">END<span>214</span></a>
   <div class="nav-links">
@@ -557,12 +557,8 @@
   <strong>END 214 &ndash; Olasılık ve İstatistik II</strong> &middot; TOBB ETÜ Mühendislik Fakültesi Endüstri Mühendisliği Bölümü<br>
   Prof. Dr. Fikri Gökpınar &middot; Bahar 2025&ndash;2026
 </footer>
-<script>
-function toggleCard(h){ h.closest('.q-card').classList.toggle('open'); }
-function toggleSolution(btn){
-  const s=btn.nextElementSibling; s.classList.toggle('visible');
-  btn.textContent=s.classList.contains('visible')?'▼ Çözümü Gizle':'▶ Çözümü Göster';
-}
-</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.4.16/purify.min.js" integrity="sha512-flQmhkXNRQ3iUfvtdCobtpMjCb6kE+zLnTiAulAQJ3WykVfy84JvCMOo6vhwWXHTXjR25h9Zj+LyGFRWKjRoag==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="firebase-ayar.js"></script>
+<script src="ortak.js"></script>
 </body>
 </html>

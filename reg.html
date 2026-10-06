@@ -6,7 +6,7 @@
 <title>END214 – Doğrusal Regresyon</title>
 <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body data-konu="reg">
 
 <nav class="topnav">
   <a href="index.html" class="brand">END<span>214</span></a>
@@ -479,13 +479,8 @@
   Prof. Dr. Fikri Gökpınar &middot; Bahar 2025&ndash;2026
 </footer>
 
-<script>
-function toggleCard(h){ h.closest('.q-card').classList.toggle('open'); }
-function toggleSolution(btn){
-  const s = btn.nextElementSibling;
-  s.classList.toggle('visible');
-  btn.textContent = s.classList.contains('visible') ? '\u25bc \u00c7\u00f6z\u00fcm\u00fc Gizle' : '\u25ba \u00c7\u00f6z\u00fcm\u00fc G\u00f6ster';
-}
-</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.4.16/purify.min.js" integrity="sha512-flQmhkXNRQ3iUfvtdCobtpMjCb6kE+zLnTiAulAQJ3WykVfy84JvCMOo6vhwWXHTXjR25h9Zj+LyGFRWKjRoag==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="firebase-ayar.js"></script>
+<script src="ortak.js"></script>
 </body>
 </html>

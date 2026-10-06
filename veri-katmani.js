@@ -7,9 +7,10 @@
 //     <script src="firebase-ayar.js"></script>
 //     <script type="module"> import { konuGetir } from './veri-katmani.js'; … </script>
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js';
+// Firestore'un "lite" sürümü: canlı bağlantı kanalı açmaz, her okuma tek bir istektir (daha küçük ve hızlı).
 import {
   getFirestore, doc, getDoc, writeBatch, serverTimestamp
-} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js';
+} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore-lite.js';
 import {
   getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut, sendPasswordResetEmail
 } from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js';

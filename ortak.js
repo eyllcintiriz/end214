@@ -3,6 +3,7 @@
 //   bkz. araclar/kart_testi.mjs).
 // • Sayfadaki statik kartlar yedektir: veritabanından veri gelirse yeniden çizilir, gelmezse olduğu gibi kalır.
 // Bu dosya klasik <script> olarak yüklenir; kartlardaki onclick="toggleCard(this)" global fonksiyon ister.
+// Konu sayfalarında yükleme sırası: purify.min.js (DOMPurify) → firebase-ayar.js → ortak.js
 
 var ZORLUK_SINIF = { 'Temel': 'badge-easy', 'Orta': 'badge-med', 'İleri': 'badge-hard' };
 
@@ -61,7 +62,19 @@ function konuyuCiz(konu) {
   var fGrid = document.querySelector('.formula-section .formula-grid');
   if (!grid) return false;
   var st = temizStil(konu.stil);
+  // Veri gelmeden önce açılmış kartlar yeniden çizimden sonra da açık kalsın
+  var acik = {}, cozumAcik = {};
+  grid.querySelectorAll('.q-card').forEach(function (c) {
+    var no = c.querySelector('.q-num').textContent;
+    if (c.classList.contains('open')) acik[no] = true;
+    if (c.querySelector('.solution.visible')) cozumAcik[no] = true;
+  });
   grid.innerHTML = konu.sorular.map(function (s) { return kartHtml(temizSoru(s), st); }).join('\n');
+  grid.querySelectorAll('.q-card').forEach(function (c) {
+    var no = c.querySelector('.q-num').textContent;
+    if (acik[no]) c.classList.add('open');
+    if (cozumAcik[no]) toggleSolution(c.querySelector('.sol-btn'));
+  });
   if (fGrid && konu.formul) {
     fGrid.innerHTML = konu.formul.kartlar.map(function (f) {
       return formulKartHtml({ baslik: window.DOMPurify.sanitize(f.baslik), govde: window.DOMPurify.sanitize(f.govde) });
@@ -69,6 +82,21 @@ function konuyuCiz(konu) {
   }
   return true;
 }
+
+// ── Konu sayfası açılışı ──
+// <body data-konu="ga"> olan sayfada içerik veritabanından çekilip yeniden çizilir.
+// Veritabanına ulaşılamazsa sayfadaki statik içerik olduğu gibi kalır.
+function konuSayfasiniBaslat() {
+  var kod = document.body.dataset.konu;
+  if (!kod) return;
+  // İçeriğin nereden geldiği <body data-icerik="…"> üzerinde görünür: "veritabani" ya da "yedek"
+  document.body.dataset.icerik = 'yedek';
+  import('./veri-katmani.js')
+    .then(function (v) { return v.konuGetir(kod); })
+    .then(function (konu) { if (konuyuCiz(konu)) document.body.dataset.icerik = 'veritabani'; })
+    .catch(function (e) { console.warn('END214: veritabanına ulaşılamadı, sayfadaki kayıtlı içerik gösteriliyor.', e); });
+}
+if (typeof document !== 'undefined') konuSayfasiniBaslat();
 
 // ── Kart ve çözüm aç/kapa ──
 function toggleCard(h) { h.closest('.q-card').classList.toggle('open'); }
