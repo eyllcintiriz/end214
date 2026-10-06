@@ -1,0 +1,594 @@
+{
+ "surum": 1,
+ "oneriler": [
+  {
+   "id": "oneri-ME-09",
+   "konu": "me",
+   "soruId": "ME-09",
+   "soruBaslik": "Sola Çarpık Dağılım — AO &lt; Medyan &lt; Mod",
+   "gerekce": "Mod (Formül 1) hesabında f_s ve f_0 yer değiştirmiş: 20/(20+15) yerine 15/(15+20) olmalı. Mod = 134.29. AO < Medyan < Mod sıralaması değişmiyor.",
+   "kararDegisiyor": false,
+   "kaynak": "Python ile yeniden hesaplama (6 Ekim 2026)",
+   "durum": "bekliyor",
+   "degisiklikler": [
+    {
+     "yol": "adimlar[2].html",
+     "eski": "Mod sınıfı: 130≤x&lt;140 (f=50). L=130, fₛ=15, f₀=20, c=10<br/>Mod = 130 + 20/(20+15) · 10 = 130 + 5.71 = <span class=\"result\">135.71 mm</span>",
+     "yeni": "Mod sınıfı: 130≤x&lt;140 (f=50). L=130, fₛ=15, f₀=20, c=10<br/>Mod = 130 + 15/(15+20) · 10 = 130 + 4.29 = <span class=\"result\">134.29 mm</span>"
+    },
+    {
+     "yol": "adimlar[3].html",
+     "eski": "<span class=\"result\">AO(131) &lt; Medyan(133) &lt; Mod(135.71)</span> ✓<br/>Sola çarpık dağılımda az sayıda küçük değer (tolerans dışı düşük çaplı rulmanlar) AO'yu aşağı çeker; mod en büyük, AO en küçük konumdadır. Üretim sürecinin büyük çoğunluğu nominal çap değerine yakın, fakat sol kuyrukta ıskarta parçalar mevcuttur.",
+     "yeni": "<span class=\"result\">AO(131) &lt; Medyan(133) &lt; Mod(134.29)</span> ✓<br/>Sola çarpık dağılımda az sayıda küçük değer (tolerans dışı düşük çaplı rulmanlar) AO'yu aşağı çeker; mod en büyük, AO en küçük konumdadır. Üretim sürecinin büyük çoğunluğu nominal çap değerine yakın, fakat sol kuyrukta ıskarta parçalar mevcuttur."
+    }
+   ]
+  },
+  {
+   "id": "oneri-DAG-05",
+   "konu": "dag",
+   "soruId": "DAG-05",
+   "soruBaslik": "Değişim Katsayısı — Tek Grup",
+   "gerekce": "Çözümde taslaktan kalmış bir satır (\"… Düzeltme: …\") var; tek temiz satıra indirildi. Sonuç değişmiyor.",
+   "kararDegisiyor": false,
+   "kaynak": "Python ile yeniden hesaplama (6 Ekim 2026)",
+   "durum": "bekliyor",
+   "degisiklikler": [
+    {
+     "yol": "adimlar[0].html",
+     "eski": "μ = (35+50+75+65+100)/5 = 325/5 = <span class=\"result\">65 TL</span><br/>(xᵢ−μ)²: 900, 225, 100, 0, 1225 → ∑=2450 + … (100−65=35 → 35²=1225)<br/>Düzeltme: (35−65)²=900, (50−65)²=225, (75−65)²=100, (65−65)²=0, (100−65)²=1225 → ∑=2450<br/>σ²=2450/5=<span class=\"result\">490</span>  |  σ=√490=<span class=\"result\">22.14 TL</span>",
+     "yeni": "μ = (35+50+75+65+100)/5 = 325/5 = <span class=\"result\">65 TL</span><br/>(xᵢ−μ)²: (35−65)²=900, (50−65)²=225, (75−65)²=100, (65−65)²=0, (100−65)²=1225 → ∑=2450<br/>σ²=2450/5=<span class=\"result\">490</span>  |  σ=√490=<span class=\"result\">22.14 TL</span>"
+    }
+   ]
+  },
+  {
+   "id": "oneri-DAG-09",
+   "konu": "dag",
+   "soruId": "DAG-09",
+   "soruBaslik": "Kutu Grafiği — Beş Sayı Özeti",
+   "gerekce": "Yorum \"sağa çarpık\" diyor; veride medyan Q₃'e yakın, sol bıyık daha uzun, aykırı değer solda ve x̄ = 185.25 < medyan = 200 → sola çarpık. Kutu grafiği ölçekli olarak yeniden çizildi.",
+   "kararDegisiyor": false,
+   "kaynak": "Python ile yeniden hesaplama (6 Ekim 2026)",
+   "durum": "bekliyor",
+   "degisiklikler": [
+    {
+     "yol": "adimlar[2].html",
+     "eski": "<div class=\"boxplot-wrap\">\n<svg viewbox=\"0 0 500 80\" xmlns=\"http://www.w3.org/2000/svg\">\n<!-- scale: 0..300 → x: 30..480, width=450 -->\n<text fill=\"#7a8099\" font-family=\"monospace\" font-size=\"9\" x=\"30\" y=\"72\">0</text>\n<text fill=\"#7a8099\" font-family=\"monospace\" font-size=\"9\" x=\"195\" y=\"72\">145</text>\n<text fill=\"#7a8099\" font-family=\"monospace\" font-size=\"9\" x=\"271\" y=\"72\">200</text>\n<text fill=\"#7a8099\" font-family=\"monospace\" font-size=\"9\" x=\"349\" y=\"72\">225</text>\n<text fill=\"#7a8099\" font-family=\"monospace\" font-size=\"9\" x=\"455\" y=\"72\">290</text>\n<!-- whisker left (25→145) -->\n<line stroke=\"#34d399\" stroke-width=\"1.5\" x1=\"68\" x2=\"198\" y1=\"35\" y2=\"35\"></line>\n<line stroke=\"#34d399\" stroke-width=\"1.5\" x1=\"68\" x2=\"68\" y1=\"28\" y2=\"42\"></line>\n<!-- box Q1→Q3 -->\n<rect fill=\"rgba(52,211,153,.15)\" height=\"30\" stroke=\"#34d399\" stroke-width=\"1.5\" width=\"154\" x=\"198\" y=\"20\"></rect>\n<!-- median line -->\n<line stroke=\"#34d399\" stroke-width=\"2.5\" x1=\"273\" x2=\"273\" y1=\"20\" y2=\"50\"></line>\n<!-- whisker right -->\n<line stroke=\"#34d399\" stroke-width=\"1.5\" x1=\"352\" x2=\"462\" y1=\"35\" y2=\"35\"></line>\n<line stroke=\"#34d399\" stroke-width=\"1.5\" x1=\"462\" x2=\"462\" y1=\"28\" y2=\"42\"></line>\n<!-- outlier -->\n<circle cx=\"30\" cy=\"35\" fill=\"none\" r=\"4\" stroke=\"#f97316\" stroke-width=\"1.5\"></circle>\n<text fill=\"#f97316\" font-family=\"monospace\" font-size=\"8\" x=\"22\" y=\"18\">aykırı</text>\n</svg>\n</div>\n            Q₂ (200), kutunun içinde <strong>sola yakın</strong>; sağ bıyık sol bıyıktan uzun → <span class=\"result\">hafif sağa çarpık dağılım</span>. 0 değeri aykırı olarak işaretlendi (boş daire).",
+     "yeni": "<div class=\"boxplot-wrap\">\n<svg viewbox=\"0 0 500 80\" xmlns=\"http://www.w3.org/2000/svg\">\n<!-- ölçek: x = 30 + 1.5·değer (0 → 30, 290 → 465) -->\n<text fill=\"#7a8099\" font-family=\"monospace\" font-size=\"9\" text-anchor=\"middle\" x=\"30\" y=\"72\">0</text>\n<text fill=\"#7a8099\" font-family=\"monospace\" font-size=\"9\" text-anchor=\"middle\" x=\"135\" y=\"72\">70</text>\n<text fill=\"#7a8099\" font-family=\"monospace\" font-size=\"9\" text-anchor=\"middle\" x=\"248\" y=\"72\">145</text>\n<text fill=\"#7a8099\" font-family=\"monospace\" font-size=\"9\" text-anchor=\"middle\" x=\"330\" y=\"72\">200</text>\n<text fill=\"#7a8099\" font-family=\"monospace\" font-size=\"9\" text-anchor=\"middle\" x=\"368\" y=\"72\">225</text>\n<text fill=\"#7a8099\" font-family=\"monospace\" font-size=\"9\" text-anchor=\"middle\" x=\"465\" y=\"72\">290</text>\n<!-- sol bıyık: aykırı olmayan en küçük değer (70) → Q1 (145) -->\n<line stroke=\"#34d399\" stroke-width=\"1.5\" x1=\"135\" x2=\"248\" y1=\"35\" y2=\"35\"></line>\n<line stroke=\"#34d399\" stroke-width=\"1.5\" x1=\"135\" x2=\"135\" y1=\"28\" y2=\"42\"></line>\n<!-- kutu Q1 (145) → Q3 (225) -->\n<rect fill=\"rgba(52,211,153,.15)\" height=\"30\" stroke=\"#34d399\" stroke-width=\"1.5\" width=\"120\" x=\"248\" y=\"20\"></rect>\n<!-- medyan (200) -->\n<line stroke=\"#34d399\" stroke-width=\"2.5\" x1=\"330\" x2=\"330\" y1=\"20\" y2=\"50\"></line>\n<!-- sağ bıyık: Q3 (225) → maks (290) -->\n<line stroke=\"#34d399\" stroke-width=\"1.5\" x1=\"368\" x2=\"465\" y1=\"35\" y2=\"35\"></line>\n<line stroke=\"#34d399\" stroke-width=\"1.5\" x1=\"465\" x2=\"465\" y1=\"28\" y2=\"42\"></line>\n<!-- outlier -->\n<circle cx=\"30\" cy=\"35\" fill=\"none\" r=\"4\" stroke=\"#f97316\" stroke-width=\"1.5\"></circle>\n<text fill=\"#f97316\" font-family=\"monospace\" font-size=\"8\" x=\"22\" y=\"18\">aykırı</text>\n</svg>\n</div>\n            Q₂ (200), kutunun içinde <strong>sağa (Q₃'e) yakın</strong> (Q₂−Q₁ = 55, Q₃−Q₂ = 25); sol bıyık (70→145) sağ bıyıktan (225→290) uzun ve aykırı değer solda → <span class=\"result\">sola çarpık dağılım</span> (x̄ = 185.25 &lt; medyan = 200). 0 değeri aykırı olarak işaretlendi (boş daire)."
+    }
+   ]
+  },
+  {
+   "id": "oneri-DAG-10",
+   "konu": "dag",
+   "soruId": "DAG-10",
+   "soruBaslik": "Kutu Grafiği — İki Grubu Karşılaştırma",
+   "gerekce": "Soru metnindeki sıralı listede 8.9 eksik (\"+ bir değer\" yazıyor); liste tamamlandı. (Verilen çeyreklerin veriyle uyuşmaması ayrıca size soruluyor.)",
+   "kararDegisiyor": false,
+   "kaynak": "Python ile yeniden hesaplama (6 Ekim 2026)",
+   "durum": "bekliyor",
+   "degisiklikler": [
+    {
+     "yol": "metin",
+     "eski": "İki montaj hattının günlük üretim hızı (adet/saat) ölçümleri:<br/><br/>\n<strong>Yeni hat:</strong> 9, 8.6, 8.7, 9.8, 5.5, 8.9, 8.2, 9.3, 10.2 (sıralı: 5.5, 8.2, 8.6, 8.7, 9, 9.3, 9.8, 10.2 + bir değer)<br/>\n<strong>Eski hat:</strong> 5.8, 5.4, 5.9, 6.1, 5.7, 5.6, 6.3, 6.2, 6.0, 5.5",
+     "yeni": "İki montaj hattının günlük üretim hızı (adet/saat) ölçümleri:<br/><br/>\n<strong>Yeni hat:</strong> 9, 8.6, 8.7, 9.8, 5.5, 8.9, 8.2, 9.3, 10.2 (sıralı: 5.5, 8.2, 8.6, 8.7, 8.9, 9, 9.3, 9.8, 10.2)<br/>\n<strong>Eski hat:</strong> 5.8, 5.4, 5.9, 6.1, 5.7, 5.6, 6.3, 6.2, 6.0, 5.5"
+    }
+   ]
+  },
+  {
+   "id": "oneri-GR-09",
+   "konu": "grafik",
+   "soruId": "GR-09",
+   "soruBaslik": "Ham Veriden Histogram — Tam Hesap",
+   "gerekce": "Frekanslar 3,7,5,8,4,3 yazılmış; verilerden doğrusu 3,8,4,8,3,4. Nispi/birikimli dağılım, histogram ve yorum (iki tepeli dağılım) güncellendi.",
+   "kararDegisiyor": false,
+   "kaynak": "Python ile yeniden hesaplama (6 Ekim 2026)",
+   "durum": "bekliyor",
+   "degisiklikler": [
+    {
+     "yol": "adimlar[0].html",
+     "eski": "n=30 → m ≥ √30 ≈ 5.5 → m=6 (kitap yaklaşımı)<br/>L=44−4=40, c ≥ 40/6 ≈ 6.7 → c=7<br/>4≤x&lt;11: f=3  |  11≤x&lt;18: f=7  |  18≤x&lt;25: f=5  |  25≤x&lt;32: f=8  |  32≤x&lt;39: f=4  |  39≤x&lt;46: f=3<br/>Toplam: 30 ✓",
+     "yeni": "n=30 → m ≥ √30 ≈ 5.5 → m=6 (kitap yaklaşımı)<br/>L=44−4=40, c ≥ 40/6 ≈ 6.7 → c=7<br/>4≤x&lt;11: f=3  |  11≤x&lt;18: f=8  |  18≤x&lt;25: f=4  |  25≤x&lt;32: f=8  |  32≤x&lt;39: f=3  |  39≤x&lt;46: f=4<br/>Toplam: 30 ✓"
+    },
+    {
+     "yol": "adimlar[1].html",
+     "eski": "Nispi: 0.10, 0.23, 0.17, 0.27, 0.13, 0.10<br/>Birikimli: 3, 10, 15, 23, 27, 30",
+     "yeni": "Nispi: 0.10, 0.27, 0.13, 0.27, 0.10, 0.13<br/>Birikimli: 3, 11, 15, 23, 26, 30"
+    },
+    {
+     "yol": "adimlar[2].html",
+     "eski": "<!-- f: 3,7,5,8,4,3  maks=8  barH=f/8*100  barW=60 -->\n<!-- y=120-f*12.5 -->\n<div class=\"svg-wrap\">\n<svg font-family=\"monospace\" font-size=\"9\" viewbox=\"0 0 460 155\" xmlns=\"http://www.w3.org/2000/svg\">\n<line stroke=\"var(--border)\" stroke-width=\"1.5\" x1=\"40\" x2=\"40\" y1=\"10\" y2=\"120\"></line>\n<line stroke=\"var(--border)\" stroke-width=\"1.5\" x1=\"40\" x2=\"440\" y1=\"120\" y2=\"120\"></line>\n<line stroke=\"var(--border)\" stroke-dasharray=\"3,3\" stroke-width=\".5\" x1=\"40\" x2=\"440\" y1=\"20\" y2=\"20\"></line>\n<line stroke=\"var(--border)\" stroke-dasharray=\"3,3\" stroke-width=\".5\" x1=\"40\" x2=\"440\" y1=\"70\" y2=\"70\"></line>\n<text fill=\"#7a8099\" text-anchor=\"end\" x=\"35\" y=\"123\">0</text>\n<text fill=\"#7a8099\" text-anchor=\"end\" x=\"35\" y=\"73\">4</text>\n<text fill=\"#7a8099\" text-anchor=\"end\" x=\"35\" y=\"23\">8</text>\n<!-- bars barW=67, start=40 -->\n<!-- f: 3,7,5,8,4,3  y=120-f*12.5 -->\n<rect fill=\"rgba(129,140,248,.3)\" height=\"37\" stroke=\"#818cf8\" stroke-width=\"1.2\" width=\"67\" x=\"40\" y=\"82\"></rect><!-- f=3 -->\n<rect fill=\"rgba(129,140,248,.55)\" height=\"87\" stroke=\"#818cf8\" stroke-width=\"1.2\" width=\"67\" x=\"107\" y=\"32\"></rect><!-- f=7 -->\n<rect fill=\"rgba(129,140,248,.4)\" height=\"62\" stroke=\"#818cf8\" stroke-width=\"1.2\" width=\"67\" x=\"174\" y=\"57\"></rect><!-- f=5 -->\n<rect fill=\"rgba(129,140,248,.65)\" height=\"100\" stroke=\"#818cf8\" stroke-width=\"1.2\" width=\"67\" x=\"241\" y=\"20\"></rect><!-- f=8 -->\n<rect fill=\"rgba(129,140,248,.38)\" height=\"50\" stroke=\"#818cf8\" stroke-width=\"1.2\" width=\"67\" x=\"308\" y=\"70\"></rect><!-- f=4 -->\n<rect fill=\"rgba(129,140,248,.3)\" height=\"37\" stroke=\"#818cf8\" stroke-width=\"1.2\" width=\"67\" x=\"375\" y=\"82\"></rect><!-- f=3 -->\n<!-- f labels -->\n<text fill=\"#818cf8\" text-anchor=\"middle\" x=\"73\" y=\"77\">3</text>\n<text fill=\"#818cf8\" text-anchor=\"middle\" x=\"140\" y=\"27\">7</text>\n<text fill=\"#818cf8\" text-anchor=\"middle\" x=\"207\" y=\"52\">5</text>\n<text fill=\"#818cf8\" text-anchor=\"middle\" x=\"274\" y=\"15\">8</text>\n<text fill=\"#818cf8\" text-anchor=\"middle\" x=\"341\" y=\"65\">4</text>\n<text fill=\"#818cf8\" text-anchor=\"middle\" x=\"408\" y=\"77\">3</text>\n<!-- x labels -->\n<text fill=\"#7a8099\" text-anchor=\"middle\" x=\"40\" y=\"134\">4</text>\n<text fill=\"#7a8099\" text-anchor=\"middle\" x=\"107\" y=\"134\">11</text>\n<text fill=\"#7a8099\" text-anchor=\"middle\" x=\"174\" y=\"134\">18</text>\n<text fill=\"#7a8099\" text-anchor=\"middle\" x=\"241\" y=\"134\">25</text>\n<text fill=\"#7a8099\" text-anchor=\"middle\" x=\"308\" y=\"134\">32</text>\n<text fill=\"#7a8099\" text-anchor=\"middle\" x=\"375\" y=\"134\">39</text>\n<text fill=\"#7a8099\" text-anchor=\"middle\" x=\"442\" y=\"134\">46</text>\n<text fill=\"#7a8099\" font-size=\"8\" text-anchor=\"middle\" x=\"240\" y=\"150\">Süre (saat)</text>\n<text fill=\"#7a8099\" font-size=\"8\" text-anchor=\"middle\" transform=\"rotate(-90,14,65)\" x=\"14\" y=\"65\">f</text>\n</svg>\n</div>\n            Doruk 25–32 saat sınıfında (f=8). Değerler bu aralık etrafında yoğunlaşıyor, hafif sağa çarpık görünüm.",
+     "yeni": "<!-- f: 3,8,4,8,3,4  maks=8  barH=f*12.5  barW=67 -->\n<!-- y=120-f*12.5 -->\n<div class=\"svg-wrap\">\n<svg font-family=\"monospace\" font-size=\"9\" viewbox=\"0 0 460 155\" xmlns=\"http://www.w3.org/2000/svg\">\n<line stroke=\"var(--border)\" stroke-width=\"1.5\" x1=\"40\" x2=\"40\" y1=\"10\" y2=\"120\"></line>\n<line stroke=\"var(--border)\" stroke-width=\"1.5\" x1=\"40\" x2=\"440\" y1=\"120\" y2=\"120\"></line>\n<line stroke=\"var(--border)\" stroke-dasharray=\"3,3\" stroke-width=\".5\" x1=\"40\" x2=\"440\" y1=\"20\" y2=\"20\"></line>\n<line stroke=\"var(--border)\" stroke-dasharray=\"3,3\" stroke-width=\".5\" x1=\"40\" x2=\"440\" y1=\"70\" y2=\"70\"></line>\n<text fill=\"#7a8099\" text-anchor=\"end\" x=\"35\" y=\"123\">0</text>\n<text fill=\"#7a8099\" text-anchor=\"end\" x=\"35\" y=\"73\">4</text>\n<text fill=\"#7a8099\" text-anchor=\"end\" x=\"35\" y=\"23\">8</text>\n<!-- bars barW=67, start=40 -->\n<!-- f: 3,8,4,8,3,4  y=120-f*12.5 -->\n<rect fill=\"rgba(129,140,248,.3)\" height=\"37\" stroke=\"#818cf8\" stroke-width=\"1.2\" width=\"67\" x=\"40\" y=\"82\"></rect><!-- f=3 -->\n<rect fill=\"rgba(129,140,248,.65)\" height=\"100\" stroke=\"#818cf8\" stroke-width=\"1.2\" width=\"67\" x=\"107\" y=\"20\"></rect><!-- f=8 -->\n<rect fill=\"rgba(129,140,248,.38)\" height=\"50\" stroke=\"#818cf8\" stroke-width=\"1.2\" width=\"67\" x=\"174\" y=\"70\"></rect><!-- f=4 -->\n<rect fill=\"rgba(129,140,248,.65)\" height=\"100\" stroke=\"#818cf8\" stroke-width=\"1.2\" width=\"67\" x=\"241\" y=\"20\"></rect><!-- f=8 -->\n<rect fill=\"rgba(129,140,248,.3)\" height=\"37\" stroke=\"#818cf8\" stroke-width=\"1.2\" width=\"67\" x=\"308\" y=\"82\"></rect><!-- f=3 -->\n<rect fill=\"rgba(129,140,248,.38)\" height=\"50\" stroke=\"#818cf8\" stroke-width=\"1.2\" width=\"67\" x=\"375\" y=\"70\"></rect><!-- f=4 -->\n<!-- f labels -->\n<text fill=\"#818cf8\" text-anchor=\"middle\" x=\"73\" y=\"77\">3</text>\n<text fill=\"#818cf8\" text-anchor=\"middle\" x=\"140\" y=\"15\">8</text>\n<text fill=\"#818cf8\" text-anchor=\"middle\" x=\"207\" y=\"65\">4</text>\n<text fill=\"#818cf8\" text-anchor=\"middle\" x=\"274\" y=\"15\">8</text>\n<text fill=\"#818cf8\" text-anchor=\"middle\" x=\"341\" y=\"77\">3</text>\n<text fill=\"#818cf8\" text-anchor=\"middle\" x=\"408\" y=\"65\">4</text>\n<!-- x labels -->\n<text fill=\"#7a8099\" text-anchor=\"middle\" x=\"40\" y=\"134\">4</text>\n<text fill=\"#7a8099\" text-anchor=\"middle\" x=\"107\" y=\"134\">11</text>\n<text fill=\"#7a8099\" text-anchor=\"middle\" x=\"174\" y=\"134\">18</text>\n<text fill=\"#7a8099\" text-anchor=\"middle\" x=\"241\" y=\"134\">25</text>\n<text fill=\"#7a8099\" text-anchor=\"middle\" x=\"308\" y=\"134\">32</text>\n<text fill=\"#7a8099\" text-anchor=\"middle\" x=\"375\" y=\"134\">39</text>\n<text fill=\"#7a8099\" text-anchor=\"middle\" x=\"442\" y=\"134\">46</text>\n<text fill=\"#7a8099\" font-size=\"8\" text-anchor=\"middle\" x=\"240\" y=\"150\">Süre (saat)</text>\n<text fill=\"#7a8099\" font-size=\"8\" text-anchor=\"middle\" transform=\"rotate(-90,14,65)\" x=\"14\" y=\"65\">f</text>\n</svg>\n</div>\n            İki doruk var: 11–18 ve 25–32 saat sınıfları (her ikisi de f=8). Dağılım iki tepeli (bimodal) görünümdedir; belirgin bir çarpıklık yoktur (x̄ ≈ 23.5 saat, medyan = 24.5 saat)."
+    }
+   ]
+  },
+  {
+   "id": "oneri-NT-10",
+   "konu": "tahmin",
+   "soruId": "NT-10",
+   "soruBaslik": "İki Parametreli Kaydirilmiş Üstel — EÇO ve Yansızlık",
+   "gerekce": "X₍₁₎ − θ̂/n yansız değil, çünkü E(θ̂) = (n−1)θ/n. Yansız tahmin edici X₍₁₎ − θ̂/(n−1). Gerekçe satırı eklendi.",
+   "kararDegisiyor": false,
+   "kaynak": "Python ile yeniden hesaplama (6 Ekim 2026)",
+   "durum": "bekliyor",
+   "degisiklikler": [
+    {
+     "yol": "adimlar[4].html",
+     "eski": "X<sub>(1)</sub>’in dağılımı kaydirilmiş üsteldir: E(X<sub>(1)</sub>) = μ + θ/n<br/><span class=\"result\">E(μ̂) = μ + θ/n ≠ μ → yansız değil.</span><br/>Yansız düzeltme: <strong>μ̂<sub>yansız</sub> = X<sub>(1)</sub> − θ̂/n</strong>",
+     "yeni": "X<sub>(1)</sub>’in dağılımı kaydirilmiş üsteldir: E(X<sub>(1)</sub>) = μ + θ/n<br/><span class=\"result\">E(μ̂) = μ + θ/n ≠ μ → yansız değil.</span><br/>E(θ̂) = E(X̄) − E(X<sub>(1)</sub>) = (μ+θ) − (μ+θ/n) = (n−1)θ/n olduğundan<br/>Yansız düzeltme: <strong>μ̂<sub>yansız</sub> = X<sub>(1)</sub> − θ̂/(n−1)</strong>  →  E = μ + θ/n − θ/n = μ ✓"
+    }
+   ]
+  },
+  {
+   "id": "oneri-GA-04",
+   "konu": "ga",
+   "soruId": "GA-04",
+   "soruBaslik": "İki Ortalama Farkı için GA (Bağımsız, σ bilinmiyor)",
+   "gerekce": "√(1/12+1/15) = 0.3801 yazılmış; doğrusu 0.3873. E ve aralık sınırları buna göre değişiyor. Karar değişmiyor (aralık sıfırı içeriyor).",
+   "kararDegisiyor": false,
+   "kaynak": "Python ile yeniden hesaplama (6 Ekim 2026)",
+   "durum": "bekliyor",
+   "degisiklikler": [
+    {
+     "yol": "adimlar[1].html",
+     "eski": "df=25, t<sub>0.025,25</sub>=2.060<br/>E = 2.060·114.51·√(1/12+1/15) = 2.060·114.51·0.3801 = 89.7<br/>x̄₁−x̄₂ = 70<br/><span class=\"result\">GA: (−19.7 , 159.7) saat</span><br/>%95 güvenle, (−19.7 , 159.7) aralığı iki hattın ortalama ömür farkı μ₁−μ₂'yi kapsar. Aralık sıfırı içerdiğinden iki hat arasında anlamlı bir fark gösterilemez.",
+     "yeni": "df=25, t<sub>0.025,25</sub>=2.060<br/>E = 2.060·114.51·√(1/12+1/15) = 2.060·114.51·0.3873 = 91.36<br/>x̄₁−x̄₂ = 70<br/><span class=\"result\">GA: (−21.36 , 161.36) saat</span><br/>%95 güvenle, (−21.36 , 161.36) aralığı iki hattın ortalama ömür farkı μ₁−μ₂'yi kapsar. Aralık sıfırı içerdiğinden iki hat arasında anlamlı bir fark gösterilemez."
+    }
+   ]
+  },
+  {
+   "id": "oneri-GA-13",
+   "konu": "ga",
+   "soruId": "GA-13",
+   "soruBaslik": "Oran (π) için Güven Aralığı — %99 Güven Düzeyi",
+   "gerekce": "2.576² = 6.6298 yazılmış; doğrusu 6.6358. n ≥ 1353.7 → n ≥ 1354. Kontrol satırı n = 1354 ile yeniden hesaplandı.",
+   "kararDegisiyor": false,
+   "kaynak": "Python ile yeniden hesaplama (6 Ekim 2026)",
+   "durum": "bekliyor",
+   "degisiklikler": [
+    {
+     "yol": "adimlar[2].html",
+     "eski": "Genişlik ≤ 0.05 → E ≤ 0.025<br/>n ≥ z²·p·q/E² = 6.6298·0.1275/0.000625 = 0.8453/0.000625 = 1352.4 → <span class=\"result\">n ≥ 1353</span><br/>n=1353 ile GA: 0.85 ± 2.576·√(0.85·0.15/1353) = 0.85 ± 2.576·0.009699 = 0.85 ± 0.025<br/><span class=\"result\">GA: (0.825 , 0.875) → genişlik = 0.050 ≤ 0.05 ✓</span>",
+     "yeni": "Genişlik ≤ 0.05 → E ≤ 0.025<br/>n ≥ z²·p·q/E² = 6.6358·0.1275/0.000625 = 0.84606/0.000625 = 1353.7 → <span class=\"result\">n ≥ 1354</span><br/>n=1354 ile GA: 0.85 ± 2.576·√(0.85·0.15/1354) = 0.85 ± 2.576·0.009704 = 0.85 ± 0.025<br/><span class=\"result\">GA: (0.825 , 0.875) → genişlik = 0.050 ≤ 0.05 ✓</span>"
+    }
+   ]
+  },
+  {
+   "id": "oneri-GA-17",
+   "konu": "ga",
+   "soruId": "GA-17",
+   "soruBaslik": "İki Ortalama Farkı için GA — Pooled t, Fark Anlamsız",
+   "gerekce": "√(1/8+1/9) = 0.4726 yazılmış; doğrusu 0.4859. E ≈ 3.099. Karar değişmiyor.",
+   "kararDegisiyor": false,
+   "kaynak": "Python ile yeniden hesaplama (6 Ekim 2026)",
+   "durum": "bekliyor",
+   "degisiklikler": [
+    {
+     "yol": "adimlar[1].html",
+     "eski": "df=15, t<sub>0.025,15</sub>=2.131<br/>E = 2.131·2.993·√(1/8+1/9) = 2.131·2.993·0.4726 = 3.015<br/>x̄₁−x̄₂ = 1.4<br/><span class=\"result\">GA: (−1.615 , 4.415) hata</span><br/>%95 güvenle, (−1.615 , 4.415) aralığı iki eğitimin ortalama hata farkı μ₁−μ₂'yi kapsar. Aralık sıfırı içerdiğinden iki eğitim arasında anlamlı bir fark gösterilemez.",
+     "yeni": "df=15, t<sub>0.025,15</sub>=2.131<br/>E = 2.131·2.993·√(1/8+1/9) = 2.131·2.993·0.4859 = 3.099<br/>x̄₁−x̄₂ = 1.4<br/><span class=\"result\">GA: (−1.699 , 4.499) hata</span><br/>%95 güvenle, (−1.699 , 4.499) aralığı iki eğitimin ortalama hata farkı μ₁−μ₂'yi kapsar. Aralık sıfırı içerdiğinden iki eğitim arasında anlamlı bir fark gösterilemez."
+    }
+   ]
+  },
+  {
+   "id": "oneri-HT-02",
+   "konu": "ht",
+   "soruId": "HT-02",
+   "soruBaslik": "Bağımlı Örneklemde Hipotez Testi (Eşleştirilmiş t-testi)",
+   "gerekce": "Σd² = 19400 yazılmış; d = [40,40,50,70,70,60] için doğrusu 19100. s_d ≈ 13.784, t ≈ 9.774. Karar değişmiyor.",
+   "kararDegisiyor": false,
+   "kaynak": "Python ile yeniden hesaplama (6 Ekim 2026)",
+   "durum": "bekliyor",
+   "degisiklikler": [
+    {
+     "yol": "adimlar[1].html",
+     "eski": "d = [40, 40, 50, 70, 70, 60] → d̄=55<br/>s<sub>d</sub>²=[Σd²−n·d̄²]/(n−1)=[19400−18150]/5=250 → <span class=\"result\">s<sub>d</sub>=15.81</span>",
+     "yeni": "d = [40, 40, 50, 70, 70, 60] → d̄=55<br/>s<sub>d</sub>²=[Σd²−n·d̄²]/(n−1)=[19100−18150]/5=190 → <span class=\"result\">s<sub>d</sub>=13.784</span>"
+    },
+    {
+     "yol": "adimlar[2].html",
+     "eski": "t = d̄/(s<sub>d</sub>/√n) = 55/(15.81/√6) = 55/6.45 = <span class=\"result\">8.53</span>",
+     "yeni": "t = d̄/(s<sub>d</sub>/√n) = 55/(13.784/√6) = 55/5.627 = <span class=\"result\">9.774</span>"
+    },
+    {
+     "yol": "adimlar[3].html",
+     "eski": "df=5, t<sub>0.05,5</sub>=2.015 (tek kuyruk)<br/>t=8.53 &gt; 2.015 → Ret bölgesinde<br/><span class=\"decision reject\">H₀ REDDEDİLİR</span><br/>%5 anlamlılık düzeyinde yeni menü, sipariş hazırlama süresini istatistiksel olarak anlamlı biçimde kısaltmıştır; yeni menü şubelerinde ortalama hazırlama süresi eski menüye göre daha kısadır.",
+     "yeni": "df=5, t<sub>0.05,5</sub>=2.015 (tek kuyruk)<br/>t=9.774 &gt; 2.015 → Ret bölgesinde<br/><span class=\"decision reject\">H₀ REDDEDİLİR</span><br/>%5 anlamlılık düzeyinde yeni menü, sipariş hazırlama süresini istatistiksel olarak anlamlı biçimde kısaltmıştır; yeni menü şubelerinde ortalama hazırlama süresi eski menüye göre daha kısadır."
+    }
+   ]
+  },
+  {
+   "id": "oneri-HT-11",
+   "konu": "ht",
+   "soruId": "HT-11",
+   "soruBaslik": "Tek Örneklemde Ortalama Testi — t, Sol Kuyruklu",
+   "gerekce": "Başlık ve etiket \"sol kuyruklu\" diyor; hipotez (H₁: μ > 8) ve çözüm sağ kuyruklu.",
+   "kararDegisiyor": false,
+   "kaynak": "Python ile yeniden hesaplama (6 Ekim 2026)",
+   "durum": "bekliyor",
+   "degisiklikler": [
+    {
+     "yol": "baslik",
+     "eski": "Tek Örneklemde Ortalama Testi — t, Sol Kuyruklu",
+     "yeni": "Tek Örneklemde Ortalama Testi — t, Sağ Kuyruklu"
+    },
+    {
+     "yol": "etiketler[0].html",
+     "eski": "t-testi · sol kuyruk",
+     "yeni": "t-testi · sağ kuyruk"
+    }
+   ]
+  },
+  {
+   "id": "oneri-HT-16",
+   "konu": "ht",
+   "soruId": "HT-16",
+   "soruBaslik": "Eşleştirilmiş t-Testi — Tek Kuyruklu",
+   "gerekce": "Σd² = 406 yazılmış; d = [8,7,2,10,6,3,8] için doğrusu 326. s_d ≈ 2.870, t ≈ 5.794. Karar değişmiyor.",
+   "kararDegisiyor": false,
+   "kaynak": "Python ile yeniden hesaplama (6 Ekim 2026)",
+   "durum": "bekliyor",
+   "degisiklikler": [
+    {
+     "yol": "adimlar[1].html",
+     "eski": "d = [8, 7, 2, 10, 6, 3, 8] → Σd=44 → d̄=6.286<br/>Σd²=406 → s_d²=[406−7·(6.286)²]/6=[406−277.14]/6=128.86/6=21.48 → <span class=\"result\">s_d=4.635</span>",
+     "yeni": "d = [8, 7, 2, 10, 6, 3, 8] → Σd=44 → d̄=6.286<br/>Σd²=326 → s_d²=[326−7·(6.2857)²]/6=[326−276.57]/6=49.43/6=8.238 → <span class=\"result\">s_d=2.870</span>"
+    },
+    {
+     "yol": "adimlar[2].html",
+     "eski": "t = d̄/(s_d/√n) = 6.286/(4.635/√7) = 6.286/1.752 = <span class=\"result\">3.588</span>",
+     "yeni": "t = d̄/(s_d/√n) = 6.286/(2.870/√7) = 6.286/1.085 = <span class=\"result\">5.794</span>"
+    },
+    {
+     "yol": "adimlar[3].html",
+     "eski": "df=6, t<sub>0.05,6</sub>=1.943 (tek kuyruk)<br/>t=3.588 &gt; 1.943 → Ret bölgesinde<br/><span class=\"decision reject\">H₀ REDDEDİLİR</span><br/>%5 anlamlılık düzeyinde ilaç sistolik kan basıncını istatistiksel olarak anlamlı biçimde düşürmüştür; tedavi sonrası ortalama değer tedavi öncesine göre daha düşüktür.",
+     "yeni": "df=6, t<sub>0.05,6</sub>=1.943 (tek kuyruk)<br/>t=5.794 &gt; 1.943 → Ret bölgesinde<br/><span class=\"decision reject\">H₀ REDDEDİLİR</span><br/>%5 anlamlılık düzeyinde ilaç sistolik kan basıncını istatistiksel olarak anlamlı biçimde düşürmüştür; tedavi sonrası ortalama değer tedavi öncesine göre daha düşüktür."
+    }
+   ]
+  },
+  {
+   "id": "oneri-HT-17",
+   "konu": "ht",
+   "soruId": "HT-17",
+   "soruBaslik": "İki Bağımsız Örneklem Pooled t — Tek Kuyruklu",
+   "gerekce": "√(1/14+1/16) = 0.3694 yazılmış; doğrusu 0.3660. t ≈ 1.669 < 1.701. Karar değişmiyor.",
+   "kararDegisiyor": false,
+   "kaynak": "Python ile yeniden hesaplama (6 Ekim 2026)",
+   "durum": "bekliyor",
+   "degisiklikler": [
+    {
+     "yol": "adimlar[2].html",
+     "eski": "t = (82.5−77.8)/(7.696·√(1/14+1/16)) = 4.7/(7.696·0.3694) = 4.7/2.843 = <span class=\"result\">1.653</span>",
+     "yeni": "t = (82.5−77.8)/(7.696·√(1/14+1/16)) = 4.7/(7.696·0.3660) = 4.7/2.8167 = <span class=\"result\">1.669</span>"
+    },
+    {
+     "yol": "adimlar[3].html",
+     "eski": "df=28, t<sub>0.05,28</sub>=1.701 (tek kuyruk)<br/>t=1.653 &lt; 1.701 → Ret bölgesinde değil<br/><span class=\"decision accept\">H₀ REDDEDİLEMEZ</span><br/>%5 anlamlılık düzeyinde Yöntem A'nın problem çözme puanını istatistiksel olarak anlamlı biçimde artırdığı gösterilemez; iki yöntem arasındaki fark tesadüfi olabilir.",
+     "yeni": "df=28, t<sub>0.05,28</sub>=1.701 (tek kuyruk)<br/>t=1.669 &lt; 1.701 → Ret bölgesinde değil<br/><span class=\"decision accept\">H₀ REDDEDİLEMEZ</span><br/>%5 anlamlılık düzeyinde Yöntem A'nın problem çözme puanını istatistiksel olarak anlamlı biçimde artırdığı gösterilemez; iki yöntem arasındaki fark tesadüfi olabilir."
+    }
+   ]
+  },
+  {
+   "id": "oneri-HT-18",
+   "konu": "ht",
+   "soruId": "HT-18",
+   "soruBaslik": "İki Bağımsız Örneklem Pooled t — Çift Kuyruklu",
+   "gerekce": "√(1/18+1/15) = 0.3586 yazılmış; doğrusu 0.3496. t ≈ −2.070 ve |t| > 2.040 olduğundan KARAR DEĞİŞİYOR: H₀ reddedilir. Yorum yeniden yazıldı.",
+   "kararDegisiyor": true,
+   "kaynak": "Python ile yeniden hesaplama (6 Ekim 2026)",
+   "durum": "bekliyor",
+   "degisiklikler": [
+    {
+     "yol": "adimlar[2].html",
+     "eski": "t = (504.2−508.6)/(6.079·√(1/18+1/15)) = −4.4/(6.079·0.3586) = −4.4/2.181 = <span class=\"result\">−2.018</span>",
+     "yeni": "t = (504.2−508.6)/(6.079·√(1/18+1/15)) = −4.4/(6.079·0.3496) = −4.4/2.1252 = <span class=\"result\">−2.070</span>"
+    },
+    {
+     "yol": "adimlar[3].html",
+     "eski": "df=31, t<sub>0.025,31</sub>=2.040 (çift kuyruk)<br/>|t|=2.018 &lt; 2.040 → Ret bölgesinde değil<br/><span class=\"decision accept\">H₀ REDDEDİLEMEZ</span><br/>%5 anlamlılık düzeyinde gündüz ve gece vardiyasında üretilen parçaların ortalama ağırlıkları arasındaki fark istatistiksel olarak anlamlı değildir; her iki vardiyada benzer ağırlık üretimi söz konusudur.",
+     "yeni": "df=31, t<sub>0.025,31</sub>=2.040 (çift kuyruk)<br/>|t|=2.070 &gt; 2.040 → Ret bölgesinde<br/><span class=\"decision reject\">H₀ REDDEDİLİR</span><br/>%5 anlamlılık düzeyinde gündüz ve gece vardiyasında üretilen parçaların ortalama ağırlıkları arasındaki fark istatistiksel olarak anlamlıdır; x̄<sub>gece</sub>=508.6 g &gt; x̄<sub>gündüz</sub>=504.2 g olduğundan gece vardiyasında üretilen parçalar ortalamada daha ağırdır."
+    }
+   ]
+  },
+  {
+   "id": "oneri-REG-01",
+   "konu": "reg",
+   "soruId": "REG-01",
+   "soruBaslik": "EKK Parametre Tahmini, Serpme Diyagramı ve R²",
+   "gerekce": "Çözümdeki toplamlar (Σxy, Σx², Σy²) soru tablosundaki verilerle uyuşmuyor. Veriye dokunmadan bütün adımlar (Sxx, Sxy, β̂₀, β̂₁, TKT, RKT, AKT, R², yorum) doğru toplamlarla yeniden hesaplandı.",
+   "kararDegisiyor": false,
+   "kaynak": "Python ile yeniden hesaplama (6 Ekim 2026)",
+   "durum": "bekliyor",
+   "degisiklikler": [
+    {
+     "yol": "adimlar[0].html",
+     "eski": "n=9  |  Σx=37, Σy=90, Σxy=392.5, Σx²=162.5, Σy²=964<br/>x̄ = 37/9 = 4.111  |  ȳ = 90/9 = 10",
+     "yeni": "n=9  |  Σx=36, Σy=90, Σxy=387.5, Σx²=159, Σy²=960<br/>x̄ = 36/9 = 4  |  ȳ = 90/9 = 10"
+    },
+    {
+     "yol": "adimlar[2].html",
+     "eski": "S<sub>xy</sub> = Σxy − nx̄ȳ = 392.5 − 9·4.111·10 = 392.5 − 370.0 = <span class=\"result\">22.5</span><br/>S<sub>xx</sub> = Σx² − nx̄² = 162.5 − 9·16.901 = 162.5 − 152.1 = <span class=\"result\">10.4</span>",
+     "yeni": "S<sub>xy</sub> = Σxy − nx̄ȳ = 387.5 − 9·4·10 = 387.5 − 360 = <span class=\"result\">27.5</span><br/>S<sub>xx</sub> = Σx² − nx̄² = 159 − 9·16 = 159 − 144 = <span class=\"result\">15</span>"
+    },
+    {
+     "yol": "adimlar[3].html",
+     "eski": "β̂₁ = S<sub>xy</sub>/S<sub>xx</sub> = 22.5/10.4 = <span class=\"result\">2.163</span><br/>β̂₀ = ȳ − β̂₁·x̄ = 10 − 2.163·4.111 = <span class=\"result\">1.108</span><br/>Model: <strong>ŷ = 1.108 + 2.163x</strong>",
+     "yeni": "β̂₁ = S<sub>xy</sub>/S<sub>xx</sub> = 27.5/15 = <span class=\"result\">1.833</span><br/>β̂₀ = ȳ − β̂₁·x̄ = 10 − 1.8333·4 = 10 − 7.333 = <span class=\"result\">2.667</span><br/>Model: <strong>ŷ = 2.667 + 1.833x</strong>"
+    },
+    {
+     "yol": "adimlar[4].html",
+     "eski": "β̂₁ = 2.163: Batarya kapasitesi 1000 mAh arttığında günlük kullanım süresi ortalama 2.163 saat artmaktadır.<br/>β̂₀ = 1.108: x = 0 gözlem aralığı dışında kaldığından pratik bir yorumu yoktur.",
+     "yeni": "β̂₁ = 1.833: Batarya kapasitesi 1000 mAh arttığında günlük kullanım süresi ortalama 1.833 saat artmaktadır.<br/>β̂₀ = 2.667: x = 0 gözlem aralığı dışında kaldığından pratik bir yorumu yoktur."
+    },
+    {
+     "yol": "adimlar[5].html",
+     "eski": "TKT = S<sub>yy</sub> = Σy² − nȳ² = 964 − 9·100 = <span class=\"result\">64.0</span>",
+     "yeni": "TKT = S<sub>yy</sub> = Σy² − nȳ² = 960 − 9·100 = <span class=\"result\">60.0</span>"
+    },
+    {
+     "yol": "adimlar[6].html",
+     "eski": "RKT = β̂₁·S<sub>xy</sub> = 2.163 × 22.5 = <span class=\"result\">48.67</span>",
+     "yeni": "RKT = β̂₁·S<sub>xy</sub> = 1.8333 × 27.5 = <span class=\"result\">50.42</span>"
+    },
+    {
+     "yol": "adimlar[7].html",
+     "eski": "AKT = TKT − RKT = 64.0 − 48.67 = <span class=\"result\">15.33</span>",
+     "yeni": "AKT = TKT − RKT = 60.0 − 50.42 = <span class=\"result\">9.58</span>"
+    },
+    {
+     "yol": "adimlar[8].html",
+     "eski": "R² = RKT/TKT = 48.67/64.0 = <span class=\"result\">0.761</span><br/>R² = 1 − AKT/TKT = 1 − 15.33/64.0 = 1 − 0.239 = <span class=\"result\">0.761</span> ✓<br/>Batarya kapasitesi, kullanım süresindeki toplam değişimin %76.1'ini açıklamaktadır; kalan %23.9 modele dahil edilmemiş diğer faktörlere aittir.",
+     "yeni": "R² = RKT/TKT = 50.42/60.0 = <span class=\"result\">0.840</span><br/>R² = 1 − AKT/TKT = 1 − 9.58/60.0 = 1 − 0.160 = <span class=\"result\">0.840</span> ✓<br/>Batarya kapasitesi, kullanım süresindeki toplam değişimin %84'ünü açıklamaktadır; kalan %16'sı modele dahil edilmemiş diğer faktörlere aittir."
+    }
+   ]
+  },
+  {
+   "id": "oneri-REG-02",
+   "konu": "reg",
+   "soruId": "REG-02",
+   "soruBaslik": "EKK Tahmini, R² ve Bireysel Nokta Tahmini",
+   "gerekce": "Çözümdeki toplamlar (Σxy, Σx², Σy²) soru tablosundaki verilerle uyuşmuyor. Veriye dokunmadan bütün adımlar (Sxx, Sxy, β̂₀, β̂₁, TKT, RKT, AKT, R², yorum) doğru toplamlarla yeniden hesaplandı.",
+   "kararDegisiyor": false,
+   "kaynak": "Python ile yeniden hesaplama (6 Ekim 2026)",
+   "durum": "bekliyor",
+   "degisiklikler": [
+    {
+     "yol": "adimlar[0].html",
+     "eski": "n=7  |  Σx=980, Σy=248, Σxy=37120, Σx²=145600, Σy²=9202<br/>x̄ = 140  |  ȳ = 248/7 = 35.43",
+     "yeni": "n=7  |  Σx=980, Σy=248, Σxy=37300, Σx²=148400, Σy²=9382<br/>x̄ = 140  |  ȳ = 248/7 = 35.43"
+    },
+    {
+     "yol": "adimlar[1].html",
+     "eski": "S<sub>xy</sub> = 37120 − 7·140·35.43 = 37120 − 34721.4 = <span class=\"result\">2398.6</span><br/>S<sub>xx</sub> = 145600 − 7·19600 = 145600 − 137200 = <span class=\"result\">8400</span>",
+     "yeni": "S<sub>xy</sub> = 37300 − 7·140·(248/7) = 37300 − 34720 = <span class=\"result\">2580</span><br/>S<sub>xx</sub> = 148400 − 7·19600 = 148400 − 137200 = <span class=\"result\">11200</span>"
+    },
+    {
+     "yol": "adimlar[2].html",
+     "eski": "β̂₁ = 2398.6/8400 = <span class=\"result\">0.2855</span><br/>β̂₀ = 35.43 − 0.2855·140 = 35.43 − 39.97 = <span class=\"result\">−4.54</span><br/>Model: <strong>ŷ = −4.54 + 0.2855x</strong><br/>Yorum: Her 1 müşteri artışı için satış tutarı ortalama 0.2855 bin TL (285.5 TL) artmaktadır. β̂₀ pratik anlam taşımaz.",
+     "yeni": "β̂₁ = 2580/11200 = <span class=\"result\">0.2304</span><br/>β̂₀ = 35.43 − (2580/11200)·140 = 35.43 − 32.25 = <span class=\"result\">3.18</span><br/>Model: <strong>ŷ = 3.18 + 0.2304x</strong><br/>Yorum: Her 1 müşteri artışı için satış tutarı ortalama 0.2304 bin TL (230.4 TL) artmaktadır. β̂₀ pratik anlam taşımaz."
+    },
+    {
+     "yol": "adimlar[3].html",
+     "eski": "TKT = Σy² − nȳ² = 9202 − 7·(35.43)² = 9202 − 8786.3 = <span class=\"result\">415.7</span>",
+     "yeni": "TKT = Σy² − nȳ² = 9382 − 7·(248/7)² = 9382 − 8786.29 = <span class=\"result\">595.71</span>"
+    },
+    {
+     "yol": "adimlar[4].html",
+     "eski": "ŷ: 18.34, 24.01, 29.68, 35.35, 41.02, 46.69, 52.36<br/>e: −0.34,  +1.99,  +1.32,  −0.35,  −1.02,  −2.69,  −2.36<br/>e²: 0.12,  3.96,  1.74,  0.12,  1.04,  7.24,  5.57<br/>AKT = Σe²ᵢ = <span class=\"result\">19.79</span>",
+     "yeni": "ŷ: 21.607, 26.214, 30.821, 35.429, 40.036, 44.643, 49.250<br/>e: +0.393,  −0.214,  +0.179,  −0.429,  −0.036,  −0.643,  +0.750<br/>e²: 0.1544,  0.0458,  0.0320,  0.1840,  0.0013,  0.4134,  0.5625<br/>AKT = Σe²ᵢ = <span class=\"result\">1.393</span><br/><em>(ŷ değerleri yuvarlanmamış katsayılarla hesaplanmıştır.)</em>"
+    },
+    {
+     "yol": "adimlar[5].html",
+     "eski": "RKT = TKT − AKT = 415.7 − 19.79 = <span class=\"result\">395.9</span><br/>R² = RKT/TKT = 395.9/415.7 = <span class=\"result\">0.952</span><br/>R² = 1 − AKT/TKT = 1 − 19.79/415.7 = 1 − 0.048 = <span class=\"result\">0.952</span> ✓<br/>Müşteri sayısı, satış tutarındaki toplam değişimin %95.2'sini açıklamaktadır.",
+     "yeni": "RKT = TKT − AKT = 595.71 − 1.39 = <span class=\"result\">594.32</span><br/>R² = RKT/TKT = 594.32/595.71 = <span class=\"result\">0.998</span><br/>R² = 1 − AKT/TKT = 1 − 1.393/595.71 = 1 − 0.002 = <span class=\"result\">0.998</span> ✓<br/>Müşteri sayısı, satış tutarındaki toplam değişimin %99.8'ini açıklamaktadır."
+    },
+    {
+     "yol": "adimlar[6].html",
+     "eski": "ŷ(170) = −4.54 + 0.2855·170 = −4.54 + 48.54 = <span class=\"result\">44.0 bin TL</span><br/>x = 170 veri setinde bir gözlem noktası değildir; gerçek y değeri bilinmediğinden bu nokta için artık hesaplanamaz. Artık (eᵢ = yᵢ − ŷᵢ) yalnızca modelin kurulduğu gözlemler için hesaplanabilir.",
+     "yeni": "ŷ(170) = ȳ + β̂₁(170 − x̄) = 35.43 + 0.2304·30 = 35.43 + 6.91 = <span class=\"result\">42.34 bin TL</span><br/>x = 170 veri setinde bir gözlem noktası değildir; gerçek y değeri bilinmediğinden bu nokta için artık hesaplanamaz. Artık (eᵢ = yᵢ − ŷᵢ) yalnızca modelin kurulduğu gözlemler için hesaplanabilir."
+    }
+   ]
+  },
+  {
+   "id": "oneri-REG-04",
+   "konu": "reg",
+   "soruId": "REG-04",
+   "soruBaslik": "Tam Hesaplama: EKK, Artık Tablosu ve R²",
+   "gerekce": "Çözümdeki toplamlar (Σxy, Σx², Σy²) soru tablosundaki verilerle uyuşmuyor. Veriye dokunmadan bütün adımlar (Sxx, Sxy, β̂₀, β̂₁, TKT, RKT, AKT, R², yorum) doğru toplamlarla yeniden hesaplandı.",
+   "kararDegisiyor": false,
+   "kaynak": "Python ile yeniden hesaplama (6 Ekim 2026)",
+   "durum": "bekliyor",
+   "degisiklikler": [
+    {
+     "yol": "adimlar[0].html",
+     "eski": "n=5  |  Σx=15, Σy=22.0, Σxy=76.1, Σx²=55, Σy²=115.70<br/>x̄ = 3  |  ȳ = 22.0/5 = 4.40",
+     "yeni": "n=5  |  Σx=15, Σy=22.0, Σxy=77.2, Σx²=55, Σy²=109.50<br/>x̄ = 3  |  ȳ = 22.0/5 = 4.40"
+    },
+    {
+     "yol": "adimlar[1].html",
+     "eski": "S<sub>xy</sub> = 76.1 − 5·3·4.40 = 76.1 − 66.0 = <span class=\"result\">10.1</span><br/>S<sub>xx</sub> = 55 − 5·9 = <span class=\"result\">10</span><br/>β̂₁ = 10.1/10 = <span class=\"result\">1.01</span><br/>β̂₀ = 4.40 − 1.01·3 = <span class=\"result\">1.37</span><br/>Model: <strong>ŷ = 1.37 + 1.01x</strong><br/>Yorum: Sulama 1 litre arttığında domates verimi ortalama 1.01 kg artmaktadır.",
+     "yeni": "S<sub>xy</sub> = 77.2 − 5·3·4.40 = 77.2 − 66.0 = <span class=\"result\">11.2</span><br/>S<sub>xx</sub> = 55 − 5·9 = <span class=\"result\">10</span><br/>β̂₁ = 11.2/10 = <span class=\"result\">1.12</span><br/>β̂₀ = 4.40 − 1.12·3 = <span class=\"result\">1.04</span><br/>Model: <strong>ŷ = 1.04 + 1.12x</strong><br/>Yorum: Sulama 1 litre arttığında domates verimi ortalama 1.12 kg artmaktadır."
+    },
+    {
+     "yol": "adimlar[2].html",
+     "eski": "x=1: ŷ=2.38  e=2.1−2.38=−0.28  e²=0.0784<br/>\n            x=2: ŷ=3.39  e=3.4−3.39=+0.01  e²=0.0001<br/>\n            x=3: ŷ=4.40  e=4.2−4.40=−0.20  e²=0.0400<br/>\n            x=4: ŷ=5.41  e=5.8−5.41=+0.39  e²=0.1521<br/>\n            x=5: ŷ=6.42  e=6.5−6.42=+0.08  e²=0.0064<br/>\n<span class=\"result\">AKT = Σeᵢ² = 0.277</span>",
+     "yeni": "x=1: ŷ=2.16  e=2.1−2.16=−0.06  e²=0.0036<br/>\n            x=2: ŷ=3.28  e=3.4−3.28=+0.12  e²=0.0144<br/>\n            x=3: ŷ=4.40  e=4.2−4.40=−0.20  e²=0.0400<br/>\n            x=4: ŷ=5.52  e=5.8−5.52=+0.28  e²=0.0784<br/>\n            x=5: ŷ=6.64  e=6.5−6.64=−0.14  e²=0.0196<br/>\n<span class=\"result\">AKT = Σeᵢ² = 0.156</span>"
+    },
+    {
+     "yol": "adimlar[3].html",
+     "eski": "TKT = S<sub>yy</sub> = Σy² − nȳ² = 115.70 − 5·(4.40)² = 115.70 − 96.80 = <span class=\"result\">18.90</span>",
+     "yeni": "TKT = S<sub>yy</sub> = Σy² − nȳ² = 109.50 − 5·(4.40)² = 109.50 − 96.80 = <span class=\"result\">12.70</span>"
+    },
+    {
+     "yol": "adimlar[4].html",
+     "eski": "RKT = TKT − AKT = 18.90 − 0.277 = <span class=\"result\">18.623</span>",
+     "yeni": "RKT = TKT − AKT = 12.70 − 0.156 = <span class=\"result\">12.544</span>"
+    },
+    {
+     "yol": "adimlar[5].html",
+     "eski": "R² = RKT/TKT = 18.623/18.90 = <span class=\"result\">0.985</span><br/>R² = 1 − AKT/TKT = 1 − 0.277/18.90 = 1 − 0.015 = <span class=\"result\">0.985</span> ✓<br/>Sulama miktarı, domates verimindeki toplam değişimin %98.5'ini açıklamaktadır; model veriye çok iyi uyum sağlamaktadır.",
+     "yeni": "R² = RKT/TKT = 12.544/12.70 = <span class=\"result\">0.988</span><br/>R² = 1 − AKT/TKT = 1 − 0.156/12.70 = 1 − 0.012 = <span class=\"result\">0.988</span> ✓<br/>Sulama miktarı, domates verimindeki toplam değişimin %98.8'ini açıklamaktadır; model veriye çok iyi uyum sağlamaktadır."
+    }
+   ]
+  },
+  {
+   "id": "oneri-REG-05",
+   "konu": "reg",
+   "soruId": "REG-05",
+   "soruBaslik": "RKT'yi Σ(ŷᵢ−ȳ)² ile Hesaplama",
+   "gerekce": "Çözümdeki toplamlar (Σxy, Σx², Σy²) soru tablosundaki verilerle uyuşmuyor. Veriye dokunmadan bütün adımlar (Sxx, Sxy, β̂₀, β̂₁, TKT, RKT, AKT, R², yorum) doğru toplamlarla yeniden hesaplandı.",
+   "kararDegisiyor": false,
+   "kaynak": "Python ile yeniden hesaplama (6 Ekim 2026)",
+   "durum": "bekliyor",
+   "degisiklikler": [
+    {
+     "yol": "adimlar[0].html",
+     "eski": "n=5  |  Σx=30, Σy=200, Σxy=1360, Σx²=220, Σy²=8800<br/>x̄=6, ȳ=40",
+     "yeni": "n=5  |  Σx=30, Σy=200, Σxy=1396, Σx²=220, Σy²=9000<br/>x̄=6, ȳ=40"
+    },
+    {
+     "yol": "adimlar[1].html",
+     "eski": "S<sub>xy</sub>=1360−5·6·40=1360−1200=<span class=\"result\">160</span><br/>S<sub>xx</sub>=220−5·36=220−180=<span class=\"result\">40</span><br/>β̂₁=160/40=<span class=\"result\">4.0</span>  |  β̂₀=40−4·6=<span class=\"result\">16</span><br/>Model: <strong>ŷ = 16 + 4x</strong><br/>Yorum: Çalışma süresi 1 saat arttığında üretim ortalama 4 adet artmaktadır.",
+     "yeni": "S<sub>xy</sub>=1396−5·6·40=1396−1200=<span class=\"result\">196</span><br/>S<sub>xx</sub>=220−5·36=220−180=<span class=\"result\">40</span><br/>β̂₁=196/40=<span class=\"result\">4.9</span>  |  β̂₀=40−4.9·6=40−29.4=<span class=\"result\">10.6</span><br/>Model: <strong>ŷ = 10.6 + 4.9x</strong><br/>Yorum: Çalışma süresi 1 saat arttığında üretim ortalama 4.9 adet artmaktadır."
+    },
+    {
+     "yol": "adimlar[2].html",
+     "eski": "x=2: ŷ=24  | x=4: ŷ=32  | x=6: ŷ=40  | x=8: ŷ=48  | x=10: ŷ=56<br/>RKT = Σ(ŷᵢ−ȳ)² = (24−40)²+(32−40)²+(40−40)²+(48−40)²+(56−40)²<br/>= 256+64+0+64+256 = <span class=\"result\">640</span>",
+     "yeni": "x=2: ŷ=20.4  | x=4: ŷ=30.2  | x=6: ŷ=40.0  | x=8: ŷ=49.8  | x=10: ŷ=59.6<br/>RKT = Σ(ŷᵢ−ȳ)² = (20.4−40)²+(30.2−40)²+(40−40)²+(49.8−40)²+(59.6−40)²<br/>= 384.16+96.04+0+96.04+384.16 = <span class=\"result\">960.4</span>"
+    },
+    {
+     "yol": "adimlar[3].html",
+     "eski": "TKT = Σy²−nȳ²=8800−5·1600=8800−8000=<span class=\"result\">800</span><br/>AKT = TKT−RKT = 800−640=<span class=\"result\">160</span><br/>Doğrulama: RKT+AKT=640+160=800=TKT ✓<br/>R²=RKT/TKT=640/800=<span class=\"result\">0.800</span><br/>Makine çalışma süresi, üretim miktarındaki değişimin %80'ini açıklamaktadır.",
+     "yeni": "TKT = Σy²−nȳ²=9000−5·1600=9000−8000=<span class=\"result\">1000</span><br/>AKT = Σeᵢ²: e = −2.4, −0.2, +4.0, +2.2, −3.6 → 5.76+0.04+16+4.84+12.96=<span class=\"result\">39.6</span><br/>Doğrulama: RKT+AKT=960.4+39.6=1000=TKT ✓<br/>R²=RKT/TKT=960.4/1000=<span class=\"result\">0.960</span><br/>Makine çalışma süresi, üretim miktarındaki değişimin %96'sını açıklamaktadır."
+    }
+   ]
+  },
+  {
+   "id": "oneri-REG-06",
+   "konu": "reg",
+   "soruId": "REG-06",
+   "soruBaslik": "Serpme Diyagramı Yorumu ve EKK Tahmini",
+   "gerekce": "Çözümdeki toplamlar (Σxy, Σx², Σy²) soru tablosundaki verilerle uyuşmuyor. Veriye dokunmadan bütün adımlar (Sxx, Sxy, β̂₀, β̂₁, TKT, RKT, AKT, R², yorum) doğru toplamlarla yeniden hesaplandı.",
+   "kararDegisiyor": false,
+   "kaynak": "Python ile yeniden hesaplama (6 Ekim 2026)",
+   "durum": "bekliyor",
+   "degisiklikler": [
+    {
+     "yol": "adimlar[0].html",
+     "eski": "n=6  |  Σx=105, Σy=166, Σxy=3395, Σx²=2275, Σy²=5266<br/>x̄=17.5, ȳ=166/6=27.667",
+     "yeni": "n=6  |  Σx=105, Σy=166, Σxy=3455, Σx²=2275, Σy²=5286<br/>x̄=17.5, ȳ=166/6=27.667"
+    },
+    {
+     "yol": "adimlar[2].html",
+     "eski": "S<sub>xy</sub>=3395−6·17.5·27.667=3395−2905=<span class=\"result\">490</span><br/>S<sub>xx</sub>=2275−6·306.25=2275−1837.5=<span class=\"result\">437.5</span><br/>β̂₁=490/437.5=<span class=\"result\">1.120</span>  |  β̂₀=27.667−1.120·17.5=<span class=\"result\">7.067</span><br/>Model: <strong>ŷ = 7.067 + 1.120x</strong><br/>Yorum: Her 1 bin TL reklam harcaması ortalama 1.12 yeni müşteri kazandırmaktadır.",
+     "yeni": "S<sub>xy</sub>=3455−6·17.5·27.667=3455−2905=<span class=\"result\">550</span><br/>S<sub>xx</sub>=2275−6·306.25=2275−1837.5=<span class=\"result\">437.5</span><br/>β̂₁=550/437.5=<span class=\"result\">1.257</span>  |  β̂₀=27.667−1.257·17.5=27.667−22.000=<span class=\"result\">5.667</span><br/>Model: <strong>ŷ = 5.667 + 1.257x</strong><br/>Yorum: Her 1 bin TL reklam harcaması ortalama 1.257 yeni müşteri kazandırmaktadır."
+    },
+    {
+     "yol": "adimlar[3].html",
+     "eski": "TKT = S<sub>yy</sub>=5266−6·(27.667)²=5266−4590.7=<span class=\"result\">675.3</span><br/>RKT=β̂₁·S<sub>xy</sub>=1.120×490=<span class=\"result\">548.8</span><br/>R²=548.8/675.3=<span class=\"result\">0.813</span><br/>Reklam harcaması yeni müşteri sayısındaki değişimin %81.3'ünü açıklamaktadır.",
+     "yeni": "TKT = S<sub>yy</sub>=5286−166²/6=5286−4592.67=<span class=\"result\">693.33</span><br/>RKT=β̂₁·S<sub>xy</sub>=1.25714×550=<span class=\"result\">691.43</span><br/>R²=691.43/693.33=<span class=\"result\">0.997</span><br/>Reklam harcaması yeni müşteri sayısındaki değişimin %99.7'sini açıklamaktadır."
+    }
+   ]
+  },
+  {
+   "id": "oneri-REG-07",
+   "konu": "reg",
+   "soruId": "REG-07",
+   "soruBaslik": "Üç Yöntemle R² Hesabı: RKT/TKT, 1−AKT/TKT ve Σ(ŷᵢ−ȳ)²/TKT",
+   "gerekce": "Çözümdeki toplamlar (Σxy, Σx², Σy²) soru tablosundaki verilerle uyuşmuyor. Veriye dokunmadan bütün adımlar (Sxx, Sxy, β̂₀, β̂₁, TKT, RKT, AKT, R², yorum) doğru toplamlarla yeniden hesaplandı.",
+   "kararDegisiyor": false,
+   "kaynak": "Python ile yeniden hesaplama (6 Ekim 2026)",
+   "durum": "bekliyor",
+   "degisiklikler": [
+    {
+     "yol": "adimlar[0].html",
+     "eski": "n=5  |  Σx=50, Σy=335, Σxy=3508, Σx²=578, Σy²=22991<br/>x̄=10, ȳ=67",
+     "yeni": "n=5  |  Σx=50, Σy=335, Σxy=3521, Σx²=558, Σy²=22951<br/>x̄=10, ȳ=67"
+    },
+    {
+     "yol": "adimlar[1].html",
+     "eski": "S<sub>xy</sub>=3508−5·10·67=3508−3350=<span class=\"result\">158</span><br/>S<sub>xx</sub>=578−5·100=<span class=\"result\">78</span><br/>β̂₁=158/78=<span class=\"result\">2.026</span>  |  β̂₀=67−2.026·10=<span class=\"result\">46.74</span><br/>Model: <strong>ŷ = 46.74 + 2.026x</strong>",
+     "yeni": "S<sub>xy</sub>=3521−5·10·67=3521−3350=<span class=\"result\">171</span><br/>S<sub>xx</sub>=558−5·100=<span class=\"result\">58</span><br/>β̂₁=171/58=<span class=\"result\">2.948</span>  |  β̂₀=67−2.948·10=<span class=\"result\">37.52</span><br/>Model: <strong>ŷ = 37.52 + 2.948x</strong>"
+    },
+    {
+     "yol": "adimlar[2].html",
+     "eski": "x=5: ŷ=56.87  e=52−56.87=−4.87  e²=23.72<br/>x=8: ŷ=62.95  e=61−62.95=−1.95  e²=3.80<br/>x=10: ŷ=67.00  e=67−67.00=0.00  e²=0.00<br/>x=12: ŷ=71.05  e=74−71.05=+2.95  e²=8.70<br/>x=15: ŷ=77.13  e=81−77.13=+3.87  e²=14.98<br/><span class=\"result\">AKT = Σeᵢ² = 51.20</span>",
+     "yeni": "x=5: ŷ=52.259  e=52−52.259=−0.259  e²=0.0671<br/>x=8: ŷ=61.103  e=61−61.103=−0.103  e²=0.0106<br/>x=10: ŷ=67.000  e=67−67.000=0.000  e²=0.0000<br/>x=12: ŷ=72.897  e=74−72.897=+1.103  e²=1.2166<br/>x=15: ŷ=81.741  e=81−81.741=−0.741  e²=0.5491<br/><span class=\"result\">AKT = Σeᵢ² = 1.84</span><br/><em>(ŷ değerleri yuvarlanmamış katsayılarla hesaplanmıştır.)</em>"
+    },
+    {
+     "yol": "adimlar[3].html",
+     "eski": "TKT=Σy²−nȳ²=22991−5·4489=22991−22445=<span class=\"result\">546</span><br/>RKT=β̂₁·S<sub>xy</sub>=2.026×158=<span class=\"result\">320.1</span>",
+     "yeni": "TKT=Σy²−nȳ²=22951−5·4489=22951−22445=<span class=\"result\">506</span><br/>RKT=β̂₁·S<sub>xy</sub>=2.9483×171=<span class=\"result\">504.16</span>"
+    },
+    {
+     "yol": "adimlar[4].html",
+     "eski": "(56.87−67)²+(62.95−67)²+(67−67)²+(71.05−67)²+(77.13−67)²<br/>=102.6+16.4+0+16.4+102.6=<span class=\"result\">238.0</span><br/><em>Not: Yuvarlama nedeniyle 320.1 ile yakın; β̂₁·S<sub>xy</sub> kesin sonucu verir.</em>",
+     "yeni": "(52.259−67)²+(61.103−67)²+(67−67)²+(72.897−67)²+(81.741−67)²<br/>=217.31+34.77+0+34.77+217.31=<span class=\"result\">504.16</span><br/><em>β̂₁·S<sub>xy</sub> ile aynı sonuç ✓</em>"
+    },
+    {
+     "yol": "adimlar[5].html",
+     "eski": "(i) RKT/TKT = 320.1/546 = <span class=\"result\">0.906 ✓</span><br/>(ii) 1−AKT/TKT = 1−51.20/546 = 1−0.094 = <span class=\"result\">0.906 ✓</span><br/>(iii) Σ(ŷᵢ−ȳ)²/TKT = 320.1/546 = <span class=\"result\">0.906 ✓</span><br/>Ders çalışma süresi, dönem ortalamasındaki değişimin %90.6'sını açıklamaktadır.",
+     "yeni": "(i) RKT/TKT = 504.16/506 = <span class=\"result\">0.996 ✓</span><br/>(ii) 1−AKT/TKT = 1−1.84/506 = 1−0.004 = <span class=\"result\">0.996 ✓</span><br/>(iii) Σ(ŷᵢ−ȳ)²/TKT = 504.16/506 = <span class=\"result\">0.996 ✓</span><br/>Ders çalışma süresi, dönem ortalamasındaki değişimin %99.6'sını açıklamaktadır."
+    }
+   ]
+  },
+  {
+   "id": "oneri-REG-08",
+   "konu": "reg",
+   "soruId": "REG-08",
+   "soruBaslik": "Yüksek R²: Yorumu ve Sınırlılıkları",
+   "gerekce": "Çözümdeki toplamlar (Σxy, Σx², Σy²) soru tablosundaki verilerle uyuşmuyor. Veriye dokunmadan bütün adımlar (Sxx, Sxy, β̂₀, β̂₁, TKT, RKT, AKT, R², yorum) doğru toplamlarla yeniden hesaplandı.",
+   "kararDegisiyor": false,
+   "kaynak": "Python ile yeniden hesaplama (6 Ekim 2026)",
+   "durum": "bekliyor",
+   "degisiklikler": [
+    {
+     "yol": "adimlar[0].html",
+     "eski": "n=6  |  Σx=1350, Σy=270, Σxy=71500, Σx²=357500, Σy²=13736<br/>x̄=225, ȳ=45",
+     "yeni": "n=6  |  Σx=1350, Σy=270, Σxy=68800, Σx²=347500, Σy²=13632<br/>x̄=225, ȳ=45"
+    },
+    {
+     "yol": "adimlar[1].html",
+     "eski": "S<sub>xy</sub>=71500−6·225·45=71500−60750=<span class=\"result\">10750</span><br/>S<sub>xx</sub>=357500−6·50625=357500−303750=<span class=\"result\">53750</span><br/>β̂₁=10750/53750=<span class=\"result\">0.200</span>  |  β̂₀=45−0.200·225=<span class=\"result\">0.0</span><br/>Model: <strong>ŷ = 0.200x</strong><br/>Yorum: Fırın sıcaklığı 1°C arttığında ürün sertliği ortalama 0.200 Rockwell birimi artmaktadır.",
+     "yeni": "S<sub>xy</sub>=68800−6·225·45=68800−60750=<span class=\"result\">8050</span><br/>S<sub>xx</sub>=347500−6·50625=347500−303750=<span class=\"result\">43750</span><br/>β̂₁=8050/43750=<span class=\"result\">0.184</span>  |  β̂₀=45−0.184·225=45−41.4=<span class=\"result\">3.6</span><br/>Model: <strong>ŷ = 3.6 + 0.184x</strong><br/>Yorum: Fırın sıcaklığı 1°C arttığında ürün sertliği ortalama 0.184 Rockwell birimi artmaktadır."
+    },
+    {
+     "yol": "adimlar[2].html",
+     "eski": "TKT=13736−6·2025=13736−12150=<span class=\"result\">1586</span><br/>RKT=0.200×10750=<span class=\"result\">2150</span> → AKT=Artık yöntemiyle:<br/>e: 22−20=+2, 31−30=+1, 41−40=+1, 49−50=−1, 59−60=−1, 68−70=−2 → e²: 4,1,1,1,1,4<br/>AKT=<span class=\"result\">12</span>  |  RKT=TKT−AKT=1586−12=<span class=\"result\">1574</span><br/>R²=1574/1586=<span class=\"result\">0.992</span>  |  1−12/1586=<span class=\"result\">0.992</span> ✓<br/>Sıcaklık, sertlikteki değişimin %99.2'sini açıklar; mükemmel uyum.",
+     "yeni": "TKT=13632−6·2025=13632−12150=<span class=\"result\">1482</span><br/>RKT=β̂₁·S<sub>xy</sub>=0.184×8050=<span class=\"result\">1481.2</span><br/>AKT (artık yöntemiyle): ŷ: 22.0, 31.2, 40.4, 49.6, 58.8, 68.0 → e: 0, −0.2, +0.6, −0.6, +0.2, 0 → e²: 0, 0.04, 0.36, 0.36, 0.04, 0<br/>AKT=<span class=\"result\">0.8</span>  |  Kontrol: RKT+AKT=1481.2+0.8=1482=TKT ✓<br/>R²=1481.2/1482=<span class=\"result\">0.9995</span>  |  1−0.8/1482=<span class=\"result\">0.9995</span> ✓<br/>Sıcaklık, sertlikteki değişimin %99.95'ini açıklar; neredeyse mükemmel uyum."
+    },
+    {
+     "yol": "adimlar[3].html",
+     "eski": "250°C: ŷ=0.200·250=<span class=\"result\">50.0</span> — veri aralığı (100–350°C) içinde, güvenilir.<br/>450°C: ŷ=0.200·450=<span class=\"result\">90.0</span> — veri aralığı dışında, ekstrapolasyon; yüksek sıcaklıkta doğrusallık bozulabilir, güvenilmez.",
+     "yeni": "250°C: ŷ=3.6+0.184·250=<span class=\"result\">49.6</span> — veri aralığı (100–350°C) içinde, güvenilir.<br/>450°C: ŷ=3.6+0.184·450=<span class=\"result\">86.4</span> — veri aralığı dışında, ekstrapolasyon; yüksek sıcaklıkta doğrusallık bozulabilir, güvenilmez."
+    }
+   ]
+  },
+  {
+   "id": "oneri-REG-09",
+   "konu": "reg",
+   "soruId": "REG-09",
+   "soruBaslik": "Negatif İlişki: EKK ve R²",
+   "gerekce": "Çözümdeki toplamlar (Σxy, Σx², Σy²) soru tablosundaki verilerle uyuşmuyor. Veriye dokunmadan bütün adımlar (Sxx, Sxy, β̂₀, β̂₁, TKT, RKT, AKT, R², yorum) doğru toplamlarla yeniden hesaplandı.",
+   "kararDegisiyor": false,
+   "kaynak": "Python ile yeniden hesaplama (6 Ekim 2026)",
+   "durum": "bekliyor",
+   "degisiklikler": [
+    {
+     "yol": "adimlar[0].html",
+     "eski": "n=5  |  Σx=40, Σy=324, Σxy=2296, Σx²=430, Σy²=22038<br/>x̄=8, ȳ=64.8",
+     "yeni": "n=5  |  Σx=40, Σy=324, Σxy=2247, Σx²=410, Σy²=22318<br/>x̄=8, ȳ=64.8"
+    },
+    {
+     "yol": "adimlar[2].html",
+     "eski": "S<sub>xy</sub>=2296−5·8·64.8=2296−2592=<span class=\"result\">−296</span><br/>S<sub>xx</sub>=430−5·64=430−320=<span class=\"result\">110</span><br/>β̂₁=−296/110=<span class=\"result\">−2.691</span>  |  β̂₀=64.8−(−2.691)·8=64.8+21.53=<span class=\"result\">86.33</span><br/>Model: <strong>ŷ = 86.33 − 2.691x</strong><br/>Yorum: β̂₁ negatif; şikayet sayısı 1 artınca memnuniyet puanı ortalama 2.691 puan azalmaktadır.",
+     "yeni": "S<sub>xy</sub>=2247−5·8·64.8=2247−2592=<span class=\"result\">−345</span><br/>S<sub>xx</sub>=410−5·64=410−320=<span class=\"result\">90</span><br/>β̂₁=−345/90=<span class=\"result\">−3.833</span>  |  β̂₀=64.8−(−3.8333)·8=64.8+30.67=<span class=\"result\">95.47</span><br/>Model: <strong>ŷ = 95.47 − 3.833x</strong><br/>Yorum: β̂₁ negatif; şikayet sayısı 1 artınca memnuniyet puanı ortalama 3.833 puan azalmaktadır."
+    },
+    {
+     "yol": "adimlar[3].html",
+     "eski": "TKT=22038−5·(64.8)²=22038−20995.2=<span class=\"result\">1042.8</span><br/>RKT=β̂₁·S<sub>xy</sub>=(−2.691)×(−296)=<span class=\"result\">796.5</span><br/>AKT=TKT−RKT=1042.8−796.5=<span class=\"result\">246.3</span><br/>R²=RKT/TKT=796.5/1042.8=<span class=\"result\">0.764</span><br/>1−AKT/TKT=1−246.3/1042.8=<span class=\"result\">0.764</span> ✓<br/>Şikayet sayısı, memnuniyet puanındaki değişimin %76.4'ünü açıklamaktadır.",
+     "yeni": "TKT=22318−5·(64.8)²=22318−20995.2=<span class=\"result\">1322.8</span><br/>RKT=β̂₁·S<sub>xy</sub>=(−3.8333)×(−345)=<span class=\"result\">1322.5</span><br/>AKT=TKT−RKT=1322.8−1322.5=<span class=\"result\">0.3</span><br/>R²=RKT/TKT=1322.5/1322.8=<span class=\"result\">0.9998</span><br/>1−AKT/TKT=1−0.3/1322.8=<span class=\"result\">0.9998</span> ✓<br/>Şikayet sayısı, memnuniyet puanındaki değişimin %99.98'ini açıklamaktadır."
+    }
+   ]
+  }
+ ]
+}

@@ -1,0 +1,60 @@
+rules_version = '2';
+
+// END214 – Firestore güvenlik kuralları
+// Özet:
+//   • Herkes (giriş yapmadan) konuları, duyuruları ve ders bilgilerini OKUYABİLİR.
+//   • Yalnızca yönetici (hoca) YAZABİLİR. Yönetici = "yoneticiler" koleksiyonunda
+//     kendi kullanıcı kimliğiyle (uid) bir belgesi olan hesap. Bu belge Firebase
+//     konsolundan elle eklenir; siteden kimse kendini yönetici yapamaz.
+//   • Öğrenciler yalnızca "hata bildirimi" GÖNDEREBİLİR; gönderilenleri okuyamaz.
+//   • Düzeltme önerilerini yalnızca yönetici görür ve onaylar.
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function yonetici() {
+      return request.auth != null
+        && exists(/databases/$(database)/documents/yoneticiler/$(request.auth.uid));
+    }
+
+    // Konular: sorular, çözümler, formül kartları
+    match /konular/{konu} {
+      allow read: if true;
+      allow write: if yonetici();
+    }
+
+    // Duyurular ve site bilgileri (ayarlar, ders bilgileri)
+    match /duyurular/{id} {
+      allow read: if true;
+      allow write: if yonetici();
+    }
+    match /site/{belge} {
+      allow read: if true;
+      allow write: if yonetici();
+    }
+
+    // Düzeltme önerileri: yalnızca hoca görür; onay/ret yalnızca hocadan
+    match /oneriler/{id} {
+      allow read, write: if yonetici();
+    }
+
+    // Öğrenci hata bildirimleri: herkes gönderebilir (sınırlı alanlarla), yalnızca hoca okur
+    match /hataBildirimleri/{id} {
+      allow read, update, delete: if yonetici();
+      allow create: if request.resource.data.keys().hasOnly(['soruId', 'sayfa', 'mesaj', 'eposta', 'tarih', 'durum'])
+        && request.resource.data.soruId is string && request.resource.data.soruId.size() <= 20
+        && request.resource.data.sayfa is string && request.resource.data.sayfa.size() <= 40
+        && request.resource.data.mesaj is string
+        && request.resource.data.mesaj.size() > 0 && request.resource.data.mesaj.size() <= 2000
+        && (!('eposta' in request.resource.data) || (request.resource.data.eposta is string
+              && request.resource.data.eposta.size() <= 100))
+        && request.resource.data.tarih == request.time
+        && request.resource.data.durum == 'yeni';
+    }
+
+    // Yönetici listesi: kimse siteden okuyamaz veya yazamaz (yalnızca Firebase konsolu)
+    match /yoneticiler/{uid} {
+      allow read, write: if false;
+    }
+  }
+}

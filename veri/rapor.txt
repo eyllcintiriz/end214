@@ -1,0 +1,32 @@
+temel   Temel Tanımlar               soru  8 (birebir:  8)  formül kartı 3 (birebir: 3)
+me      Merkezi Eğilim Ölçüleri      soru 12 (birebir: 12)  formül kartı 4 (birebir: 4)
+dag     Dağılım Ölçüleri             soru 11 (birebir: 11)  formül kartı 4 (birebir: 4)
+grafik  Grafikler                    soru  9 (birebir:  9)  formül kartı 3 (birebir: 3)
+tahmin  Nokta Tahmini                soru 12 (birebir: 12)  formül kartı 4 (birebir: 4)
+ga      Güven Aralığı                soru 18 (birebir: 18)  formül kartı 6 (birebir: 6)
+ht      Hipotez Testi                soru 18 (birebir: 18)  formül kartı 6 (birebir: 6)
+reg     Doğrusal Regresyon           soru 10 (birebir: 10)  formül kartı 3 (birebir: 3)
+TOPLAM: 98 soru, 33 formül kartı — hepsi JSON'dan birebir yeniden üretildi ✓
+DÜZELTME ÖNERİSİ: 22 — her biri orijinale uygulanınca doğrulanmış hali birebir veriyor ✓
+  ME-09    2 alan
+  DAG-05   1 alan
+  DAG-09   1 alan
+  DAG-10   1 alan
+  GR-09    3 alan
+  NT-10    1 alan
+  GA-04    1 alan
+  GA-13    1 alan
+  GA-17    1 alan
+  HT-02    3 alan
+  HT-11    2 alan
+  HT-16    3 alan
+  HT-17    2 alan
+  HT-18    2 alan  [KARAR DEĞİŞİYOR]
+  REG-01   8 alan
+  REG-02   7 alan
+  REG-04   6 alan
+  REG-05   4 alan
+  REG-06   3 alan
+  REG-07   6 alan
+  REG-08   4 alan
+  REG-09   3 alan
