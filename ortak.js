@@ -83,20 +83,104 @@ function konuyuCiz(konu) {
   return true;
 }
 
-// ── Konu sayfası açılışı ──
-// <body data-konu="ga"> olan sayfada içerik veritabanından çekilip yeniden çizilir.
-// Veritabanına ulaşılamazsa sayfadaki statik içerik olduğu gibi kalır.
-function konuSayfasiniBaslat() {
-  var kod = document.body.dataset.konu;
-  if (!kod) return;
-  // İçeriğin nereden geldiği <body data-icerik="…"> üzerinde görünür: "veritabani" ya da "yedek"
-  document.body.dataset.icerik = 'yedek';
-  import('./veri-katmani.js')
-    .then(function (v) { return v.konuGetir(kod); })
-    .then(function (konu) { if (konuyuCiz(konu)) document.body.dataset.icerik = 'veritabani'; })
-    .catch(function (e) { console.warn('END214: veritabanına ulaşılamadı, sayfadaki kayıtlı içerik gösteriliyor.', e); });
+// ── Sayaçlar (sayfadaki kartlardan sayılır; içerik veritabanından da yedekten de gelse doğru) ──
+var ZORLUK_ADI = { 'badge-easy': 'Temel', 'badge-med': 'Orta', 'badge-hard': 'İleri' };
+
+function konuSayaclari(sira) {
+  var kartlar = document.querySelectorAll('.questions-grid > .q-card');
+  var formul = document.querySelectorAll('.formula-grid > .f-card').length;
+  var say = { 'Soru': kartlar.length, 'Temel': 0, 'Orta': 0, 'İleri': 0 };
+  kartlar.forEach(function (c) {
+    var r = c.querySelector('.q-badges .badge:last-child');
+    Object.keys(ZORLUK_ADI).forEach(function (k) { if (r && r.classList.contains(k)) say[ZORLUK_ADI[k]]++; });
+  });
+  // "Konu 6 · 18 Soru": sıra numarası veritabanından, yoksa sayfada yazandan
+  var etiket = document.querySelector('.page-header .topic-tag');
+  var m = etiket && etiket.textContent.match(/Konu\s*([−-]?\d+)/);
+  if (etiket && (sira || m)) etiket.textContent = 'Konu ' + (sira || m[1]) + ' · ' + kartlar.length + ' Soru';
+  document.querySelectorAll('.page-header .meta-item').forEach(function (el) {
+    var t = el.lastChild;
+    if (!t || t.nodeType !== 3) return;
+    if (/^\s*\d+ çözümlü soru\s*$/.test(t.data)) t.data = kartlar.length + ' çözümlü soru';
+    if (/^\s*\d+ formül kartı\s*$/.test(t.data)) t.data = formul + ' formül kartı';
+  });
+  document.querySelectorAll('.stats-row .stat-cell').forEach(function (h) {
+    var ad = h.querySelector('.stat-label').textContent.trim();
+    if (ad in say) h.querySelector('.stat-val').textContent = say[ad] || '—';
+  });
 }
-if (typeof document !== 'undefined') konuSayfasiniBaslat();
+
+function anaSayfaSayaclari(konular) {
+  var soru = 0, formul = 0;
+  konular.forEach(function (k) {
+    soru += k.sorular.length; formul += k.formul.kartlar.length;
+    var kutu = document.querySelector('a.home-card[href="' + k.sayfa + '"] .hc-count');
+    if (kutu) kutu.textContent = k.sorular.length + ' SORU · ' + k.formul.kartlar.length + ' FORMÜL KARTI';
+  });
+  var deger = { 'Toplam Soru': soru, 'Konu Başlığı': konular.length, 'Formül Kartı': formul };
+  document.querySelectorAll('.stats-row .stat-cell').forEach(function (h) {
+    var ad = h.querySelector('.stat-label').textContent.trim();
+    if (ad in deger) h.querySelector('.stat-val').textContent = deger[ad];
+  });
+}
+
+// ── Soru bağlantıları: ga.html#GA-04 → kart açılır, ekrana kayar ve kısa süre vurgulanır ──
+function kartKimligi(no) { return no.trim().replace(/[–—-]+/g, '-'); }
+
+function kartlaraKimlikVer() {
+  document.querySelectorAll('.questions-grid > .q-card').forEach(function (c) {
+    c.id = kartKimligi(c.querySelector('.q-num').textContent);
+  });
+}
+
+function vurgula(c) {
+  c.classList.remove('vurgu');
+  void c.offsetWidth;  // animasyonu baştan başlat
+  c.classList.add('vurgu');
+}
+
+function bagliKartiAc() {
+  var id = decodeURIComponent(location.hash.slice(1));
+  var c = id && document.getElementById(id);
+  if (!c || !c.classList.contains('q-card')) return;
+  c.classList.add('open');
+  c.scrollIntoView({ block: 'start' });
+  vurgula(c);
+}
+
+// ── Sayfa açılışı ──
+// <body data-konu="ga">: içerik veritabanından çekilip yeniden çizilir; ulaşılamazsa statik içerik kalır.
+// <body data-sayfa="ana">: konu kartlarındaki sayılar veritabanından hesaplanır.
+// İçeriğin nereden geldiği <body data-icerik="…"> üzerinde görünür: "veritabani" ya da "yedek".
+function sayfayiBaslat() {
+  var kod = document.body.dataset.konu;
+  if (kod) {
+    document.body.dataset.icerik = 'yedek';
+    kartlaraKimlikVer(); konuSayaclari(); bagliKartiAc();
+    window.addEventListener('hashchange', bagliKartiAc);
+    import('./veri-katmani.js')
+      .then(function (v) { return v.konuGetir(kod); })
+      .then(function (konu) {
+        if (!konuyuCiz(konu)) return;
+        document.body.dataset.icerik = 'veritabani';
+        kartlaraKimlikVer(); konuSayaclari(konu.sira);
+        var c = location.hash && document.getElementById(decodeURIComponent(location.hash.slice(1)));
+        if (c && c.classList.contains('q-card')) vurgula(c);
+      })
+      .catch(function (e) { console.warn('END214: veritabanına ulaşılamadı, sayfadaki kayıtlı içerik gösteriliyor.', e); });
+  } else if (document.body.dataset.sayfa === 'ana') {
+    document.body.dataset.icerik = 'yedek';
+    import('./veri-katmani.js')
+      .then(function (v) { return v.tumKonular(); })
+      .then(function (konular) {
+        if (!konular.length) return;
+        anaSayfaSayaclari(konular);
+        document.body.dataset.icerik = 'veritabani';
+      })
+      .catch(function (e) { console.warn('END214: veritabanına ulaşılamadı, sayfadaki kayıtlı sayılar gösteriliyor.', e); });
+  }
+}
+if (typeof document !== 'undefined') sayfayiBaslat();
 
 // ── Kart ve çözüm aç/kapa ──
 function toggleCard(h) { h.closest('.q-card').classList.toggle('open'); }

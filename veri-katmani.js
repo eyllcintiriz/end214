@@ -9,7 +9,7 @@
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js';
 // Firestore'un "lite" sürümü: canlı bağlantı kanalı açmaz, her okuma tek bir istektir (daha küçük ve hızlı).
 import {
-  getFirestore, doc, getDoc, writeBatch, serverTimestamp
+  getFirestore, doc, getDoc, getDocs, collection, writeBatch, serverTimestamp
 } from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore-lite.js';
 import {
   getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut, sendPasswordResetEmail
@@ -27,6 +27,12 @@ auth.languageCode = 'tr';  // şifre sıfırlama e-postaları Türkçe gelsin
 export async function konuGetir(kod) {
   const b = await getDoc(doc(db, 'konular', kod));
   return b.exists() ? b.data() : null;
+}
+
+/** Bütün konular, ana sayfadaki sırasıyla (sayaçlar ve arama için). */
+export async function tumKonular() {
+  const s = await getDocs(collection(db, 'konular'));
+  return s.docs.map(b => b.data()).sort((x, y) => x.sira - y.sira);
 }
 
 // ── Giriş ──

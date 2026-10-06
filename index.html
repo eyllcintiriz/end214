@@ -6,7 +6,7 @@
 <title>END214 – Soru Bankası</title>
 <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body data-sayfa="ana">
 
 <!-- NAV -->
 <nav class="topnav">
@@ -44,9 +44,9 @@
 
   <!-- STATS -->
   <div class="stats-row">
-    <div class="stat-cell"><div class="stat-val amber">100</div><div class="stat-label">Toplam Soru</div></div>
-    <div class="stat-cell"><div class="stat-val blue">9</div><div class="stat-label">Konu Başlığı</div></div>
-    <div class="stat-cell"><div class="stat-val teal">27</div><div class="stat-label">Formül Kartı</div></div>
+    <div class="stat-cell"><div class="stat-val amber">98</div><div class="stat-label">Toplam Soru</div></div>
+    <div class="stat-cell"><div class="stat-val blue">8</div><div class="stat-label">Konu Başlığı</div></div>
+    <div class="stat-cell"><div class="stat-val teal">33</div><div class="stat-label">Formül Kartı</div></div>
     <div class="stat-cell"><div class="stat-val amber">✓</div><div class="stat-label">Tümü Çözümlü</div></div>
   </div>
 
@@ -64,7 +64,7 @@
       <div class="hc-icon">🔑</div>
       <div class="hc-title">Temel Tanımlar</div>
       <div class="hc-desc">Yığın, örnek, parametre, istatistik. Nitel/nicel değişkenler ve dört ölçme düzeyi. Çokluk dağılımı oluşturma ve sınıf aralığı belirleme.</div>
-      <div class="hc-count">10 SORU · 3 FORMÜL KARTI</div>
+      <div class="hc-count">8 SORU · 3 FORMÜL KARTI</div>
       <span class="hc-arrow">→</span>
     </a>
 
@@ -73,7 +73,7 @@
       <div class="hc-icon">📊</div>
       <div class="hc-title">Merkezi Eğilim Ölçüleri</div>
       <div class="hc-desc">Aritmetik ortalama (basit, ağırlıklı, frekans tablosu). Medyan ve mod hesabı. Geometrik ve harmonik ortalama. Çarpıklık kıyaslaması.</div>
-      <div class="hc-count">12 SORU · 6 FORMÜL KARTI</div>
+      <div class="hc-count">12 SORU · 4 FORMÜL KARTI</div>
       <span class="hc-arrow">→</span>
     </a>
 
@@ -204,13 +204,7 @@
   Prof. Dr. Fikri Gökpınar · Bahar 2025–2026
 </footer>
 
-<script>
-function toggleCard(h){ h.closest('.q-card').classList.toggle('open'); }
-function toggleSolution(btn){
-  const s = btn.nextElementSibling;
-  s.classList.toggle('visible');
-  btn.textContent = s.classList.contains('visible') ? '▼ Çözümü Gizle' : '▶ Çözümü Göster';
-}
-</script>
+<script src="firebase-ayar.js"></script>
+<script src="ortak.js"></script>
 </body>
 </html>

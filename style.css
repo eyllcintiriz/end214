@@ -630,3 +630,11 @@ footer strong { color: var(--amber); }
 .hc-temel:hover { border-color: rgba(244,63,94,.4); }
 .hc-temel .hc-glow { background: radial-gradient(circle, rgba(244,63,94,.15) 0%, transparent 70%); }
 .hc-temel .hc-count { color: var(--rose); }
+
+/* ── Bağlantıyla gelinen soru (ör. ga.html#GA-04): menünün altında kalmasın, kısa süre vurgulansın ── */
+.q-card { scroll-margin-top: 4.5rem; }
+.q-card.vurgu { animation: vurgu 2.4s ease-out; }
+@keyframes vurgu {
+  0%, 40% { border-color: var(--amber); box-shadow: 0 0 0 2px rgba(232,184,109,.35); }
+  100%    { border-color: var(--border); box-shadow: none; }
+}
