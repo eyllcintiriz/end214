@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>END214 – Hesabım</title>
+<link rel="stylesheet" href="style.css?v=4dccaa6f">
+</head>
+<body data-sayfa="hesap">
+
+<!-- NAV -->
+<nav class="topnav">
+  <a href="index.html" class="brand">END<span>214</span></a>
+  <div class="nav-links">
+    <a href="index.html">Ana Sayfa</a>
+    <a href="duyurular.html">Duyurular</a>
+    <a href="ders.html">Ders Bilgileri</a>
+    <a href="temel.html">Temel Tanımlar</a>
+    <a href="me.html">Merkezi Eğilim Ölçüleri</a>
+    <a href="dag.html">Dağılım Ölçüleri</a>
+    <a href="grafik.html">Grafikler</a>
+    <a href="tahmin.html">Nokta Tahmini</a>
+    <a href="ga.html">Güven Aralığı</a>
+    <a href="ht.html">Hipotez Testi</a>
+    <a href="reg.html">Regresyon</a>
+    <a href="tablolar.html">Tablolar</a>
+    <a href="cheatsheet.html">Formül Özeti</a>
+  </div>
+</nav>
+
+<!-- HEADER -->
+<header class="page-header page-header-home">
+  <div class="page-header-inner">
+    <span class="topic-tag tag-home">END 214 · Öğrenci Hesabı</span>
+    <h1><em style="color:var(--amber)">Hesabım</em></h1>
+    <p class="subtitle">Çözdüğünüz soruları işaretleyin, konu konu ilerlemenizi görün. Hesap açmak zorunlu değildir; site giriş yapmadan da kullanılabilir.</p>
+  </div>
+</header>
+
+<main>
+  <div class="panel" data-durum="yukleniyor"><p>Yükleniyor…</p></div>
+
+  <!-- Giriş yapılmamış -->
+  <div data-durum="misafir" hidden>
+    <div class="hesap-sekmeler" role="tablist">
+      <button type="button" role="tab" data-sekme="giris" class="aktif" aria-selected="true">Giriş yap</button>
+      <button type="button" role="tab" data-sekme="kayit" aria-selected="false">Kayıt ol</button>
+    </div>
+
+    <form class="panel" id="girisForm">
+      <h2>Giriş yap</h2>
+      <label for="girisEposta">E-posta</label>
+      <input id="girisEposta" type="email" autocomplete="username" required>
+      <label for="girisSifre">Şifre</label>
+      <input id="girisSifre" type="password" autocomplete="current-password" required>
+      <div>
+        <button class="dugme" type="submit">Giriş yap</button>
+        <button class="baglanti" type="button" id="sifremiUnuttum">Şifremi unuttum</button>
+      </div>
+      <div class="mesaj" id="girisMesaj"></div>
+    </form>
+
+    <form class="panel" id="kayitForm" hidden>
+      <h2>Kayıt ol</h2>
+      <label for="kayitAd">Ad Soyad</label>
+      <input id="kayitAd" type="text" maxlength="80" autocomplete="name" required>
+      <label for="kayitEposta">E-posta</label>
+      <input id="kayitEposta" type="email" autocomplete="email" required>
+      <label for="kayitSifre">Şifre <span class="etiket-not">(en az 6 karakter)</span></label>
+      <input id="kayitSifre" type="password" minlength="6" autocomplete="new-password" required>
+      <label class="onay-kutu"><input id="kayitOnay" type="checkbox"> <span>Aşağıdaki <a href="#aydinlatma">aydınlatma metnini</a> okudum.</span></label>
+      <button class="dugme" type="submit">Kayıt ol</button>
+      <div class="mesaj" id="kayitMesaj"></div>
+    </form>
+  </div>
+
+  <!-- Giriş yapılmış -->
+  <div data-durum="ogrenci" hidden>
+    <div class="panel">
+      <h2>Merhaba, <span data-ad></span></h2>
+      <p>Giriş yapan: <span class="kullanici" data-eposta></span></p>
+      <button class="dugme dugme-ikincil" type="button" data-cikis>Çıkış yap</button>
+    </div>
+
+    <div class="panel">
+      <h2>İlerlemeniz</h2>
+      <p class="ilerleme-toplam"></p>
+      <div class="ilerleme-liste"><p class="bos-mesaj">Yükleniyor…</p></div>
+    </div>
+
+    <details class="panel tehlike">
+      <summary>Hesabımı sil</summary>
+      <form id="silForm">
+        <p>Hesabınız ve işaretlediğiniz bütün sorular kalıcı olarak silinir; bu işlem geri alınamaz.
+          Daha önce gönderdiğiniz hata bildirimleri ders sorumlusunda kalır.</p>
+        <label for="silSifre">Onay için şifreniz</label>
+        <input id="silSifre" type="password" autocomplete="current-password" required>
+        <button class="dugme dugme-tehlike" type="submit">Hesabımı kalıcı olarak sil</button>
+        <div class="mesaj" id="silMesaj"></div>
+      </form>
+    </details>
+  </div>
+
+  <details class="panel aydinlatma" id="aydinlatma">
+    <summary>Kişisel verilerin işlenmesine ilişkin aydınlatma metni</summary>
+    <p class="taslak-isaret">TASLAK · ders sorumlusunun onayı bekleniyor [HOCAYA SOR: bölümün ya da üniversitenin hazır bir aydınlatma metni var mı?]</p>
+    <p><strong>Hangi veriler?</strong> Hesap açarsanız ad-soyadınız, e-posta adresiniz ve şifreniz; siteyi kullanırken
+      "Çözdüm" olarak işaretlediğiniz sorular. Hata bildirimi gönderirseniz mesajınız, yazdıysanız e-posta adresiniz,
+      giriş yaptıysanız adınız. Şifreniz Google Firebase tarafından şifrelenmiş olarak saklanır; kimse göremez.</p>
+    <p><strong>Ne için?</strong> Yalnızca ilerlemenizi size göstermek ve hata bildirimlerini ders sorumlusuna iletmek için.
+      Verileriniz reklam ya da başka bir amaçla kullanılmaz, üçüncü kişilerle paylaşılmaz.</p>
+    <p><strong>Nerede?</strong> Google Firebase hizmetinde. Veritabanı Avrupa'daki sunucularda (eur3) tutulur;
+      giriş bilgileri Google'ın Firebase Authentication hizmetindedir.</p>
+    <p><strong>Kim görebilir?</strong> İşaretlediğiniz soruları site üzerinden yalnızca siz görürsünüz. Hata bildirimlerini
+      ders sorumlusu görür. Ders sorumlusu ve site yöneticisi, Firebase yönetim ekranından verilere teknik olarak erişebilir.</p>
+    <p><strong>Haklarınız:</strong> "Hesabımı sil" ile hesabınızı ve işaretlerinizi istediğiniz zaman silebilirsiniz.
+      6698 sayılı KVKK'nın 11. maddesindeki diğer talepleriniz için: [HOCAYA SOR: veri sorumlusu ve başvuru adresi].</p>
+  </details>
+</main>
+
+<footer>
+  <strong>END 214 – Olasılık ve İstatistik II</strong> · TOBB ETÜ Mühendislik Fakültesi Endüstri Mühendisliği Bölümü<br>
+  Prof. Dr. Fikri Gökpınar · Bahar 2025–2026
+</footer>
+
+<script src="firebase-ayar.js?v=987a2a63"></script>
+<script src="ortak.js?v=242341dd"></script>
+</body>
+</html>

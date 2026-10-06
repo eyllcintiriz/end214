@@ -773,3 +773,74 @@ footer strong { color: var(--amber); }
 .bildir-gonder { background: rgba(232,184,109,.1); color: var(--amber); border: 1px solid rgba(232,184,109,.35); font-weight: 600; }
 .bildir-gonder:hover { background: rgba(232,184,109,.18); }
 .bildir-gonder:disabled { opacity: .5; cursor: wait; }
+
+/* ── Form panelleri (yönetim paneli ve hesap sayfası) ── */
+.panel { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; margin-bottom: 1.25rem; }
+.panel h2 { font-family: var(--serif); font-weight: 400; font-size: 1.35rem; margin-bottom: .75rem; }
+.panel p { color: var(--muted); font-size: .9rem; line-height: 1.6; margin-bottom: .75rem; }
+.panel label { display: block; font-size: .8rem; color: var(--muted); margin: .75rem 0 .3rem; }
+.panel input { width: 100%; max-width: 360px; padding: .6rem .75rem; background: var(--surface); color: var(--text);
+  border: 1px solid var(--border); border-radius: var(--radius); font: inherit; font-size: .95rem; }
+.panel input:focus { outline: none; border-color: var(--amber); }
+.dugme { margin-top: 1rem; padding: .6rem 1.2rem; background: rgba(232,184,109,.1); color: var(--amber);
+  border: 1px solid rgba(232,184,109,.35); border-radius: var(--radius); font: inherit; font-size: .9rem; font-weight: 600; cursor: pointer; }
+.dugme:hover { background: rgba(232,184,109,.18); }
+.dugme:disabled { opacity: .5; cursor: wait; }
+.dugme-ikincil { background: none; color: var(--muted); border-color: var(--border); font-weight: 400; }
+.baglanti { background: none; border: none; color: var(--muted); font: inherit; font-size: .8rem; text-decoration: underline; cursor: pointer; margin-left: .75rem; }
+.mesaj { margin-top: .9rem; font-size: .88rem; line-height: 1.6; white-space: pre-line; }
+.mesaj.hata { color: var(--red); }
+.mesaj.tamam { color: var(--teal); }
+.kullanici { font-family: var(--mono); font-size: .8rem; color: var(--muted); }
+[hidden] { display: none !important; }
+
+/* ── Öğrenci hesabı: menü düğmesi, "Çözdüm", ilerleme, hesap sayfası ── */
+.hesap-dugme {
+  display: flex; align-items: center; gap: .4rem; flex-shrink: 0; text-decoration: none;
+  color: var(--muted); font-size: .72rem; padding: .26rem .55rem; border: 1px solid var(--border); border-radius: 4px;
+  transition: color .18s, border-color .18s;
+}
+.hesap-dugme:hover, .hesap-dugme.active { color: var(--amber); border-color: rgba(232,184,109,.35); }
+.kart-alt { display: flex; align-items: center; gap: .8rem; flex-wrap: wrap; margin-top: 1rem; }
+.kart-alt .bildir-link { margin: 0 0 0 auto; }
+.cozdum-dugme {
+  font-family: var(--mono); font-size: .7rem; padding: .28rem .7rem; cursor: pointer;
+  background: transparent; color: var(--muted); border: 1px solid var(--border); border-radius: 4px;
+  transition: color .18s, border-color .18s, background .18s;
+}
+.cozdum-dugme:hover { color: var(--teal); border-color: rgba(109,232,184,.35); }
+.cozdum-dugme[aria-pressed="true"] { color: var(--teal); border-color: rgba(109,232,184,.35); background: rgba(109,232,184,.08); }
+.kart-ipucu { font-size: .75rem; color: var(--muted); }
+.kart-ipucu a { color: var(--amber); }
+.kart-ipucu.hata { color: var(--red); }
+.q-card.cozuldu .q-num::after { content: ' ✓'; color: var(--teal); }
+.zorluk-filtre .ilerleme { margin-left: auto; align-self: center; font-family: var(--mono); font-size: .7rem; color: var(--teal); }
+.hesap-sekmeler { display: flex; gap: .4rem; margin-bottom: 1rem; }
+.hesap-sekmeler button {
+  font: inherit; font-size: .85rem; padding: .45rem 1rem; cursor: pointer; border-radius: var(--radius);
+  background: transparent; color: var(--muted); border: 1px solid var(--border);
+}
+.hesap-sekmeler button.aktif { color: var(--amber); border-color: rgba(232,184,109,.35); background: rgba(232,184,109,.08); }
+.etiket-not { opacity: .75; }
+.panel .onay-kutu { display: flex; gap: .5rem; align-items: flex-start; margin-top: 1rem; font-size: .82rem; }
+.panel .onay-kutu input { width: auto; margin-top: .2rem; }
+.panel .onay-kutu a { color: var(--amber); }
+.ilerleme-toplam { font-family: var(--mono); font-size: .8rem; }
+.ilerleme-liste { display: flex; flex-direction: column; gap: .3rem; }
+.ilerleme-satir { display: block; text-decoration: none; color: var(--text); padding: .5rem 0; }
+.ilerleme-satir:hover .ilerleme-ust span:first-child { color: var(--amber); }
+.ilerleme-ust { display: flex; justify-content: space-between; gap: 1rem; font-size: .86rem; margin-bottom: .35rem; }
+.ilerleme-sayi { font-family: var(--mono); font-size: .75rem; color: var(--muted); }
+.ilerleme-cubuk { height: 6px; background: var(--surface); border: 1px solid var(--border); border-radius: 3px; overflow: hidden; }
+.ilerleme-dolu { height: 100%; background: var(--teal); opacity: .7; }
+details.panel > summary { cursor: pointer; font-size: .9rem; color: var(--text); }
+details.panel[open] > summary { margin-bottom: .8rem; }
+details.panel p { font-size: .84rem; }
+details.tehlike > summary { color: var(--red); }
+.dugme-tehlike { color: var(--red); background: rgba(232,109,109,.08); border-color: rgba(232,109,109,.35); }
+.dugme-tehlike:hover { background: rgba(232,109,109,.15); }
+.taslak-isaret { font-family: var(--mono); font-size: .72rem !important; color: var(--amber) !important; border: 1px dashed rgba(232,184,109,.4); border-radius: 4px; padding: .4rem .6rem; }
+.aydinlatma strong { color: var(--text); font-weight: 600; }
+@media (max-width: 600px) {
+  .hesap-dugme-yazi { display: none; }
+}

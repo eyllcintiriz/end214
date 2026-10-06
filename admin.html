@@ -5,28 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="robots" content="noindex">
 <title>END214 – Yönetim Paneli</title>
-<link rel="stylesheet" href="style.css?v=cbc8b8fa">
-<style>
-/* Panel formları: style.css'teki renk ve yazı tipi değişkenleriyle */
-.panel { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; margin-bottom: 1.25rem; }
-.panel h2 { font-family: var(--serif); font-weight: 400; font-size: 1.35rem; margin-bottom: .75rem; }
-.panel p { color: var(--muted); font-size: .9rem; line-height: 1.6; margin-bottom: .75rem; }
-.panel label { display: block; font-size: .8rem; color: var(--muted); margin: .75rem 0 .3rem; }
-.panel input { width: 100%; max-width: 360px; padding: .6rem .75rem; background: var(--surface); color: var(--text);
-  border: 1px solid var(--border); border-radius: var(--radius); font: inherit; font-size: .95rem; }
-.panel input:focus { outline: none; border-color: var(--amber); }
-.dugme { margin-top: 1rem; padding: .6rem 1.2rem; background: rgba(232,184,109,.1); color: var(--amber);
-  border: 1px solid rgba(232,184,109,.35); border-radius: var(--radius); font: inherit; font-size: .9rem; font-weight: 600; cursor: pointer; }
-.dugme:hover { background: rgba(232,184,109,.18); }
-.dugme:disabled { opacity: .5; cursor: wait; }
-.dugme-ikincil { background: none; color: var(--muted); border-color: var(--border); font-weight: 400; }
-.baglanti { background: none; border: none; color: var(--muted); font: inherit; font-size: .8rem; text-decoration: underline; cursor: pointer; margin-left: .75rem; }
-.mesaj { margin-top: .9rem; font-size: .88rem; line-height: 1.6; white-space: pre-line; }
-.mesaj.hata { color: var(--red); }
-.mesaj.tamam { color: var(--teal); }
-.kullanici { font-family: var(--mono); font-size: .8rem; color: var(--muted); }
-[hidden] { display: none !important; }
-</style>
+<link rel="stylesheet" href="style.css?v=4dccaa6f">
 </head>
 <body>
 
@@ -103,7 +82,7 @@ const mesaj = (el, metin, tur) => { el.textContent = metin; el.className = 'mesa
 
 let v;
 try {
-  v = await import('./veri-katmani.js?v=592eadf6');
+  v = await import('./veri-katmani.js?v=0680dbaf');
 } catch (e) {
   $('yukleniyor').innerHTML = '<p class="mesaj hata">Veritabanına bağlanılamadı. İnternet bağlantınızı kontrol edip sayfayı yenileyin.</p>';
   throw e;

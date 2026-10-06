@@ -261,7 +261,7 @@ function parca(g, yer, uzunluk) {
 var aramaVerisi = null;
 function aramaVerisiniYukle() {
   if (!aramaVerisi) {
-    aramaVerisi = import('./veri-katmani.js?v=592eadf6')
+    aramaVerisi = import('./veri-katmani.js?v=0680dbaf')
       .then(function (v) { return v.tumKonular(); })
       .then(function (k) { if (!k.length) throw new Error('boş'); return k; })
       .catch(function () {  // veritabanına ulaşılamazsa depodaki kopya
@@ -517,6 +517,7 @@ function bildirPenceresiniKur() {
       '<label for="bildirEposta">E-posta <span>(isteğe bağlı, size dönüş yapılabilmesi için)</span></label>' +
       '<input id="bildirEposta" type="email" maxlength="100" autocomplete="email">' +
       '<p class="bildir-not">E-posta adresiniz yalnızca bu bildirimle ilgili size dönüş yapmak için kullanılır.</p>' +
+      '<p class="bildir-not bildir-kim" hidden></p>' +
       '<div class="bildir-durum" role="status"></div>' +
       '<div class="bildir-dugmeler"><button type="button" class="bildir-vazgec">Vazgeç</button>' +
       '<button type="submit" class="bildir-gonder">Gönder</button></div>' +
@@ -539,7 +540,7 @@ function bildirPenceresiniKur() {
     if (Date.now() - son < BEKLEME) return durum('Az önce bir bildirim gönderdiniz. Lütfen biraz bekleyip tekrar deneyin.', 'hata');
     gonder.disabled = true;
     durum('Gönderiliyor…');
-    import('./veri-katmani.js?v=592eadf6')
+    import('./veri-katmani.js?v=0680dbaf')
       .then(function (v) { return v.hataBildir({ soruId: d.dataset.soruId, sayfa: sayfaAdi(), mesaj: m, eposta: ep }); })
       .then(function () {
         try { localStorage.setItem('end214-son-bildirim', String(Date.now())); } catch (x) { /* önemli değil */ }
@@ -559,19 +560,32 @@ function hataBildirAc(soruId, no) {
   d.dataset.soruId = soruId || '';
   d.querySelector('.bildir-baslik').textContent = soruId ? '⚠ Hata bildir · ' + no : 'Hata / öneri bildir';
   d.querySelector('.bildir-durum').textContent = '';
+  var kim = d.querySelector('.bildir-kim'), ep = d.querySelector('#bildirEposta');
+  kim.hidden = !kullanici;
+  if (kullanici) {
+    kim.textContent = 'Bildiriminiz adınızla gönderilecek: ' + (kullanici.ad || kullanici.eposta);
+    if (!ep.value) ep.value = kullanici.eposta || '';
+  }
   if (typeof d.showModal === 'function') d.showModal(); else d.setAttribute('open', '');
   d.querySelector('#bildirMesaj').focus();
 }
 
-function hataLinkleriniEkle() {
+// Kartın altındaki satır: solda "Çözdüm", sağda "⚠ Hata bildir"
+function kartAltlariniEkle() {
   document.querySelectorAll('.questions-grid > .q-card').forEach(function (c) {
     var govde = c.querySelector('.q-body');
-    if (!govde || govde.querySelector('.bildir-link')) return;
-    var b = el('button', 'bildir-link', '⚠ Hata bildir');
-    b.type = 'button';
-    b.addEventListener('click', function () { hataBildirAc(c.id, c.querySelector('.q-num').textContent.trim()); });
-    govde.appendChild(b);
+    if (!govde || govde.querySelector('.kart-alt')) return;
+    var satir = el('div', 'kart-alt');
+    var coz = el('button', 'cozdum-dugme');
+    coz.type = 'button';
+    coz.addEventListener('click', function () { cozdumTikla(c, coz); });
+    var bildir = el('button', 'bildir-link', '⚠ Hata bildir');
+    bildir.type = 'button';
+    bildir.addEventListener('click', function () { hataBildirAc(c.id, c.querySelector('.q-num').textContent.trim()); });
+    satir.appendChild(coz); satir.appendChild(bildir);
+    govde.appendChild(satir);
   });
+  isaretleriGoster();
 }
 
 function footerBildirLinki() {
@@ -584,31 +598,205 @@ function footerBildirLinki() {
   f.appendChild(b);
 }
 
+// ── Öğrenci hesabı: menüdeki düğme, "Çözdüm" işaretleri, ilerleme ──
+// Giriş zorunlu değildir; hesabı olmayan öğrenci siteyi aynen kullanır, yalnızca işaretleyemez.
+var kullanici = null, cozulen = {}, hesapBilindi = false;
+
+function hesapDugmesiniKur() {
+  var arama = document.querySelector('.topnav .arama-dugme');
+  if (!arama) return;
+  var a = el('a', 'hesap-dugme');
+  a.href = 'hesap.html';
+  a.innerHTML = '<span aria-hidden="true">👤</span><span class="hesap-dugme-yazi">Giriş</span>';
+  a.setAttribute('aria-label', 'Hesabım');
+  if (sayfaAdi() === 'hesap.html') a.classList.add('active');
+  arama.insertAdjacentElement('afterend', a);
+}
+
+function hesapDugmesiniGuncelle() {
+  var y = document.querySelector('.hesap-dugme-yazi');
+  if (y) y.textContent = kullanici ? (kullanici.ad || 'Hesabım').split(' ')[0] : 'Giriş';
+}
+
+function donusAdresi() { return encodeURIComponent(sayfaAdi() + location.hash); }
+
+function cozdumTikla(c, dugme) {
+  var ipucu = c.querySelector('.kart-ipucu');
+  if (ipucu) ipucu.remove();
+  if (!kullanici) {
+    var p = el('span', 'kart-ipucu');
+    var a = el('a', '', 'İşaretlemek için giriş yapın →');
+    a.href = 'hesap.html?donus=' + encodeURIComponent(sayfaAdi() + '#' + c.id);
+    p.appendChild(a);
+    dugme.insertAdjacentElement('afterend', p);
+    return;
+  }
+  var yeni = !cozulen[c.id];
+  if (yeni) cozulen[c.id] = true; else delete cozulen[c.id];
+  isaretleriGoster();
+  import('./veri-katmani.js?v=0680dbaf')
+    .then(function (v) { return v.cozulduIsaretle(c.id, yeni); })
+    .catch(function () {  // kaydedilemediyse geri al
+      if (yeni) delete cozulen[c.id]; else cozulen[c.id] = true;
+      isaretleriGoster();
+      dugme.insertAdjacentElement('afterend', el('span', 'kart-ipucu hata', 'Kaydedilemedi, tekrar deneyin.'));
+    });
+}
+
+function isaretleriGoster() {
+  var kartlar = document.querySelectorAll('.questions-grid > .q-card'), say = 0;
+  kartlar.forEach(function (c) {
+    var isaretli = !!(kullanici && cozulen[c.id]);
+    if (isaretli) say++;
+    c.classList.toggle('cozuldu', isaretli);
+    var b = c.querySelector('.cozdum-dugme');
+    if (b) {
+      b.textContent = isaretli ? '✓ Çözdüm' : '○ Çözdüm';
+      b.setAttribute('aria-pressed', isaretli ? 'true' : 'false');
+      b.title = isaretli ? 'İşareti kaldırmak için tıklayın' : 'Bu soruyu çözdüm olarak işaretle';
+    }
+  });
+  var filtre = document.querySelector('.zorluk-filtre');
+  if (!filtre) return;
+  var il = filtre.querySelector('.ilerleme');
+  if (!il) { il = el('span', 'ilerleme'); filtre.appendChild(il); }
+  il.hidden = !kullanici;
+  il.textContent = 'İlerlemeniz: ' + say + ' / ' + kartlar.length;
+}
+
+// Hesap durumunu bütün sayfalarda izler (menüdeki ad, kartlardaki işaretler, bildirim penceresi)
+function hesabiIzle() {
+  import('./veri-katmani.js?v=0680dbaf').then(function (v) {
+    v.girisDurumu(function (k) {
+      kullanici = k; hesapBilindi = true;
+      hesapDugmesiniGuncelle();
+      document.dispatchEvent(new CustomEvent('end214-hesap'));
+      if (!k) { cozulen = {}; isaretleriGoster(); return; }
+      if (document.body.dataset.konu) v.cozulenler().then(function (c) { cozulen = c; isaretleriGoster(); }).catch(function () {});
+    });
+  }).catch(function () { /* veritabanına ulaşılamıyor: herkes misafir */ });
+}
+
+// ── Hesap sayfası (hesap.html) ──
+// Girişten sonra dönülecek adres yalnızca bu sitenin bir sayfası olabilir (ör. ga.html#GA-04); başka siteye yönlendirmez.
+function gecerliDonus(d) { return /^[a-z]+\.html(#[A-Za-z]+-\d+)?$/.test(d || ''); }
+
+function hesapSayfasi() {
+  var $ = function (s) { return document.querySelector(s); };
+  var goster = function (d) { document.querySelectorAll('[data-durum]').forEach(function (b) { b.hidden = b.dataset.durum !== d; }); };
+  var mesaj = function (kutu, metin, tur) { kutu.textContent = metin; kutu.className = 'mesaj' + (tur ? ' ' + tur : ''); };
+  var donus = new URLSearchParams(location.search).get('donus') || '';
+  var geriDon = function () { if (gecerliDonus(donus)) location.href = donus; };
+
+  document.querySelectorAll('.hesap-sekmeler button').forEach(function (b) {
+    b.addEventListener('click', function () {
+      document.querySelectorAll('.hesap-sekmeler button').forEach(function (x) { x.classList.toggle('aktif', x === b); x.setAttribute('aria-selected', x === b); });
+      $('#girisForm').hidden = b.dataset.sekme !== 'giris';
+      $('#kayitForm').hidden = b.dataset.sekme !== 'kayit';
+    });
+  });
+
+  import('./veri-katmani.js?v=0680dbaf').then(function (v) {
+    $('#girisForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+      var m = $('#girisMesaj');
+      mesaj(m, 'Giriş yapılıyor…');
+      v.girisYap($('#girisEposta').value.trim(), $('#girisSifre').value)
+        .then(function () { $('#girisSifre').value = ''; mesaj(m, ''); geriDon(); })
+        .catch(function (err) { mesaj(m, v.hataMetni(err), 'hata'); });
+    });
+    $('#sifremiUnuttum').addEventListener('click', function () {
+      var ep = $('#girisEposta').value.trim(), m = $('#girisMesaj');
+      if (!ep) return mesaj(m, 'Önce e-posta adresinizi yazın.', 'hata');
+      v.sifreSifirla(ep)
+        .then(function () { mesaj(m, 'Bu adres kayıtlıysa şifre sıfırlama bağlantısı gönderildi. Gelen kutunuzu (ve gereksiz klasörünü) kontrol edin.', 'tamam'); })
+        .catch(function (err) { mesaj(m, v.hataMetni(err), 'hata'); });
+    });
+    $('#kayitForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+      var m = $('#kayitMesaj'), ad = $('#kayitAd').value.trim();
+      if (!ad) return mesaj(m, 'Lütfen adınızı ve soyadınızı yazın.', 'hata');
+      if (!$('#kayitOnay').checked) return mesaj(m, 'Devam etmek için aydınlatma metnini okuduğunuzu onaylayın.', 'hata');
+      mesaj(m, 'Hesap oluşturuluyor…');
+      v.kayitOl({ ad: ad, eposta: $('#kayitEposta').value.trim(), sifre: $('#kayitSifre').value })
+        .then(function () {
+          // giriş olayı ad profile yazılmadan önce gelir; adı burada tamamla
+          if (kullanici) kullanici.ad = ad;
+          $('#kayitSifre').value = ''; mesaj(m, ''); hesapDugmesiniGuncelle(); ogrenciGoster(); geriDon();
+        })
+        .catch(function (err) { mesaj(m, v.hataMetni(err), 'hata'); });
+    });
+    document.querySelectorAll('[data-cikis]').forEach(function (b) { b.addEventListener('click', function () { v.cikisYap(); }); });
+    $('#silForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+      var m = $('#silMesaj');
+      if (!confirm('Hesabınız ve işaretlediğiniz bütün sorular kalıcı olarak silinecek. Emin misiniz?')) return;
+      mesaj(m, 'Siliniyor…');
+      v.hesabiSil($('#silSifre').value)
+        .then(function () { mesaj(m, ''); $('#silSifre').value = ''; })
+        .catch(function (err) { mesaj(m, v.hataMetni(err), 'hata'); });
+    });
+
+    function ogrenciGoster() {
+      goster('ogrenci');
+      $('[data-ad]').textContent = (kullanici && kullanici.ad) || '';
+      $('[data-eposta]').textContent = (kullanici && kullanici.eposta) || '';
+      var liste = $('.ilerleme-liste');
+      Promise.all([v.tumKonular(), v.cozulenler()]).then(function (r) {
+        var konular = r[0], coz = r[1], toplam = 0, toplamCoz = 0;
+        liste.innerHTML = '';
+        konular.forEach(function (k) {
+          var n = k.sorular.length, c = k.sorular.filter(function (s) { return coz[s.id]; }).length;
+          toplam += n; toplamCoz += c;
+          var a = el('a', 'ilerleme-satir'); a.href = k.sayfa;
+          var ust = el('div', 'ilerleme-ust');
+          ust.appendChild(el('span', '', 'Konu ' + k.sira + ' · ' + k.ad));
+          ust.appendChild(el('span', 'ilerleme-sayi', c + ' / ' + n));
+          var cubuk = el('div', 'ilerleme-cubuk'), dolu = el('div', 'ilerleme-dolu');
+          dolu.style.width = (n ? Math.round(100 * c / n) : 0) + '%';
+          cubuk.appendChild(dolu); a.appendChild(ust); a.appendChild(cubuk);
+          liste.appendChild(a);
+        });
+        $('.ilerleme-toplam').textContent = 'Toplam: ' + toplamCoz + ' / ' + toplam + ' soru';
+      }).catch(function () { bosMesaj(liste, 'İlerleme şu an yüklenemedi.'); });
+    }
+
+    document.addEventListener('end214-hesap', function () { if (kullanici) ogrenciGoster(); else goster('misafir'); });
+    if (hesapBilindi) { if (kullanici) ogrenciGoster(); else goster('misafir'); }
+  }).catch(function () {
+    $('[data-durum="yukleniyor"]').innerHTML = '';
+    $('[data-durum="yukleniyor"]').appendChild(el('p', 'mesaj hata', 'Bağlantı kurulamadı. İnternet bağlantınızı kontrol edip sayfayı yenileyin.'));
+  });
+}
+
 // ── Sayfa açılışı ──
 // <body data-konu="ga">: içerik veritabanından çekilip yeniden çizilir; ulaşılamazsa statik içerik kalır.
 // <body data-sayfa="ana">: konu kartlarındaki sayılar veritabanından hesaplanır.
 // İçeriğin nereden geldiği <body data-icerik="…"> üzerinde görünür: "veritabani" ya da "yedek".
 function sayfayiBaslat() {
   aramayiKur();
+  hesapDugmesiniKur();
   footerBildirLinki();
+  hesabiIzle();
+  if (document.body.dataset.sayfa === 'hesap') hesapSayfasi();
   var kod = document.body.dataset.konu;
   if (kod) {
     document.body.dataset.icerik = 'yedek';
-    kartlaraKimlikVer(); konuSayaclari(); zorlukFiltresiniKur(); hataLinkleriniEkle(); bagliKartiAc();
+    kartlaraKimlikVer(); konuSayaclari(); zorlukFiltresiniKur(); kartAltlariniEkle(); bagliKartiAc();
     window.addEventListener('hashchange', bagliKartiAc);
-    import('./veri-katmani.js?v=592eadf6')
+    import('./veri-katmani.js?v=0680dbaf')
       .then(function (v) { return v.konuGetir(kod); })
       .then(function (konu) {
         if (!konuyuCiz(konu)) return;
         document.body.dataset.icerik = 'veritabani';
-        kartlaraKimlikVer(); konuSayaclari(konu.sira); filtreUygula(aktifZorluk); hataLinkleriniEkle();
+        kartlaraKimlikVer(); konuSayaclari(konu.sira); filtreUygula(aktifZorluk); kartAltlariniEkle();
         var c = location.hash && document.getElementById(decodeURIComponent(location.hash.slice(1)));
         if (c && c.classList.contains('q-card')) vurgula(c);
       })
       .catch(function (e) { console.warn('END214: veritabanına ulaşılamadı, sayfadaki kayıtlı içerik gösteriliyor.', e); });
   } else if (document.body.dataset.sayfa === 'ana') {
     document.body.dataset.icerik = 'yedek';
-    var vk = import('./veri-katmani.js?v=592eadf6');
+    var vk = import('./veri-katmani.js?v=0680dbaf');
     vk.then(function (v) { return v.tumKonular(); })
       .then(function (konular) {
         if (!konular.length) return;
@@ -620,12 +808,12 @@ function sayfayiBaslat() {
     vk.then(function (v) { return v.siteAyarlari(); }).then(driveDugmesi).catch(function () {});
   } else if (document.body.dataset.sayfa === 'duyurular') {
     var liste = document.querySelector('.duyuru-liste');
-    import('./veri-katmani.js?v=592eadf6')
+    import('./veri-katmani.js?v=0680dbaf')
       .then(function (v) { return v.duyurular(); })
       .then(function (d) { duyurulariCiz(liste, d); })
       .catch(function () { bosMesaj(liste, 'Duyurular şu an yüklenemedi. İnternet bağlantınızı kontrol edip sayfayı yenileyin.'); });
   } else if (document.body.dataset.sayfa === 'ders') {
-    var vd = import('./veri-katmani.js?v=592eadf6');
+    var vd = import('./veri-katmani.js?v=0680dbaf');
     vd.then(function (v) { return v.dersBilgileri(); })
       .then(dersBilgileriniCiz)
       .catch(function () {
