@@ -638,3 +638,53 @@ footer strong { color: var(--amber); }
   0%, 40% { border-color: var(--amber); box-shadow: 0 0 0 2px rgba(232,184,109,.35); }
   100%    { border-color: var(--border); box-shadow: none; }
 }
+
+/* ── Soru arama (menüdeki düğme + menünün altında açılan panel) ── */
+.arama-dugme {
+  display: flex; align-items: center; gap: .45rem; flex-shrink: 0;
+  background: rgba(255,255,255,.03); border: 1px solid var(--border); border-radius: 4px;
+  color: var(--muted); font: inherit; font-size: .72rem; padding: .26rem .55rem; cursor: pointer;
+  transition: color .18s, border-color .18s;
+}
+.arama-dugme:hover { color: var(--text); border-color: rgba(232,184,109,.35); }
+.arama-dugme kbd { font-family: var(--mono); font-size: .62rem; border: 1px solid var(--border); border-radius: 3px; padding: 0 .3rem; }
+.arama-panel {
+  display: none; position: fixed; z-index: 200; left: 50%; transform: translateX(-50%);
+  width: min(620px, calc(100vw - 32px));
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+  box-shadow: 0 12px 40px rgba(0,0,0,.5); overflow: hidden;
+}
+.arama-panel.acik { display: block; }
+.arama-kutu {
+  width: 100%; padding: .85rem 1rem; background: transparent; color: var(--text);
+  border: none; border-bottom: 1px solid var(--border); font: inherit; font-size: .95rem; outline: none;
+}
+.arama-kutu::placeholder { color: var(--muted); }
+.arama-sonuc { overflow-y: auto; max-height: 60vh; }
+.arama-bilgi { padding: .9rem 1rem; color: var(--muted); font-size: .82rem; }
+.arama-oge { display: block; padding: .7rem 1rem; text-decoration: none; color: var(--text); border-bottom: 1px solid var(--border); }
+.arama-oge:last-child { border-bottom: none; }
+.arama-oge:hover, .arama-oge.secili { background: rgba(232,184,109,.06); }
+.arama-ust { display: flex; gap: .6rem; align-items: baseline; }
+.arama-no { font-family: var(--mono); font-size: .72rem; color: var(--amber); flex-shrink: 0; }
+.arama-baslik { font-size: .88rem; font-weight: 500; }
+.arama-alt { font-size: .72rem; color: var(--muted); margin-top: .2rem; }
+.arama-parca { font-size: .78rem; color: var(--muted); margin-top: .3rem; line-height: 1.5; }
+.arama-parca mark { background: rgba(232,184,109,.15); color: var(--amber); border-radius: 2px; }
+@media (max-width: 600px) {
+  .arama-dugme-yazi, .arama-dugme kbd { display: none; }
+}
+
+/* ── Zorluk filtresi (konu sayfalarında soruların üstünde) ── */
+.zorluk-filtre { display: flex; flex-wrap: wrap; gap: .4rem; margin-bottom: 1rem; }
+.zf-btn {
+  font-family: var(--mono); font-size: .7rem; padding: .3rem .75rem; cursor: pointer;
+  background: transparent; color: var(--muted); border: 1px solid var(--border); border-radius: 4px;
+  transition: color .18s, border-color .18s, background .18s;
+}
+.zf-btn:hover { color: var(--text); }
+.zf-btn.aktif[data-zorluk="Tümü"]  { color: var(--text);  border-color: var(--muted); background: rgba(255,255,255,.04); }
+.zf-btn.aktif[data-zorluk="Temel"] { color: var(--teal);  border-color: rgba(109,232,184,.35); background: rgba(109,232,184,.08); }
+.zf-btn.aktif[data-zorluk="Orta"]  { color: var(--amber); border-color: rgba(232,184,109,.35); background: rgba(232,184,109,.08); }
+.zf-btn.aktif[data-zorluk="İleri"] { color: var(--red);   border-color: rgba(232,109,109,.35); background: rgba(232,109,109,.08); }
+.zf-btn[hidden] { display: none; }
