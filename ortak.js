@@ -261,7 +261,7 @@ function parca(g, yer, uzunluk) {
 var aramaVerisi = null;
 function aramaVerisiniYukle() {
   if (!aramaVerisi) {
-    aramaVerisi = import('./veri-katmani.js?v=52648b9a')
+    aramaVerisi = import('./veri-katmani.js?v=9073aff1')
       .then(function (v) { return v.tumKonular(); })
       .then(function (k) { if (!k.length) throw new Error('boş'); return k; })
       .catch(function () {  // veritabanına ulaşılamazsa depodaki kopya
@@ -365,6 +365,140 @@ function aramayiKur() {
   });
 }
 
+// ── Duyurular ve ders bilgileri ──
+// Veritabanındaki metinler textContent ile basılır (HTML olarak işlenmez); bağlantılar yalnızca http(s)/mailto.
+function el(etiket, sinif, metin) {
+  var e = document.createElement(etiket);
+  if (sinif) e.className = sinif;
+  if (metin != null) e.textContent = metin;
+  return e;
+}
+function guvenliLink(url) {
+  var u = String(url || '').trim();
+  return /^(https?:|mailto:)/i.test(u) ? u : null;
+}
+function disLink(a, url) { a.href = url; if (!/^mailto:/i.test(url)) { a.target = '_blank'; a.rel = 'noopener'; } return a; }
+function tarihYazi(t) { return new Intl.DateTimeFormat('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' }).format(t); }
+function bosMesaj(kutu, metin) { kutu.innerHTML = ''; kutu.appendChild(el('p', 'bos-mesaj', metin)); }
+
+function duyuruKarti(d) {
+  var k = el('article', 'duyuru');
+  if (d.tarih && !isNaN(d.tarih)) {
+    var t = el('time', 'duyuru-tarih', tarihYazi(d.tarih));
+    t.dateTime = d.tarih.toISOString().slice(0, 10);
+    k.appendChild(t);
+  }
+  k.appendChild(el('h3', 'duyuru-baslik', d.baslik || ''));
+  if (d.metin) k.appendChild(el('p', 'duyuru-metin', d.metin));
+  var u = guvenliLink(d.link);
+  if (u) k.appendChild(disLink(el('a', 'duyuru-link', (d.linkYazi || 'Bağlantıyı aç') + ' →'), u));
+  return k;
+}
+
+function duyurulariCiz(kutu, liste) {
+  if (!liste.length) return bosMesaj(kutu, 'Henüz duyuru yok.');
+  kutu.innerHTML = '';
+  liste.forEach(function (d) { kutu.appendChild(duyuruKarti(d)); });
+}
+
+// Ana sayfa: son duyurular kutusu ve Drive düğmesi (veri yoksa gizli kalır)
+function anaSayfaDuyurulari(liste) {
+  var bolum = document.querySelector('.duyuru-ozet');
+  if (!bolum || !liste.length) return;
+  duyurulariCiz(bolum.querySelector('.duyuru-liste'), liste);
+  bolum.hidden = false;
+}
+function driveDugmesi(ayar) {
+  var a = document.querySelector('.drive-btn'), u = guvenliLink(ayar.driveLink);
+  if (!a || !u) return;
+  disLink(a, u);
+  a.hidden = false;
+}
+
+// Ders Bilgileri sayfası. Girilmemiş bölümlerde "Henüz eklenmedi." yazar; hiçbir bilgi uydurulmaz.
+function dersBilgileriniCiz(ders) {
+  var alan = function (ad) { return document.querySelector('[data-alan="' + ad + '"]'); };
+  var bos = 'Henüz eklenmedi.';
+
+  var hakkinda = alan('hakkinda');
+  hakkinda.innerHTML = '';
+  if (ders.tanim) hakkinda.appendChild(el('p', 'bilgi-metin', ders.tanim));
+  [['Ders saatleri', ders.dersSaatleri], ['Derslik', ders.derslik]].forEach(function (s) {
+    if (s[1]) { var p = el('p', 'bilgi-satir'); p.appendChild(el('span', 'bilgi-etiket', s[0])); p.appendChild(el('span', '', s[1])); hakkinda.appendChild(p); }
+  });
+  if (!hakkinda.children.length) bosMesaj(hakkinda, bos);
+
+  var sinav = alan('sinavlar'), sinavlar = ders.sinavlar || [];
+  if (!sinavlar.length) bosMesaj(sinav, bos);
+  else {
+    sinav.innerHTML = '';
+    var bugun = new Date(); bugun.setHours(0, 0, 0, 0);
+    sinavlar.slice().sort(function (a, b) { return String(a.tarih).localeCompare(String(b.tarih)); }).forEach(function (s) {
+      var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(s.tarih || ''), t = m && new Date(+m[1], m[2] - 1, +m[3]);
+      var satir = el('div', 'sinav');
+      satir.appendChild(el('div', 'sinav-ad', s.ad || ''));
+      satir.appendChild(el('div', 'sinav-tarih', [t ? tarihYazi(t) : (s.tarih || ''), s.saat, s.yer].filter(Boolean).join(' · ')));
+      if (t) {
+        var gun = Math.round((t - bugun) / 864e5);
+        satir.appendChild(el('span', 'sinav-kalan' + (gun < 0 ? ' gecti' : ''), gun < 0 ? 'Tamamlandı' : gun === 0 ? 'Bugün' : gun + ' gün kaldı'));
+      }
+      sinav.appendChild(satir);
+    });
+  }
+
+  var deg = alan('degerlendirme'), kalemler = ders.degerlendirme || [];
+  if (!kalemler.length) bosMesaj(deg, bos);
+  else {
+    deg.innerHTML = '';
+    kalemler.forEach(function (k) {
+      var s = el('div', 'deg-kalem');
+      s.appendChild(el('span', '', k.ad || ''));
+      s.appendChild(el('span', 'deg-yuzde', k.yuzde != null ? '%' + k.yuzde : ''));
+      deg.appendChild(s);
+    });
+  }
+
+  var kay = alan('kaynaklar'), kaynaklar = ders.kaynaklar || [];
+  if (!kaynaklar.length) bosMesaj(kay, bos);
+  else {
+    kay.innerHTML = '';
+    var ul = el('ul', 'bilgi-liste');
+    kaynaklar.forEach(function (k) { ul.appendChild(el('li', '', k)); });
+    kay.appendChild(ul);
+  }
+
+  var il = alan('iletisim'), i = ders.iletisim || {};
+  il.querySelectorAll('.bilgi-satir.dinamik, .bos-mesaj').forEach(function (e) { e.remove(); });
+  var eklendi = 0;
+  [['E-posta', i.eposta], ['Ofis', i.ofis], ['Ofis saatleri', i.ofisSaatleri]].forEach(function (s) {
+    if (!s[1]) return;
+    var p = el('p', 'bilgi-satir dinamik'); p.appendChild(el('span', 'bilgi-etiket', s[0]));
+    if (s[0] === 'E-posta' && /^[^\s@]+@[^\s@]+$/.test(s[1])) p.appendChild(disLink(el('a', '', s[1]), 'mailto:' + s[1]));
+    else p.appendChild(el('span', '', s[1]));
+    il.appendChild(p); eklendi++;
+  });
+  if (!eklendi) il.appendChild(el('p', 'bos-mesaj', 'E-posta, ofis ve ofis saatleri henüz eklenmedi.'));
+}
+
+function dersKonulariniCiz(konular) {
+  var kutu = document.querySelector('[data-alan="konular"]');
+  if (!kutu || !konular.length) return;
+  kutu.innerHTML = '';
+  [['oncesi', '▲ Arasınav Öncesi'], ['sonrasi', '▼ Arasınav Sonrası']].forEach(function (b) {
+    var grup = konular.filter(function (k) { return k.bolum === b[0]; });
+    if (!grup.length) return;
+    kutu.appendChild(el('div', 'konu-grup-baslik', b[1]));
+    var ul = el('ul', 'bilgi-liste konu-liste');
+    grup.forEach(function (k) {
+      var li = el('li'), a = el('a', '', 'Konu ' + k.sira + ' · ' + k.ad);
+      a.href = k.sayfa;
+      li.appendChild(a); li.appendChild(el('span', 'konu-sayi', k.sorular.length + ' soru'));
+      ul.appendChild(li);
+    });
+    kutu.appendChild(ul);
+  });
+}
+
 // ── Sayfa açılışı ──
 // <body data-konu="ga">: içerik veritabanından çekilip yeniden çizilir; ulaşılamazsa statik içerik kalır.
 // <body data-sayfa="ana">: konu kartlarındaki sayılar veritabanından hesaplanır.
@@ -376,7 +510,7 @@ function sayfayiBaslat() {
     document.body.dataset.icerik = 'yedek';
     kartlaraKimlikVer(); konuSayaclari(); zorlukFiltresiniKur(); bagliKartiAc();
     window.addEventListener('hashchange', bagliKartiAc);
-    import('./veri-katmani.js?v=52648b9a')
+    import('./veri-katmani.js?v=9073aff1')
       .then(function (v) { return v.konuGetir(kod); })
       .then(function (konu) {
         if (!konuyuCiz(konu)) return;
@@ -388,14 +522,32 @@ function sayfayiBaslat() {
       .catch(function (e) { console.warn('END214: veritabanına ulaşılamadı, sayfadaki kayıtlı içerik gösteriliyor.', e); });
   } else if (document.body.dataset.sayfa === 'ana') {
     document.body.dataset.icerik = 'yedek';
-    import('./veri-katmani.js?v=52648b9a')
-      .then(function (v) { return v.tumKonular(); })
+    var vk = import('./veri-katmani.js?v=9073aff1');
+    vk.then(function (v) { return v.tumKonular(); })
       .then(function (konular) {
         if (!konular.length) return;
         anaSayfaSayaclari(konular);
         document.body.dataset.icerik = 'veritabani';
       })
       .catch(function (e) { console.warn('END214: veritabanına ulaşılamadı, sayfadaki kayıtlı sayılar gösteriliyor.', e); });
+    vk.then(function (v) { return v.duyurular(3); }).then(anaSayfaDuyurulari).catch(function () {});
+    vk.then(function (v) { return v.siteAyarlari(); }).then(driveDugmesi).catch(function () {});
+  } else if (document.body.dataset.sayfa === 'duyurular') {
+    var liste = document.querySelector('.duyuru-liste');
+    import('./veri-katmani.js?v=9073aff1')
+      .then(function (v) { return v.duyurular(); })
+      .then(function (d) { duyurulariCiz(liste, d); })
+      .catch(function () { bosMesaj(liste, 'Duyurular şu an yüklenemedi. İnternet bağlantınızı kontrol edip sayfayı yenileyin.'); });
+  } else if (document.body.dataset.sayfa === 'ders') {
+    var vd = import('./veri-katmani.js?v=9073aff1');
+    vd.then(function (v) { return v.dersBilgileri(); })
+      .then(dersBilgileriniCiz)
+      .catch(function () {
+        document.querySelectorAll('[data-alan]:not([data-alan="konular"]):not([data-alan="iletisim"])').forEach(function (k) {
+          bosMesaj(k, 'Şu an yüklenemedi. İnternet bağlantınızı kontrol edip sayfayı yenileyin.');
+        });
+      });
+    vd.then(function (v) { return v.tumKonular(); }).then(dersKonulariniCiz).catch(function () {});
   }
 }
 if (typeof document !== 'undefined') sayfayiBaslat();

@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>END214 – Soru Bankası</title>
-<link rel="stylesheet" href="style.css?v=9f7c8085">
+<link rel="stylesheet" href="style.css?v=454012ff">
 </head>
 <body data-sayfa="ana">
 
@@ -13,6 +13,8 @@
   <a href="index.html" class="brand">END<span>214</span></a>
   <div class="nav-links">
     <a href="index.html" class="active">Ana Sayfa</a>
+    <a href="duyurular.html">Duyurular</a>
+    <a href="ders.html">Ders Bilgileri</a>
     <a href="temel.html">Temel Tanımlar</a>
     <a href="me.html">Merkezi Eğilim Ölçüleri</a>
     <a href="dag.html">Dağılım Ölçüleri</a>
@@ -37,6 +39,7 @@
       <span class="meta-item"><span class="dot"></span>Bahar 2025–2026</span>
       <span class="meta-item"><span class="dot"></span>Endüstri Mühendisliği Bölümü</span>
     </div>
+    <a class="drive-btn" hidden>📁 Ders Materyalleri (Google Drive)</a>
   </div>
 </header>
 
@@ -49,6 +52,13 @@
     <div class="stat-cell"><div class="stat-val teal">33</div><div class="stat-label">Formül Kartı</div></div>
     <div class="stat-cell"><div class="stat-val amber">✓</div><div class="stat-label">Tümü Çözümlü</div></div>
   </div>
+
+  <!-- SON DUYURULAR (veritabanında duyuru varsa görünür) -->
+  <section class="duyuru-ozet" hidden>
+    <div class="section-heading sh-red">📢 Son Duyurular</div>
+    <div class="duyuru-liste"></div>
+    <a href="duyurular.html" class="tumu-link">Tüm duyurular →</a>
+  </section>
 
   <!-- ARA SINAV ÖNCESİ -->
   <div class="exam-divider">
@@ -205,6 +215,6 @@
 </footer>
 
 <script src="firebase-ayar.js?v=987a2a63"></script>
-<script src="ortak.js?v=73f68e95"></script>
+<script src="ortak.js?v=d922c1b0"></script>
 </body>
 </html>

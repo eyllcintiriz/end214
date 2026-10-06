@@ -9,7 +9,7 @@
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js';
 // Firestore'un "lite" sürümü: canlı bağlantı kanalı açmaz, her okuma tek bir istektir (daha küçük ve hızlı).
 import {
-  getFirestore, doc, getDoc, getDocs, collection, writeBatch, serverTimestamp
+  getFirestore, doc, getDoc, getDocs, collection, query, orderBy, limit, writeBatch, serverTimestamp
 } from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore-lite.js';
 import {
   getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut, sendPasswordResetEmail
@@ -29,10 +29,41 @@ export async function konuGetir(kod) {
   return b.exists() ? b.data() : null;
 }
 
-/** Bütün konular, ana sayfadaki sırasıyla (sayaçlar ve arama için). */
+/** Bütün konular, ana sayfadaki sırasıyla (sayaçlar, arama, ders bilgileri için).
+ *  Kotayı korumak için tarayıcıda 15 dakika saklanır; konu sayfaları (konuGetir) her zaman güncel okur. */
+const KONU_ONBELLEK = 'end214-konular', KONU_SURE = 15 * 60 * 1000;
 export async function tumKonular() {
+  try {
+    const o = JSON.parse(localStorage.getItem(KONU_ONBELLEK));
+    if (o && Date.now() - o.zaman < KONU_SURE) return o.konular;
+  } catch (e) { /* önbellek yok ya da bozuk */ }
   const s = await getDocs(collection(db, 'konular'));
-  return s.docs.map(b => b.data()).sort((x, y) => x.sira - y.sira);
+  const konular = s.docs.map(b => { const d = b.data(); delete d.guncellendi; return d; }).sort((x, y) => x.sira - y.sira);
+  try { localStorage.setItem(KONU_ONBELLEK, JSON.stringify({ zaman: Date.now(), konular })); } catch (e) { /* yer yok */ }
+  return konular;
+}
+
+// Firestore zaman damgası → JS tarihi (sayfalar veritabanının tarih biçimini bilmek zorunda kalmasın)
+const tarihe = t => t && typeof t.toDate === 'function' ? t.toDate() : (t ? new Date(t) : null);
+
+/** Duyurular, en yeni önce. Her duyuru: { id, tarih (Date), baslik, metin, link?, linkYazi? }. adet verilmezse hepsi. */
+export async function duyurular(adet) {
+  const q = adet ? query(collection(db, 'duyurular'), orderBy('tarih', 'desc'), limit(adet))
+                 : query(collection(db, 'duyurular'), orderBy('tarih', 'desc'));
+  return (await getDocs(q)).docs.map(b => ({ id: b.id, ...b.data(), tarih: tarihe(b.data().tarih) }));
+}
+
+/** Site ayarları: { donem, kurum, driveLink }. Yoksa boş nesne. */
+export async function siteAyarlari() {
+  const b = await getDoc(doc(db, 'site', 'ayarlar'));
+  return b.exists() ? b.data() : {};
+}
+
+/** Ders bilgileri: { tanim, dersSaatleri, derslik, degerlendirme[{ad, yuzde}], sinavlar[{ad, tarih 'YYYY-AA-GG', saat, yer}],
+ *  kaynaklar[metin], iletisim{eposta, ofis, ofisSaatleri} }. Hepsi isteğe bağlı; yoksa boş nesne. */
+export async function dersBilgileri() {
+  const b = await getDoc(doc(db, 'site', 'ders'));
+  return b.exists() ? b.data() : {};
 }
 
 // ── Giriş ──
