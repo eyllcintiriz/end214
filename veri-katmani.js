@@ -10,7 +10,7 @@ import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.19.0/fireba
 // Firestore'un "lite" sürümü: canlı bağlantı kanalı açmaz, her okuma tek bir istektir (daha küçük ve hızlı).
 import {
   getFirestore, doc, getDoc, getDocs, addDoc, setDoc, deleteDoc, deleteField, collection, query, orderBy, limit,
-  where, getCount, writeBatch, serverTimestamp
+  where, getCount, writeBatch, runTransaction, updateDoc, serverTimestamp
 } from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore-lite.js';
 import {
   getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut, sendPasswordResetEmail,
@@ -43,6 +43,14 @@ export async function tumKonular() {
   const konular = s.docs.map(b => { const d = b.data(); delete d.guncellendi; return d; }).sort((x, y) => x.sira - y.sira);
   try { localStorage.setItem(KONU_ONBELLEK, JSON.stringify({ zaman: Date.now(), konular })); } catch (e) { /* yer yok */ }
   return konular;
+}
+// Yönetici bir konuyu değiştirince bu tarayıcıdaki saklanan kopya silinir (diğer ziyaretçilerde en geç 15 dakikada yenilenir)
+function konuOnbelleginiTemizle() { try { localStorage.removeItem(KONU_ONBELLEK); } catch (e) { /* önemli değil */ } }
+
+/** Bütün konular, tarayıcıda saklanan kopyaya bakmadan (yönetim paneli için). */
+export async function tumKonularTaze() {
+  konuOnbelleginiTemizle();
+  return tumKonular();
 }
 
 // Firestore zaman damgası → JS tarihi (sayfalar veritabanının tarih biçimini bilmek zorunda kalmasın)
@@ -169,6 +177,95 @@ export async function bekleyenSayilari() {
     getCount(query(collection(db, 'hataBildirimleri'), where('durum', '==', 'yeni'))),
   ]);
   return { oneri: o.data().count, bildirim: b.data().count };
+}
+
+// ── Düzeltme önerileri ──
+// Öneri: { id, konu, soruId, soruBaslik, gerekce, kararDegisiyor, kaynak, durum ('bekliyor' | 'onaylandi' | 'reddedildi'),
+//          degisiklikler: [{ yol: 'adimlar[2].html', eski, yeni }], uygulanan?, duzenlendi?, kararTarihi? }
+
+// "adimlar[2].html" → ['adimlar', 2, 'html']
+const yolParcalari = yol => (yol.match(/[^.[\]]+|\[\d+\]/g) || []).map(p => p[0] === '[' ? +p.slice(1, -1) : p);
+const ayniDeger = (a, b) => JSON.stringify(a) === JSON.stringify(b);
+
+/** Sorudaki bir alanın değeri (yol bulunmazsa undefined). */
+export function yolOku(nesne, yol) {
+  return yolParcalari(yol).reduce((h, p) => (h == null ? undefined : h[p]), nesne);
+}
+
+/** Değişiklikleri sorunun bir kopyasına uygular (asıl soru değişmez). */
+export function degisiklikleriUygula(soru, degisiklikler, alan = 'yeni') {
+  const kopya = JSON.parse(JSON.stringify(soru));
+  for (const d of degisiklikler) {
+    const p = yolParcalari(d.yol), son = p.pop();
+    const hedef = p.reduce((h, x) => (h == null ? undefined : h[x]), kopya);
+    if (hedef == null || !(son in hedef)) throw Object.assign(new Error('yol yok: ' + d.yol), { code: 'yol-yok' });
+    hedef[son] = d[alan];
+  }
+  return kopya;
+}
+
+/** Sorunun şu anki halinde, önerinin beklediği "eski" değerden farklı olan alanlar (çakışma). */
+export function cakismalar(soru, degisiklikler, alan = 'eski') {
+  return degisiklikler.filter(d => !ayniDeger(yolOku(soru, d.yol), d[alan])).map(d => d.yol);
+}
+
+/** Bütün öneriler. */
+export async function oneriler() {
+  const s = await getDocs(collection(db, 'oneriler'));
+  return s.docs.map(b => ({ ...b.data(), id: b.id, kararTarihi: tarihe(b.data().kararTarihi) }));
+}
+
+const kararHatasi = (code, mesaj) => Object.assign(new Error(mesaj), { code });
+
+// Soruyu ve öneriyi tek işlemde (transaction) günceller: ya ikisi birden değişir ya hiçbiri.
+async function oneriIslemi(oneri, fn) {
+  await runTransaction(db, async tx => {
+    const kRef = doc(db, 'konular', oneri.konu), oRef = doc(db, 'oneriler', oneri.id);
+    const [k, o] = [await tx.get(kRef), await tx.get(oRef)];
+    if (!k.exists() || !o.exists()) throw kararHatasi('bulunamadi', 'Konu ya da öneri bulunamadı.');
+    const sorular = k.data().sorular, i = sorular.findIndex(x => x.id === oneri.soruId);
+    if (i < 0) throw kararHatasi('bulunamadi', 'Soru bulunamadı (silinmiş olabilir).');
+    const sonuc = fn(sorular[i], o.data());
+    if (sonuc.soru) {
+      sorular[i] = sonuc.soru;
+      tx.update(kRef, { sorular, guncellendi: serverTimestamp() });
+    }
+    tx.update(oRef, { ...sonuc.oneri, kararTarihi: serverTimestamp() });
+  });
+  konuOnbelleginiTemizle();
+}
+
+/** Öneriyi onaylar ve soruya uygular. degisiklikler: yöneticinin son hali (düzenlediyse "yeni" değerleri farklıdır). */
+export async function oneriyiOnayla(oneri, degisiklikler = oneri.degisiklikler) {
+  await oneriIslemi(oneri, (soru, o) => {
+    if (o.durum !== 'bekliyor') throw kararHatasi('zaten-karar', 'Bu öneri için zaten karar verilmiş.');
+    if (cakismalar(soru, o.degisiklikler).length) throw kararHatasi('cakisma', 'Soru, öneri hazırlandıktan sonra değiştirilmiş.');
+    return {
+      soru: degisiklikleriUygula(soru, degisiklikler),
+      oneri: { durum: 'onaylandi', uygulanan: degisiklikler, duzenlendi: !ayniDeger(degisiklikler, o.degisiklikler) },
+    };
+  });
+}
+
+/** Öneriyi reddeder; soru olduğu gibi kalır. */
+export async function oneriyiReddet(oneri) {
+  await oneriIslemi(oneri, (soru, o) => {
+    if (o.durum !== 'bekliyor') throw kararHatasi('zaten-karar', 'Bu öneri için zaten karar verilmiş.');
+    return { oneri: { durum: 'reddedildi' } };
+  });
+}
+
+/** Kararı geri alır: öneri tekrar beklemeye döner; onaylanmışsa soru da eski haline döner. */
+export async function oneriKarariniGeriAl(oneri) {
+  await oneriIslemi(oneri, (soru, o) => {
+    if (o.durum === 'reddedildi') return { oneri: { durum: 'bekliyor', uygulanan: deleteField(), duzenlendi: deleteField() } };
+    if (o.durum !== 'onaylandi') throw kararHatasi('zaten-karar', 'Bu öneri zaten beklemede.');
+    if (cakismalar(soru, o.uygulanan, 'yeni').length) throw kararHatasi('cakisma', 'Soru, onaydan sonra yeniden değiştirilmiş; geri alınamaz.');
+    return {
+      soru: degisiklikleriUygula(soru, o.uygulanan, 'eski'),
+      oneri: { durum: 'bekliyor', uygulanan: deleteField(), duzenlendi: deleteField() },
+    };
+  });
 }
 
 // ── İçe aktarma (tek seferlik taşıma, yalnızca yönetici) ──

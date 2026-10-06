@@ -7,7 +7,7 @@ const mesaj = (el, metin, tur) => { el.textContent = metin; el.className = 'mesa
 
 let v;
 try {
-  v = await import('./veri-katmani.js?v=8d3d4323');
+  v = await import('./veri-katmani.js?v=64133120');
 } catch (e) {
   $('yukleniyor').innerHTML = '<p class="mesaj hata">Veritabanına bağlanılamadı. İnternet bağlantınızı kontrol edip sayfayı yenileyin.</p>';
   throw e;
@@ -19,7 +19,7 @@ const SEKMELER = [
   ['formuller', 'Formül Kartları'], ['duyurular', 'Duyurular'], ['ders', 'Ders Bilgileri'],
   ['ayarlar', 'Ayarlar'], ['kurulum', 'Kurulum'],
 ];
-const BOLUMLER = { kurulum: kurulumBolumu };  // sonraki dilimlerde diğer bölümler eklenecek
+const BOLUMLER = { oneriler: onerilerBolumu, kurulum: kurulumBolumu };  // sonraki dilimlerde diğer bölümler eklenecek
 const kurulanlar = new Set();
 
 function sekmeleriKur() {
@@ -170,4 +170,304 @@ async function kurulumBolumu() {
       dugme.disabled = false;
     }
   });
+}
+
+// ── Düzeltme önerileri ──
+// Her öneride şu anki hal ve önerilen hal, öğrencinin göreceği kartla aynı şekilde yan yana çizilir;
+// değişen adımlar vurgulanır, altında kelime kelime fark gösterilir. Karar yalnızca yöneticinin onayıyla uygulanır.
+const el = (etiket, sinif, metin) => window.el(etiket, sinif, metin);  // ortak.js
+
+// "adimlar[2].html" → "Çözüm, 3. adım"
+function yolEtiketi(yol) {
+  const m = yol.match(/^(\w+)(?:\[(\d+)\])?(?:\.(\w+))?$/);
+  if (!m) return yol;
+  const n = m[2] != null ? +m[2] + 1 : null, alt = m[3] === 'etiket' ? ' (etiketi)' : '';
+  return ({
+    adimlar: `Çözüm, ${n}. adım`, siklar: `${n}. şık`, etiketler: 'Konu etiketi', metin: 'Soru metni',
+    baslik: 'Soru başlığı', zorluk: 'Zorluk', cozumBaslik: 'Çözüm başlığı', no: 'Soru numarası',
+  }[m[1]] || yol) + alt;
+}
+
+// Değişen alanın kartta vurgulanacak öğesi
+function vurguSecici(yol) {
+  const m = yol.match(/^(\w+)(?:\[(\d+)\])?/);
+  const n = m[2] != null ? +m[2] + 1 : 1;
+  return ({
+    // .solution'ın ilk çocuğu başlıktır (.sol-title), adımlar ondan sonra gelir
+    adimlar: `.solution > .sol-step:nth-child(${n + 1})`, siklar: `.q-parts > .q-part:nth-child(${n})`,
+    metin: '.q-text', baslik: '.q-title', etiketler: '.q-badges', zorluk: '.q-badges', cozumBaslik: '.sol-title',
+  })[m[1]];
+}
+
+// Kelime kelime fark (en uzun ortak alt dizi). Sonuç: [{ t, tur: 'ayni' | 'sil' | 'ekle' }]
+function kelimeFarki(a, b) {
+  const parca = x => x.match(/[\p{L}\p{N}.]+|\s+|[^\p{L}\p{N}\s]/gu) || [];
+  const A = parca(a), B = parca(b), n = A.length, m = B.length;
+  const L = Array.from({ length: n + 1 }, () => new Uint16Array(m + 1));
+  for (let i = n - 1; i >= 0; i--) for (let j = m - 1; j >= 0; j--) L[i][j] = A[i] === B[j] ? L[i + 1][j + 1] + 1 : Math.max(L[i + 1][j], L[i][j + 1]);
+  const sonuc = []; let i = 0, j = 0;
+  while (i < n || j < m) {
+    if (i < n && j < m && A[i] === B[j]) { sonuc.push({ t: A[i], tur: 'ayni' }); i++; j++; }
+    else if (j < m && (i === n || L[i][j + 1] >= L[i + 1][j])) sonuc.push({ t: B[j++], tur: 'ekle' });
+    else sonuc.push({ t: A[i++], tur: 'sil' });
+  }
+  return sonuc;
+}
+
+// Farkı tek satır olarak çizer; uzun değişmeyen kısımlar "…" ile kısaltılır
+function farkSatiri(fark, tur) {
+  const satir = el('div', 'fark-satir');
+  const parcalar = fark.filter(f => f.tur === 'ayni' || f.tur === tur);
+  let ayniSayac = [];
+  const ayniBosalt = (son) => {
+    if (ayniSayac.length > 14) {
+      const bas = son === 'bas' ? [] : ayniSayac.slice(0, 6), sonu = son === 'son' ? [] : ayniSayac.slice(-6);
+      if (bas.length) satir.appendChild(document.createTextNode(bas.join('')));
+      satir.appendChild(el('span', 'fark-kisalt', ' … '));
+      if (sonu.length) satir.appendChild(document.createTextNode(sonu.join('')));
+    } else if (ayniSayac.length) satir.appendChild(document.createTextNode(ayniSayac.join('')));
+    ayniSayac = [];
+  };
+  let ilk = true;
+  for (const f of parcalar) {
+    if (f.tur === 'ayni') { ayniSayac.push(f.t); continue; }
+    ayniBosalt(ilk ? 'bas' : 'orta'); ilk = false;
+    satir.appendChild(el(tur === 'sil' ? 'del' : 'ins', '', f.t));
+  }
+  ayniBosalt(ilk ? 'bas' : 'son');
+  return satir;
+}
+
+// Soruyu öğrencinin gördüğü kart olarak çizer (açık, çözüm görünür) ve değişen alanları vurgular
+function kartCiz(soru, stil, degisiklikler, vurguSinif) {
+  const kutu = el('div', 'karsilastir-kart');
+  kutu.innerHTML = window.kartHtml(window.temizSoru(soru), window.temizStil(stil));
+  const kart = kutu.firstElementChild;
+  kart.classList.add('open');
+  kart.querySelector('.solution').classList.add('visible');
+  kart.querySelector('.sol-btn').hidden = true;
+  for (const d of degisiklikler) {
+    const s = vurguSecici(d.yol), hedef = s && kart.querySelector(s);
+    if (hedef) hedef.classList.add(vurguSinif);
+  }
+  return kutu;
+}
+
+async function onerilerBolumu(kutu) {
+  kutu.innerHTML = '';
+  const ust = el('div', 'oneri-ust');
+  const filtreler = el('div', 'oneri-filtre');
+  const toplu = el('button', 'dugme', ''); toplu.type = 'button'; toplu.hidden = true;
+  const topluMesaj = el('div', 'mesaj');
+  ust.appendChild(filtreler); ust.appendChild(toplu);
+  const liste = el('div', 'oneri-liste');
+  kutu.appendChild(ust); kutu.appendChild(topluMesaj); kutu.appendChild(liste);
+
+  let tum = [], konular = [], filtre = 'bekliyor';
+  const secili = new Set();
+  const FILTRE = [['bekliyor', 'Bekleyen'], ['onaylandi', 'Onaylanan'], ['reddedildi', 'Reddedilen']];
+
+  async function yukle() {
+    liste.innerHTML = '<p class="bos-mesaj">Yükleniyor…</p>';
+    try {
+      [tum, konular] = await Promise.all([v.oneriler(), v.tumKonularTaze()]);
+    } catch (e) {
+      liste.innerHTML = ''; liste.appendChild(el('p', 'mesaj hata', 'Öneriler yüklenemedi: ' + v.hataMetni(e)));
+      return;
+    }
+    const sira = o => { const k = konular.find(x => x.kod === o.konu); return k ? k.sira * 1000 + k.sorular.findIndex(s => s.id === o.soruId) : 1e9; };
+    tum.sort((a, b) => sira(a) - sira(b));
+    secili.clear();
+    ciz();
+  }
+
+  function ciz() {
+    filtreler.innerHTML = '';
+    for (const [ad, yazi] of FILTRE) {
+      const n = tum.filter(o => o.durum === ad).length;
+      const b = el('button', 'of-btn' + (ad === filtre ? ' aktif' : ''), `${yazi} (${n})`);
+      b.type = 'button';
+      b.addEventListener('click', () => { filtre = ad; secili.clear(); ciz(); });
+      filtreler.appendChild(b);
+    }
+    topluGuncelle();
+    liste.innerHTML = '';
+    const gorunen = tum.filter(o => o.durum === filtre);
+    if (!gorunen.length) {
+      liste.appendChild(el('p', 'bos-mesaj', filtre === 'bekliyor' ? 'Onay bekleyen öneri yok.' : 'Bu grupta öneri yok.'));
+      return;
+    }
+    for (const o of gorunen) {
+      try { liste.appendChild(oneriKarti(o)); }
+      catch (e) {  // tek bir bozuk kayıt bütün listeyi boş bırakmasın
+        const k = el('article', 'panel oneri');
+        k.appendChild(el('p', 'mesaj hata', `${o.soruId || o.id}: bu öneri gösterilemedi (${e.message}).`));
+        liste.appendChild(k);
+      }
+    }
+  }
+
+  function topluGuncelle() {
+    toplu.hidden = filtre !== 'bekliyor' || !secili.size;
+    toplu.textContent = `Seçilenleri onayla (${secili.size})`;
+  }
+
+  toplu.addEventListener('click', async () => {
+    const secilenler = tum.filter(o => secili.has(o.id));
+    if (!confirm(`${secilenler.length} öneri onaylanacak ve sorulara uygulanacak. Devam edilsin mi?`)) return;
+    toplu.disabled = true;
+    let tamam = 0; const hatalar = [];
+    for (const o of secilenler) {
+      mesaj(topluMesaj, `Onaylanıyor… ${tamam + hatalar.length + 1} / ${secilenler.length}`);
+      try { await v.oneriyiOnayla(o); tamam++; } catch (e) { hatalar.push(`${o.soruId}: ${e.message}`); }
+    }
+    toplu.disabled = false;
+    mesaj(topluMesaj, `${tamam} öneri onaylandı.` + (hatalar.length ? `\nOnaylanamayanlar:\n${hatalar.join('\n')}` : ''), hatalar.length ? 'hata' : 'tamam');
+    await yukle(); ozetiGuncelle();
+  });
+
+  function oneriKarti(o) {
+    const konu = konular.find(k => k.kod === o.konu);
+    const soru = konu && konu.sorular.find(s => s.id === o.soruId);
+    const kart = el('article', 'panel oneri');
+
+    // Başlık satırı
+    const bas = el('div', 'oneri-baslik');
+    if (o.durum === 'bekliyor') {
+      const sec = el('input'); sec.type = 'checkbox'; sec.className = 'oneri-sec'; sec.title = 'Toplu onay için seç';
+      sec.checked = secili.has(o.id);
+      sec.addEventListener('change', () => { sec.checked ? secili.add(o.id) : secili.delete(o.id); topluGuncelle(); });
+      bas.appendChild(sec);
+    }
+    bas.appendChild(el('span', 'oneri-no', soru ? soru.no : o.soruId));
+    bas.appendChild(el('span', 'oneri-ad', window.duzMetin(o.soruBaslik || '')));
+    if (o.kararDegisiyor) bas.appendChild(el('span', 'karar-rozet', 'KARAR DEĞİŞİYOR'));
+    kart.appendChild(bas);
+    const alt = el('div', 'oneri-alt');
+    alt.appendChild(el('span', '', (konu ? konu.ad : o.konu) + ' · ' + (o.kaynak || '')));
+    if (konu) { const a = el('a', '', 'Sitede gör →'); a.href = `${konu.sayfa}#${o.soruId}`; a.target = '_blank'; a.rel = 'noopener'; alt.appendChild(a); }
+    if (o.durum !== 'bekliyor') {
+      const t = o.kararTarihi && !isNaN(o.kararTarihi) ? new Intl.DateTimeFormat('tr-TR', { dateStyle: 'long', timeStyle: 'short' }).format(o.kararTarihi) : '';
+      alt.appendChild(el('span', 'durum-rozet ' + o.durum,
+        (o.durum === 'onaylandi' ? 'Onaylandı' + (o.duzenlendi ? ' (düzenlenerek)' : '') : 'Reddedildi') + (t ? ' · ' + t : '')));
+    }
+    kart.appendChild(alt);
+    kart.appendChild(el('p', 'oneri-gerekce', o.gerekce || ''));
+
+    if (!soru) {
+      kart.appendChild(el('p', 'mesaj hata', 'Bu öneriye ait soru veritabanında bulunamadı (silinmiş olabilir).'));
+      return kart;
+    }
+
+    // Karşılaştırma: onaylanmışsa soru zaten yeni halde; sol tarafı geri hesapla
+    const degisiklikler = o.durum === 'onaylandi' ? (o.uygulanan || o.degisiklikler) : o.degisiklikler;
+    let eskiSoru, yeniSoru, cakisma = [];
+    try {
+      if (o.durum === 'onaylandi') { yeniSoru = soru; eskiSoru = v.degisiklikleriUygula(soru, degisiklikler, 'eski'); }
+      else { cakisma = v.cakismalar(soru, o.degisiklikler); eskiSoru = soru; yeniSoru = v.degisiklikleriUygula(soru, degisiklikler); }
+    } catch (e) { cakisma = ['?']; eskiSoru = soru; yeniSoru = soru; }
+    if (cakisma.length && o.durum === 'bekliyor') {
+      kart.appendChild(el('p', 'mesaj hata', 'Bu soru, öneri hazırlandıktan sonra değiştirilmiş. Öneri otomatik uygulanamaz; ' +
+        'gerekirse soruyu "Sorular" bölümünden elle düzeltip öneriyi reddedin.'));
+    }
+    const grid = el('div', 'karsilastir');
+    const solBaslik = o.durum === 'onaylandi' ? 'Önceki hal' : 'Şu anki hal (sitede görünen)';
+    const sagBaslik = o.durum === 'onaylandi' ? 'Uygulanan hal (sitede görünen)' : 'Önerilen hal';
+    const sol = el('div', 'karsilastir-sutun'), sag = el('div', 'karsilastir-sutun');
+    sol.appendChild(el('h4', '', solBaslik)); sag.appendChild(el('h4', '', sagBaslik));
+    sol.appendChild(kartCiz(eskiSoru, konu.stil, degisiklikler, 'degisti-eski'));
+    sag.appendChild(kartCiz(yeniSoru, konu.stil, degisiklikler, 'degisti-yeni'));
+    grid.appendChild(sol); grid.appendChild(sag);
+    kart.appendChild(grid);
+
+    // Değişen kısımlar (kelime kelime)
+    const farklar = el('div', 'fark-liste');
+    const farklariCiz = degs => {
+      farklar.innerHTML = '';
+      farklar.appendChild(el('h4', '', 'Değişen kısımlar'));
+      for (const d of degs) {
+        const blok = el('div', 'fark-blok');
+        blok.appendChild(el('div', 'fark-etiket', yolEtiketi(d.yol)));
+        const a = window.duzMetin(typeof d.eski === 'string' ? d.eski : JSON.stringify(d.eski));
+        const b = window.duzMetin(typeof d.yeni === 'string' ? d.yeni : JSON.stringify(d.yeni));
+        if (a === b) blok.appendChild(el('div', 'fark-satir', 'Yazı aynı; yalnızca şekil ya da biçim değişti (yukarıdaki kartlara bakın).'));
+        else { const f = kelimeFarki(a, b); blok.appendChild(farkSatiri(f, 'sil')); blok.appendChild(farkSatiri(f, 'ekle')); }
+        farklar.appendChild(blok);
+      }
+    };
+    farklariCiz(degisiklikler);
+    kart.appendChild(farklar);
+
+    // Düğmeler
+    const dugmeler = el('div', 'oneri-dugmeler'), m = el('div', 'mesaj');
+    const dugme = (yazi, sinif, fn) => { const b = el('button', 'dugme ' + sinif, yazi); b.type = 'button'; b.addEventListener('click', fn); dugmeler.appendChild(b); return b; };
+    const islem = async (fn, bekleme, basari) => {
+      dugmeler.querySelectorAll('button').forEach(b => { b.disabled = true; });
+      mesaj(m, bekleme);
+      try { await fn(); mesaj(m, basari, 'tamam'); setTimeout(async () => { await yukle(); ozetiGuncelle(); }, 900); }
+      catch (e) { mesaj(m, e.message || v.hataMetni(e), 'hata'); dugmeler.querySelectorAll('button').forEach(b => { b.disabled = false; }); }
+    };
+
+    if (o.durum === 'bekliyor') {
+      const onay = dugme('Onayla', '', () => islem(() => v.oneriyiOnayla(o), 'Onaylanıyor…', 'Onaylandı; soru sitede güncellendi.'));
+      const duzenle = dugme('Düzenleyip onayla', 'dugme-ikincil', () => duzenlemeAc());
+      dugme('Reddet', 'dugme-tehlike', () => {
+        if (confirm('Öneri reddedilecek; soru olduğu gibi kalacak. Devam edilsin mi?')) islem(() => v.oneriyiReddet(o), 'Reddediliyor…', 'Reddedildi.');
+      });
+      if (cakisma.length) { onay.disabled = true; duzenle.disabled = true; }
+
+      // Düzenleyip onayla: önerilen metinler düzenlenir, sağdaki kart ve farklar anında güncellenir
+      const duzen = el('div', 'oneri-duzen'); duzen.hidden = true;
+      const duzenlemeAc = () => {
+        duzen.hidden = false; dugmeler.hidden = true;
+        duzen.innerHTML = '';
+        duzen.appendChild(el('h4', '', 'Önerilen hali düzenleyin'));
+        duzen.appendChild(el('p', 'oneri-ipucu', 'Metinler sitedeki biçimiyle (HTML) duruyor: <sub>…</sub> alt simge, <sup>…</sup> üst simge, <span class="result">…</span> sonuç vurgusu, <br> satır sonu.'));
+        const alanlar = o.degisiklikler.map(d => {
+          const l = el('label', '', yolEtiketi(d.yol));
+          const ta = el('textarea', 'oneri-ta'); ta.value = typeof d.yeni === 'string' ? d.yeni : JSON.stringify(d.yeni);
+          ta.rows = Math.min(10, 2 + Math.ceil(ta.value.length / 90));
+          ta.disabled = typeof d.yeni !== 'string';
+          duzen.appendChild(l); duzen.appendChild(ta);
+          return { d, ta };
+        });
+        const sonHal = () => alanlar.map(({ d, ta }) => (typeof d.yeni === 'string' ? { ...d, yeni: ta.value } : d));
+        const onizle = () => {
+          try {
+            const y = v.degisiklikleriUygula(soru, sonHal());
+            sag.replaceChild(kartCiz(y, konu.stil, o.degisiklikler, 'degisti-yeni'), sag.querySelector('.karsilastir-kart'));
+            farklariCiz(sonHal());
+          } catch (e) { /* yazarken geçici hata */ }
+        };
+        alanlar.forEach(({ ta }) => ta.addEventListener('input', onizle));
+        const db = el('div', 'oneri-dugmeler');
+        const kaydet = el('button', 'dugme', 'Düzenlenmiş hali onayla'); kaydet.type = 'button';
+        const vazgec = el('button', 'dugme dugme-ikincil', 'Vazgeç'); vazgec.type = 'button';
+        kaydet.addEventListener('click', async () => {
+          kaydet.disabled = vazgec.disabled = true; mesaj(m, 'Onaylanıyor…');
+          try { await v.oneriyiOnayla(o, sonHal()); mesaj(m, 'Düzenlenmiş hali onaylandı; soru sitede güncellendi.', 'tamam'); setTimeout(async () => { await yukle(); ozetiGuncelle(); }, 900); }
+          catch (e) { mesaj(m, e.message || v.hataMetni(e), 'hata'); kaydet.disabled = vazgec.disabled = false; }
+        });
+        vazgec.addEventListener('click', () => {
+          duzen.hidden = true; dugmeler.hidden = false; mesaj(m, '');
+          sag.replaceChild(kartCiz(yeniSoru, konu.stil, degisiklikler, 'degisti-yeni'), sag.querySelector('.karsilastir-kart'));
+          farklariCiz(degisiklikler);
+        });
+        db.appendChild(kaydet); db.appendChild(vazgec); duzen.appendChild(db);
+      };
+      kart.appendChild(dugmeler); kart.appendChild(duzen);
+    } else {
+      dugme('Kararı geri al', 'dugme-ikincil', () => {
+        const yazi = o.durum === 'onaylandi'
+          ? 'Onay geri alınacak: soru önceki haline dönecek, öneri tekrar onay bekleyecek. Devam edilsin mi?'
+          : 'Ret geri alınacak: öneri tekrar onay bekleyecek. Devam edilsin mi?';
+        if (confirm(yazi)) islem(() => v.oneriKarariniGeriAl(o), 'Geri alınıyor…', 'Karar geri alındı.');
+      });
+      kart.appendChild(dugmeler);
+    }
+    kart.appendChild(m);
+    return kart;
+  }
+
+  await yukle();
 }
