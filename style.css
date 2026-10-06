@@ -906,3 +906,10 @@ main.yonetim { max-width: 1200px; }
 .oneri-ta { width: 100%; padding: .55rem .7rem; background: var(--surface); color: var(--text); border: 1px solid var(--border); border-radius: var(--radius); font-family: var(--mono); font-size: .78rem; line-height: 1.55; resize: vertical; }
 .oneri-ta:focus { outline: none; border-color: var(--amber); }
 @media (max-width: 900px) { .karsilastir { grid-template-columns: 1fr; } }
+
+/* ── Yönetim paneli: hata bildirimleri ── */
+.bildirim-liste { display: flex; flex-direction: column; gap: 1rem; margin-top: 1rem; }
+.bildirim.yeni { border-left: 3px solid var(--amber); }
+.oneri-no.genel { color: var(--muted); background: rgba(255,255,255,.04); border-color: var(--border); }
+.panel .bildirim-mesaj { color: var(--text); font-size: .92rem; line-height: 1.65; white-space: pre-line; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: .8rem 1rem; margin: .8rem 0 0; }
+a.dugme { display: inline-block; text-decoration: none; }

@@ -7,7 +7,7 @@ const mesaj = (el, metin, tur) => { el.textContent = metin; el.className = 'mesa
 
 let v;
 try {
-  v = await import('./veri-katmani.js?v=64133120');
+  v = await import('./veri-katmani.js?v=7ead5441');
 } catch (e) {
   $('yukleniyor').innerHTML = '<p class="mesaj hata">Veritabanına bağlanılamadı. İnternet bağlantınızı kontrol edip sayfayı yenileyin.</p>';
   throw e;
@@ -19,7 +19,7 @@ const SEKMELER = [
   ['formuller', 'Formül Kartları'], ['duyurular', 'Duyurular'], ['ders', 'Ders Bilgileri'],
   ['ayarlar', 'Ayarlar'], ['kurulum', 'Kurulum'],
 ];
-const BOLUMLER = { oneriler: onerilerBolumu, kurulum: kurulumBolumu };  // sonraki dilimlerde diğer bölümler eklenecek
+const BOLUMLER = { oneriler: onerilerBolumu, bildirimler: bildirimlerBolumu, kurulum: kurulumBolumu };  // sonraki dilimlerde diğer bölümler eklenecek
 const kurulanlar = new Set();
 
 function sekmeleriKur() {
@@ -466,6 +466,107 @@ async function onerilerBolumu(kutu) {
       kart.appendChild(dugmeler);
     }
     kart.appendChild(m);
+    return kart;
+  }
+
+  await yukle();
+}
+
+// ── Hata bildirimleri (gelen kutusu) ──
+async function bildirimlerBolumu(kutu) {
+  kutu.innerHTML = '';
+  const filtreler = el('div', 'oneri-filtre');
+  const liste = el('div', 'bildirim-liste');
+  kutu.appendChild(filtreler); kutu.appendChild(liste);
+  let tum = [], konular = [], filtre = 'yeni';
+  const FILTRE = [['yeni', 'Yeni'], ['cozuldu', 'Çözüldü'], ['tumu', 'Tümü']];
+  const zaman = t => t && !isNaN(t) ? new Intl.DateTimeFormat('tr-TR', { dateStyle: 'long', timeStyle: 'short' }).format(t) : '';
+
+  async function yukle() {
+    liste.innerHTML = '<p class="bos-mesaj">Yükleniyor…</p>';
+    try {
+      [tum, konular] = await Promise.all([v.hataBildirimleri(), v.tumKonular()]);
+    } catch (e) {
+      liste.innerHTML = ''; liste.appendChild(el('p', 'mesaj hata', 'Bildirimler yüklenemedi: ' + v.hataMetni(e)));
+      return;
+    }
+    ciz();
+  }
+
+  function ciz() {
+    filtreler.innerHTML = '';
+    for (const [ad, yazi] of FILTRE) {
+      const n = ad === 'tumu' ? tum.length : tum.filter(b => b.durum === ad).length;
+      const b = el('button', 'of-btn' + (ad === filtre ? ' aktif' : ''), `${yazi} (${n})`);
+      b.type = 'button';
+      b.addEventListener('click', () => { filtre = ad; ciz(); });
+      filtreler.appendChild(b);
+    }
+    liste.innerHTML = '';
+    const gorunen = tum.filter(b => filtre === 'tumu' || b.durum === filtre);
+    if (!gorunen.length) {
+      liste.appendChild(el('p', 'bos-mesaj', filtre === 'yeni' ? 'Yeni hata bildirimi yok.' : 'Bu grupta bildirim yok.'));
+      return;
+    }
+    for (const b of gorunen) {
+      try { liste.appendChild(bildirimKarti(b)); }
+      catch (e) { liste.appendChild(el('p', 'mesaj hata', `Bir bildirim gösterilemedi (${e.message}).`)); }
+    }
+  }
+
+  function bildirimKarti(b) {
+    let konu = null, soru = null;
+    for (const k of konular) { const s = k.sorular.find(x => x.id === b.soruId); if (s) { konu = k; soru = s; break; } }
+    const kart = el('article', 'panel bildirim' + (b.durum === 'yeni' ? ' yeni' : ''));
+
+    const bas = el('div', 'oneri-baslik');
+    if (b.soruId) {
+      bas.appendChild(el('span', 'oneri-no', soru ? soru.no : b.soruId));
+      bas.appendChild(el('span', 'oneri-ad', soru ? window.duzMetin(soru.baslik) : '(soru bulunamadı)'));
+    } else {
+      bas.appendChild(el('span', 'oneri-no genel', 'Genel'));
+      bas.appendChild(el('span', 'oneri-ad', 'Genel bildirim'));
+    }
+    if (b.durum === 'cozuldu') bas.appendChild(el('span', 'durum-rozet onaylandi', '✓ Çözüldü'));
+    kart.appendChild(bas);
+
+    const alt = el('div', 'oneri-alt');
+    alt.appendChild(el('span', '', zaman(b.tarih)));
+    alt.appendChild(el('span', '', (konu ? konu.ad + ' · ' : '') + (b.sayfa || '')));
+    alt.appendChild(el('span', '', 'Gönderen: ' + (b.ad || 'isimsiz') + (b.uid ? ' (öğrenci hesabı)' : '')));
+    if (b.eposta) alt.appendChild(el('span', 'kullanici', b.eposta));
+    kart.appendChild(alt);
+
+    kart.appendChild(el('p', 'bildirim-mesaj', b.mesaj || ''));
+
+    const dugmeler = el('div', 'oneri-dugmeler'), m = el('div', 'mesaj');
+    const bag = (yazi, href, sinif) => {
+      const a = el('a', 'dugme ' + (sinif || 'dugme-ikincil'), yazi);
+      a.href = href;
+      if (!href.startsWith('mailto:')) { a.target = '_blank'; a.rel = 'noopener'; }
+      dugmeler.appendChild(a);
+    };
+    const dugme = (yazi, sinif, fn) => { const x = el('button', 'dugme ' + sinif, yazi); x.type = 'button'; x.addEventListener('click', fn); dugmeler.appendChild(x); };
+    const islem = async (fn, basari) => {
+      dugmeler.querySelectorAll('button').forEach(x => { x.disabled = true; });
+      try { await fn(); mesaj(m, basari, 'tamam'); setTimeout(() => { ciz(); ozetiGuncelle(); }, 600); }
+      catch (e) { mesaj(m, v.hataMetni(e), 'hata'); dugmeler.querySelectorAll('button').forEach(x => { x.disabled = false; }); }
+    };
+
+    if (b.durum === 'yeni') dugme('Çözüldü olarak işaretle', '', () => islem(async () => { await v.bildirimDurumu(b.id, 'cozuldu'); b.durum = 'cozuldu'; }, 'Çözüldü olarak işaretlendi.'));
+    else dugme('Yeniden aç', 'dugme-ikincil', () => islem(async () => { await v.bildirimDurumu(b.id, 'yeni'); b.durum = 'yeni'; }, 'Yeniden açıldı.'));
+    if (konu) bag('Soruyu sitede aç →', `${konu.sayfa}#${b.soruId}`);
+    else if (b.sayfa && /^[a-z]+\.html$/.test(b.sayfa)) bag('Sayfayı aç →', b.sayfa);
+    if (b.eposta && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(b.eposta)) {
+      const konuSatiri = 'END214 – ' + (b.soruId ? (soru ? soru.no : b.soruId) + ' hata bildiriminiz' : 'bildiriminiz');
+      bag('E-postayla yanıtla', `mailto:${b.eposta}?subject=${encodeURIComponent(konuSatiri)}`);
+    }
+    dugme('Sil', 'dugme-tehlike', () => {
+      if (confirm('Bu bildirim kalıcı olarak silinecek. Devam edilsin mi?')) {
+        islem(async () => { await v.bildirimSil(b.id); tum = tum.filter(x => x.id !== b.id); }, 'Silindi.');
+      }
+    });
+    kart.appendChild(dugmeler); kart.appendChild(m);
     return kart;
   }
 

@@ -268,6 +268,26 @@ export async function oneriKarariniGeriAl(oneri) {
   });
 }
 
+// ── Hata bildirimleri (yalnızca yönetici okur, günceller, siler) ──
+
+/** Bütün bildirimler, en yeni önce: { id, soruId, sayfa, mesaj, eposta?, ad?, uid?, tarih (Date), durum ('yeni' | 'cozuldu') }. */
+export async function hataBildirimleri() {
+  const s = await getDocs(query(collection(db, 'hataBildirimleri'), orderBy('tarih', 'desc')));
+  return s.docs.map(b => ({ ...b.data(), id: b.id, tarih: tarihe(b.data().tarih) }))
+    .sort((a, b) => (b.tarih || 0) - (a.tarih || 0));
+}
+
+/** Bildirimi "çözüldü" ya da yeniden "yeni" yapar. */
+export async function bildirimDurumu(id, durum) {
+  if (!['yeni', 'cozuldu'].includes(durum)) throw new Error('geçersiz durum');
+  await updateDoc(doc(db, 'hataBildirimleri', id), { durum });
+}
+
+/** Bildirimi kalıcı olarak siler. */
+export async function bildirimSil(id) {
+  await deleteDoc(doc(db, 'hataBildirimleri', id));
+}
+
 // ── İçe aktarma (tek seferlik taşıma, yalnızca yönetici) ──
 
 /** Veritabanında zaten bulunan konu ve öneri kimlikleri (üzerine yazmadan önce uyarmak için). */
