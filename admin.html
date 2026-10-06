@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex">
+<title>END214 – Yönetim Paneli</title>
+<link rel="stylesheet" href="style.css">
+<style>
+/* Panel formları: style.css'teki renk ve yazı tipi değişkenleriyle */
+.panel { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; margin-bottom: 1.25rem; }
+.panel h2 { font-family: var(--serif); font-weight: 400; font-size: 1.35rem; margin-bottom: .75rem; }
+.panel p { color: var(--muted); font-size: .9rem; line-height: 1.6; margin-bottom: .75rem; }
+.panel label { display: block; font-size: .8rem; color: var(--muted); margin: .75rem 0 .3rem; }
+.panel input { width: 100%; max-width: 360px; padding: .6rem .75rem; background: var(--surface); color: var(--text);
+  border: 1px solid var(--border); border-radius: var(--radius); font: inherit; font-size: .95rem; }
+.panel input:focus { outline: none; border-color: var(--amber); }
+.dugme { margin-top: 1rem; padding: .6rem 1.2rem; background: rgba(232,184,109,.1); color: var(--amber);
+  border: 1px solid rgba(232,184,109,.35); border-radius: var(--radius); font: inherit; font-size: .9rem; font-weight: 600; cursor: pointer; }
+.dugme:hover { background: rgba(232,184,109,.18); }
+.dugme:disabled { opacity: .5; cursor: wait; }
+.dugme-ikincil { background: none; color: var(--muted); border-color: var(--border); font-weight: 400; }
+.baglanti { background: none; border: none; color: var(--muted); font: inherit; font-size: .8rem; text-decoration: underline; cursor: pointer; margin-left: .75rem; }
+.mesaj { margin-top: .9rem; font-size: .88rem; line-height: 1.6; white-space: pre-line; }
+.mesaj.hata { color: var(--red); }
+.mesaj.tamam { color: var(--teal); }
+.kullanici { font-family: var(--mono); font-size: .8rem; color: var(--muted); }
+[hidden] { display: none !important; }
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <a href="index.html" class="brand">END<span>214</span></a>
+  <div class="nav-links">
+    <a href="index.html">Siteye Dön</a>
+  </div>
+</nav>
+
+<header class="page-header page-header-home">
+  <div class="page-header-inner">
+    <span class="topic-tag tag-home">Yönetim</span>
+    <h1>Yönetim Paneli</h1>
+    <p class="subtitle">Bu sayfa yalnızca ders sorumlusu içindir.</p>
+  </div>
+</header>
+
+<main>
+  <!-- Yükleniyor -->
+  <div class="panel" id="yukleniyor">
+    <p>Bağlanılıyor…</p>
+  </div>
+
+  <!-- Giriş -->
+  <form class="panel" id="giris" hidden>
+    <h2>Giriş</h2>
+    <label for="eposta">E-posta</label>
+    <input id="eposta" type="email" autocomplete="username" required>
+    <label for="sifre">Şifre</label>
+    <input id="sifre" type="password" autocomplete="current-password" required>
+    <div>
+      <button class="dugme" type="submit">Giriş yap</button>
+      <button class="baglanti" type="button" id="sifremiUnuttum">Şifremi unuttum</button>
+    </div>
+    <div class="mesaj" id="girisMesaj"></div>
+  </form>
+
+  <!-- Yönetici olmayan hesap -->
+  <div class="panel" id="yetkisiz" hidden>
+    <h2>Yetki yok</h2>
+    <p>Bu hesap yönetici olarak tanımlı değil. <span class="kullanici" data-kullanici></span></p>
+    <button class="dugme dugme-ikincil" type="button" data-cikis>Çıkış yap</button>
+  </div>
+
+  <!-- Yönetici -->
+  <div id="yonetici" hidden>
+    <div class="panel">
+      <h2>Hoş geldiniz</h2>
+      <p>Giriş yapan: <span class="kullanici" data-kullanici></span></p>
+      <button class="dugme dugme-ikincil" type="button" data-cikis>Çıkış yap</button>
+    </div>
+
+    <div class="panel">
+      <h2>Verileri içe aktar (tek seferlik)</h2>
+      <p>Sitenin sorularını ve formül kartlarını (<code>veri/konular.json</code>) ve hesap düzeltme önerilerini
+        (<code>veri/oneriler.json</code>) veritabanına yükler. Yalnızca ilk kurulumda bir kez çalıştırılır.</p>
+      <p id="dosyaOzet">Dosyalar okunuyor…</p>
+      <button class="dugme" type="button" id="iceAktar" disabled>İçe aktar</button>
+      <div class="mesaj" id="aktarMesaj"></div>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <strong>END 214 – Olasılık ve İstatistik II</strong> · Yönetim Paneli
+</footer>
+
+<script src="firebase-ayar.js"></script>
+<script type="module">
+const $ = id => document.getElementById(id);
+const goster = ad => ['yukleniyor', 'giris', 'yetkisiz', 'yonetici'].forEach(b => { $(b).hidden = b !== ad; });
+const mesaj = (el, metin, tur) => { el.textContent = metin; el.className = 'mesaj' + (tur ? ' ' + tur : ''); };
+
+let v;
+try {
+  v = await import('./veri-katmani.js');
+} catch (e) {
+  $('yukleniyor').innerHTML = '<p class="mesaj hata">Veritabanına bağlanılamadı. İnternet bağlantınızı kontrol edip sayfayı yenileyin.</p>';
+  throw e;
+}
+
+// ── Giriş / çıkış ──
+v.girisDurumu(async k => {
+  if (!k) return goster('giris');
+  document.querySelectorAll('[data-kullanici]').forEach(el => { el.textContent = k.eposta; });
+  goster('yukleniyor');
+  try {
+    goster(await v.yoneticiMi() ? 'yonetici' : 'yetkisiz');
+  } catch (e) {
+    goster('yetkisiz');
+  }
+});
+
+$('giris').addEventListener('submit', async e => {
+  e.preventDefault();
+  mesaj($('girisMesaj'), 'Giriş yapılıyor…');
+  try {
+    await v.girisYap($('eposta').value.trim(), $('sifre').value);
+    $('sifre').value = '';
+    mesaj($('girisMesaj'), '');
+  } catch (err) {
+    mesaj($('girisMesaj'), v.hataMetni(err), 'hata');
+  }
+});
+
+$('sifremiUnuttum').addEventListener('click', async () => {
+  const eposta = $('eposta').value.trim();
+  if (!eposta) return mesaj($('girisMesaj'), 'Önce e-posta adresinizi yazın.', 'hata');
+  try {
+    await v.sifreSifirla(eposta);
+    mesaj($('girisMesaj'), 'Bu adres kayıtlıysa şifre sıfırlama bağlantısı gönderildi. Gelen kutunuzu (ve gereksiz klasörünü) kontrol edin.', 'tamam');
+  } catch (err) {
+    mesaj($('girisMesaj'), v.hataMetni(err), 'hata');
+  }
+});
+
+document.querySelectorAll('[data-cikis]').forEach(b => b.addEventListener('click', () => v.cikisYap()));
+
+// ── İçe aktarma ──
+let konular, oneriler;
+try {
+  [konular, oneriler] = await Promise.all([
+    fetch('veri/konular.json').then(r => { if (!r.ok) throw new Error(r.status); return r.json(); }).then(d => d.konular),
+    fetch('veri/oneriler.json').then(r => { if (!r.ok) throw new Error(r.status); return r.json(); }).then(d => d.oneriler),
+  ]);
+  const soru = konular.reduce((t, k) => t + k.sorular.length, 0);
+  const formul = konular.reduce((t, k) => t + k.formul.kartlar.length, 0);
+  $('dosyaOzet').textContent = `Dosyada: ${konular.length} konu, ${soru} soru, ${formul} formül kartı, ${oneriler.length} düzeltme önerisi.`;
+  $('iceAktar').disabled = false;
+} catch (e) {
+  $('dosyaOzet').textContent = 'Veri dosyaları okunamadı (' + e.message + ').';
+}
+
+// Anahtar sırasından bağımsız karşılaştırma (Firestore alanları farklı sırayla döndürebilir)
+const kanonik = x => Array.isArray(x) ? '[' + x.map(kanonik).join(',') + ']'
+  : x && typeof x === 'object' ? '{' + Object.keys(x).sort().map(k => JSON.stringify(k) + ':' + kanonik(x[k])).join(',') + '}'
+  : JSON.stringify(x);
+
+$('iceAktar').addEventListener('click', async () => {
+  const dugme = $('iceAktar'), m = $('aktarMesaj');
+  dugme.disabled = true;
+  try {
+    mesaj(m, 'Veritabanındaki mevcut kayıtlar kontrol ediliyor…');
+    const mevcut = await v.mevcutKayitlar(konular, oneriler);
+    if (mevcut.konular.length || mevcut.oneriler.length) {
+      const devam = confirm(`Veritabanında zaten ${mevcut.konular.length} konu ve ${mevcut.oneriler.length} öneri var.\n\n` +
+        'Devam ederseniz bunların üzerine dosyadaki hali yazılır; panelden yapılmış değişiklikler ve öneri kararları kaybolur.\n\nYine de devam edilsin mi?');
+      if (!devam) { mesaj(m, 'İptal edildi. Hiçbir şey yazılmadı.'); return; }
+    }
+    mesaj(m, 'Yazılıyor…');
+    const sonuc = await v.iceAktar(konular, oneriler);
+
+    // Doğrulama: her konuyu veritabanından geri okuyup dosyayla karşılaştır
+    mesaj(m, 'Yazıldı. Doğrulanıyor…');
+    let ayni = 0;
+    for (const k of konular) {
+      const db = await v.konuGetir(k.kod);
+      if (db) { delete db.guncellendi; if (kanonik(db) === kanonik(k)) ayni++; }
+    }
+    mesaj(m, `${sonuc.konu} konu ve ${sonuc.oneri} öneri veritabanına yazıldı.\n` +
+      `Doğrulama: ${ayni}/${konular.length} konu veritabanından geri okundu ve dosyayla birebir aynı` + (ayni === konular.length ? ' ✓' : ' ✗'),
+      ayni === konular.length ? 'tamam' : 'hata');
+  } catch (err) {
+    mesaj(m, 'Hata: ' + v.hataMetni(err), 'hata');
+  } finally {
+    dugme.disabled = false;
+  }
+});
+</script>
+</body>
+</html>
