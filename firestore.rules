@@ -6,7 +6,8 @@ rules_version = '2';
 //   • Yalnızca yönetici (hoca) YAZABİLİR. Yönetici = "yoneticiler" koleksiyonunda
 //     kendi kullanıcı kimliğiyle (uid) bir belgesi olan hesap. Bu belge Firebase
 //     konsolundan elle eklenir; siteden kimse kendini yönetici yapamaz.
-//   • Öğrenciler yalnızca "hata bildirimi" GÖNDEREBİLİR; gönderilenleri okuyamaz.
+//   • Öğrenciler "hata bildirimi" GÖNDEREBİLİR ama gönderilenleri okuyamaz.
+//   • Giriş yapan öğrenci yalnızca kendi ilerleme belgesini (ogrenciler/{uid}) okur ve yazar.
 //   • Düzeltme önerilerini yalnızca yönetici görür ve onaylar.
 
 service cloud.firestore {
@@ -41,20 +42,31 @@ service cloud.firestore {
     // Öğrenci hata bildirimleri: herkes gönderebilir (sınırlı alanlarla), yalnızca hoca okur
     match /hataBildirimleri/{id} {
       allow read, update, delete: if yonetici();
-      allow create: if request.resource.data.keys().hasOnly(['soruId', 'sayfa', 'mesaj', 'eposta', 'tarih', 'durum'])
+      allow create: if request.resource.data.keys().hasOnly(['soruId', 'sayfa', 'mesaj', 'eposta', 'ad', 'uid', 'tarih', 'durum'])
         && request.resource.data.soruId is string && request.resource.data.soruId.size() <= 20
         && request.resource.data.sayfa is string && request.resource.data.sayfa.size() <= 40
         && request.resource.data.mesaj is string
         && request.resource.data.mesaj.size() > 0 && request.resource.data.mesaj.size() <= 2000
         && (!('eposta' in request.resource.data) || (request.resource.data.eposta is string
               && request.resource.data.eposta.size() <= 100))
+        && (!('ad' in request.resource.data) || (request.resource.data.ad is string
+              && request.resource.data.ad.size() <= 80))
+        && (!('uid' in request.resource.data) || (request.auth != null
+              && request.resource.data.uid == request.auth.uid))
         && request.resource.data.tarih == request.time
         && request.resource.data.durum == 'yeni';
     }
 
-    // Yönetici listesi: kimse siteden okuyamaz veya yazamaz (yalnızca Firebase konsolu)
+    // Öğrenci verisi (çözdüğüm sorular, ilerleme): her öğrenci yalnızca kendi belgesini okur ve yazar
+    match /ogrenciler/{uid} {
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+    }
+
+    // Yönetici listesi: herkes yalnızca KENDİ kaydının olup olmadığını görebilir (panel girişi için);
+    // kimse siteden yazamaz (yalnızca Firebase konsolu)
     match /yoneticiler/{uid} {
-      allow read, write: if false;
+      allow read: if request.auth != null && request.auth.uid == uid;
+      allow write: if false;
     }
   }
 }
