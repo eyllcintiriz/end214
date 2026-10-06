@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="robots" content="noindex">
 <title>END214 – Yönetim Paneli</title>
-<link rel="stylesheet" href="style.css?v=454012ff">
+<link rel="stylesheet" href="style.css?v=cbc8b8fa">
 <style>
 /* Panel formları: style.css'teki renk ve yazı tipi değişkenleriyle */
 .panel { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; margin-bottom: 1.25rem; }
@@ -103,7 +103,7 @@ const mesaj = (el, metin, tur) => { el.textContent = metin; el.className = 'mesa
 
 let v;
 try {
-  v = await import('./veri-katmani.js?v=9073aff1');
+  v = await import('./veri-katmani.js?v=592eadf6');
 } catch (e) {
   $('yukleniyor').innerHTML = '<p class="mesaj hata">Veritabanına bağlanılamadı. İnternet bağlantınızı kontrol edip sayfayı yenileyin.</p>';
   throw e;

@@ -9,7 +9,7 @@
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js';
 // Firestore'un "lite" sürümü: canlı bağlantı kanalı açmaz, her okuma tek bir istektir (daha küçük ve hızlı).
 import {
-  getFirestore, doc, getDoc, getDocs, collection, query, orderBy, limit, writeBatch, serverTimestamp
+  getFirestore, doc, getDoc, getDocs, addDoc, collection, query, orderBy, limit, writeBatch, serverTimestamp
 } from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore-lite.js';
 import {
   getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut, sendPasswordResetEmail
@@ -64,6 +64,17 @@ export async function siteAyarlari() {
 export async function dersBilgileri() {
   const b = await getDoc(doc(db, 'site', 'ders'));
   return b.exists() ? b.data() : {};
+}
+
+// ── Öğrenci hata bildirimi (herkes gönderebilir, yalnızca yönetici okur; sınırlar firestore.rules ile aynı) ──
+
+/** { soruId (≤20, boş olabilir), sayfa (≤40), mesaj (1–2000), eposta? (≤100) } → hataBildirimleri koleksiyonuna eklenir. */
+export async function hataBildir({ soruId = '', sayfa, mesaj, eposta }) {
+  const veri = { soruId: String(soruId).slice(0, 20), sayfa: String(sayfa).slice(0, 40), mesaj: String(mesaj).trim(),
+                 tarih: serverTimestamp(), durum: 'yeni' };
+  if (!veri.mesaj || veri.mesaj.length > 2000) throw new Error('mesaj-uzunlugu');
+  if (eposta && eposta.trim()) veri.eposta = eposta.trim().slice(0, 100);
+  await addDoc(collection(db, 'hataBildirimleri'), veri);
 }
 
 // ── Giriş ──
