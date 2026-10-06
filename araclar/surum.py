@@ -24,13 +24,13 @@ def yaz(dosya, desen, yeni):
         print('güncellendi:', dosya)
 
 
-# 1) veri-katmani.js, ortak.js ve admin.html içinden import ediliyor
+# 1) veri-katmani.js, ortak.js ve yonetim.js içinden import ediliyor
 vk = ozet('veri-katmani.js')
-for d in ['ortak.js', 'admin.html']:
+for d in ['ortak.js', 'yonetim.js']:
     yaz(d, r"'\./veri-katmani\.js(\?v=[0-9a-f]+)?'", f"'./veri-katmani.js?v={vk}'")
 
-# 2) sayfalardaki <link>/<script> bağlantıları (ortak.js'in özeti 1. adımdan SONRA alınır)
-surum = {d: ozet(d) for d in ['style.css', 'ortak.js', 'firebase-ayar.js']}
+# 2) sayfalardaki <link>/<script> bağlantıları (ortak.js ve yonetim.js'in özeti 1. adımdan SONRA alınır)
+surum = {d: ozet(d) for d in ['style.css', 'ortak.js', 'yonetim.js', 'firebase-ayar.js']}
 for sayfa in sorted(glob.glob('*.html')):
     for d, v in surum.items():
         yaz(sayfa, r'(src|href)="' + re.escape(d) + r'(\?v=[0-9a-f]+)?"', rf'\1="{d}?v={v}"')

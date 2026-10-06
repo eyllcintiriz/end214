@@ -844,3 +844,23 @@ details.tehlike > summary { color: var(--red); }
 @media (max-width: 600px) {
   .hesap-dugme-yazi { display: none; }
 }
+
+/* ── Yönetim paneli: karşılama, özet, sekmeler ── */
+.ys-hosgeldin { display: flex; flex-wrap: wrap; align-items: center; gap: 1rem 2rem; }
+.ys-hosgeldin > div:first-child { flex: 1; min-width: 220px; }
+.ys-hosgeldin h2, .ys-hosgeldin p { margin-bottom: .2rem; }
+.ys-hosgeldin .dugme { margin-top: 0; }
+.ozet { display: flex; flex-direction: column; gap: .35rem; }
+.ozet-satir { font-size: .85rem; color: var(--muted); text-decoration: none; }
+.ozet-satir.var { color: var(--amber); font-weight: 600; }
+.ozet-satir.var::before { content: '● '; }
+.ozet-satir:hover { text-decoration: underline; }
+.ys-sekmeler { display: flex; gap: .3rem; overflow-x: auto; border-bottom: 1px solid var(--border); margin-bottom: 1.25rem; }
+.ys-btn {
+  display: flex; align-items: center; gap: .4rem; flex-shrink: 0; white-space: nowrap; cursor: pointer;
+  background: none; border: none; border-bottom: 2px solid transparent; color: var(--muted);
+  font: inherit; font-size: .82rem; padding: .6rem .8rem; margin-bottom: -1px; transition: color .18s, border-color .18s;
+}
+.ys-btn:hover { color: var(--text); }
+.ys-btn.aktif { color: var(--amber); border-bottom-color: var(--amber); }
+.ys-sayi { font-family: var(--mono); font-size: .65rem; color: var(--bg); background: var(--amber); border-radius: 8px; padding: .05rem .4rem; }

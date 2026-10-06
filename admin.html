@@ -5,9 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="robots" content="noindex">
 <title>END214 – Yönetim Paneli</title>
-<link rel="stylesheet" href="style.css?v=4dccaa6f">
+<link rel="stylesheet" href="style.css?v=3dd23175">
 </head>
-<body>
+<body data-sayfa="yonetim">
 
 <nav class="topnav">
   <a href="index.html" class="brand">END<span>214</span></a>
@@ -24,7 +24,7 @@
   </div>
 </header>
 
-<main>
+<main class="yonetim">
   <!-- Yükleniyor -->
   <div class="panel" id="yukleniyor">
     <p>Bağlanılıyor…</p>
@@ -53,20 +53,35 @@
 
   <!-- Yönetici -->
   <div id="yonetici" hidden>
-    <div class="panel">
-      <h2>Hoş geldiniz</h2>
-      <p>Giriş yapan: <span class="kullanici" data-kullanici></span></p>
+    <div class="panel ys-hosgeldin">
+      <div>
+        <h2>Hoş geldiniz</h2>
+        <p>Giriş yapan: <span class="kullanici" data-kullanici></span></p>
+      </div>
+      <div class="ozet" id="ozet"><span class="bos-mesaj">Yükleniyor…</span></div>
       <button class="dugme dugme-ikincil" type="button" data-cikis>Çıkış yap</button>
     </div>
 
-    <div class="panel">
-      <h2>Verileri içe aktar (tek seferlik)</h2>
-      <p>Sitenin sorularını ve formül kartlarını (<code>veri/konular.json</code>) ve hesap düzeltme önerilerini
-        (<code>veri/oneriler.json</code>) veritabanına yükler. Yalnızca ilk kurulumda bir kez çalıştırılır.</p>
-      <p id="dosyaOzet">Dosyalar okunuyor…</p>
-      <button class="dugme" type="button" id="iceAktar" disabled>İçe aktar</button>
-      <div class="mesaj" id="aktarMesaj"></div>
-    </div>
+    <div class="ys-sekmeler" id="sekmeler" role="tablist"></div>
+
+    <section data-bolum="oneriler"></section>
+    <section data-bolum="bildirimler" hidden></section>
+    <section data-bolum="sorular" hidden></section>
+    <section data-bolum="formuller" hidden></section>
+    <section data-bolum="duyurular" hidden></section>
+    <section data-bolum="ders" hidden></section>
+    <section data-bolum="ayarlar" hidden></section>
+    <section data-bolum="kurulum" hidden>
+      <div class="panel">
+        <h2>Verileri içe aktar (tek seferlik)</h2>
+        <p>Sitenin sorularını ve formül kartlarını (<code>veri/konular.json</code>) ve hesap düzeltme önerilerini
+          (<code>veri/oneriler.json</code>) veritabanına yükler. <strong>Yalnızca ilk kurulumda bir kez çalıştırılır;</strong>
+          veriler zaten yüklendi. Tekrar çalıştırılırsa panelden yapılan değişikliklerin üzerine yazar.</p>
+        <p id="dosyaOzet">Dosyalar okunuyor…</p>
+        <button class="dugme" type="button" id="iceAktar" disabled>İçe aktar</button>
+        <div class="mesaj" id="aktarMesaj"></div>
+      </div>
+    </section>
   </div>
 </main>
 
@@ -75,106 +90,6 @@
 </footer>
 
 <script src="firebase-ayar.js?v=987a2a63"></script>
-<script type="module">
-const $ = id => document.getElementById(id);
-const goster = ad => ['yukleniyor', 'giris', 'yetkisiz', 'yonetici'].forEach(b => { $(b).hidden = b !== ad; });
-const mesaj = (el, metin, tur) => { el.textContent = metin; el.className = 'mesaj' + (tur ? ' ' + tur : ''); };
-
-let v;
-try {
-  v = await import('./veri-katmani.js?v=0680dbaf');
-} catch (e) {
-  $('yukleniyor').innerHTML = '<p class="mesaj hata">Veritabanına bağlanılamadı. İnternet bağlantınızı kontrol edip sayfayı yenileyin.</p>';
-  throw e;
-}
-
-// ── Giriş / çıkış ──
-v.girisDurumu(async k => {
-  if (!k) return goster('giris');
-  document.querySelectorAll('[data-kullanici]').forEach(el => { el.textContent = k.eposta; });
-  goster('yukleniyor');
-  try {
-    goster(await v.yoneticiMi() ? 'yonetici' : 'yetkisiz');
-  } catch (e) {
-    goster('yetkisiz');
-  }
-});
-
-$('giris').addEventListener('submit', async e => {
-  e.preventDefault();
-  mesaj($('girisMesaj'), 'Giriş yapılıyor…');
-  try {
-    await v.girisYap($('eposta').value.trim(), $('sifre').value);
-    $('sifre').value = '';
-    mesaj($('girisMesaj'), '');
-  } catch (err) {
-    mesaj($('girisMesaj'), v.hataMetni(err), 'hata');
-  }
-});
-
-$('sifremiUnuttum').addEventListener('click', async () => {
-  const eposta = $('eposta').value.trim();
-  if (!eposta) return mesaj($('girisMesaj'), 'Önce e-posta adresinizi yazın.', 'hata');
-  try {
-    await v.sifreSifirla(eposta);
-    mesaj($('girisMesaj'), 'Bu adres kayıtlıysa şifre sıfırlama bağlantısı gönderildi. Gelen kutunuzu (ve gereksiz klasörünü) kontrol edin.', 'tamam');
-  } catch (err) {
-    mesaj($('girisMesaj'), v.hataMetni(err), 'hata');
-  }
-});
-
-document.querySelectorAll('[data-cikis]').forEach(b => b.addEventListener('click', () => v.cikisYap()));
-
-// ── İçe aktarma ──
-let konular, oneriler;
-try {
-  [konular, oneriler] = await Promise.all([
-    fetch('veri/konular.json').then(r => { if (!r.ok) throw new Error(r.status); return r.json(); }).then(d => d.konular),
-    fetch('veri/oneriler.json').then(r => { if (!r.ok) throw new Error(r.status); return r.json(); }).then(d => d.oneriler),
-  ]);
-  const soru = konular.reduce((t, k) => t + k.sorular.length, 0);
-  const formul = konular.reduce((t, k) => t + k.formul.kartlar.length, 0);
-  $('dosyaOzet').textContent = `Dosyada: ${konular.length} konu, ${soru} soru, ${formul} formül kartı, ${oneriler.length} düzeltme önerisi.`;
-  $('iceAktar').disabled = false;
-} catch (e) {
-  $('dosyaOzet').textContent = 'Veri dosyaları okunamadı (' + e.message + ').';
-}
-
-// Anahtar sırasından bağımsız karşılaştırma (Firestore alanları farklı sırayla döndürebilir)
-const kanonik = x => Array.isArray(x) ? '[' + x.map(kanonik).join(',') + ']'
-  : x && typeof x === 'object' ? '{' + Object.keys(x).sort().map(k => JSON.stringify(k) + ':' + kanonik(x[k])).join(',') + '}'
-  : JSON.stringify(x);
-
-$('iceAktar').addEventListener('click', async () => {
-  const dugme = $('iceAktar'), m = $('aktarMesaj');
-  dugme.disabled = true;
-  try {
-    mesaj(m, 'Veritabanındaki mevcut kayıtlar kontrol ediliyor…');
-    const mevcut = await v.mevcutKayitlar(konular, oneriler);
-    if (mevcut.konular.length || mevcut.oneriler.length) {
-      const devam = confirm(`Veritabanında zaten ${mevcut.konular.length} konu ve ${mevcut.oneriler.length} öneri var.\n\n` +
-        'Devam ederseniz bunların üzerine dosyadaki hali yazılır; panelden yapılmış değişiklikler ve öneri kararları kaybolur.\n\nYine de devam edilsin mi?');
-      if (!devam) { mesaj(m, 'İptal edildi. Hiçbir şey yazılmadı.'); return; }
-    }
-    mesaj(m, 'Yazılıyor…');
-    const sonuc = await v.iceAktar(konular, oneriler);
-
-    // Doğrulama: her konuyu veritabanından geri okuyup dosyayla karşılaştır
-    mesaj(m, 'Yazıldı. Doğrulanıyor…');
-    let ayni = 0;
-    for (const k of konular) {
-      const db = await v.konuGetir(k.kod);
-      if (db) { delete db.guncellendi; if (kanonik(db) === kanonik(k)) ayni++; }
-    }
-    mesaj(m, `${sonuc.konu} konu ve ${sonuc.oneri} öneri veritabanına yazıldı.\n` +
-      `Doğrulama: ${ayni}/${konular.length} konu veritabanından geri okundu ve dosyayla birebir aynı` + (ayni === konular.length ? ' ✓' : ' ✗'),
-      ayni === konular.length ? 'tamam' : 'hata');
-  } catch (err) {
-    mesaj(m, 'Hata: ' + v.hataMetni(err), 'hata');
-  } finally {
-    dugme.disabled = false;
-  }
-});
-</script>
+<script type="module" src="yonetim.js?v=95491c60"></script>
 </body>
 </html>

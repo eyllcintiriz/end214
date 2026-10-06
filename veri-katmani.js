@@ -10,7 +10,7 @@ import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.19.0/fireba
 // Firestore'un "lite" sürümü: canlı bağlantı kanalı açmaz, her okuma tek bir istektir (daha küçük ve hızlı).
 import {
   getFirestore, doc, getDoc, getDocs, addDoc, setDoc, deleteDoc, deleteField, collection, query, orderBy, limit,
-  writeBatch, serverTimestamp
+  where, getCount, writeBatch, serverTimestamp
 } from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore-lite.js';
 import {
   getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut, sendPasswordResetEmail,
@@ -158,6 +158,17 @@ export function hataMetni(e) {
   if (/network-request-failed|unavailable/.test(kod)) return 'İnternet bağlantısı kurulamadı.';
   if (/permission-denied/.test(kod)) return 'Bu işlem için yetkiniz yok.';
   return 'Beklenmeyen bir hata oluştu' + (kod ? ' (' + kod + ')' : '') + '.';
+}
+
+// ── Yönetim paneli (yalnızca yönetici; kurallar başkasına izin vermez) ──
+
+/** Onay bekleyen öneri ve yeni hata bildirimi sayısı (sayma sorgusu: belgeleri tek tek okumaz). */
+export async function bekleyenSayilari() {
+  const [o, b] = await Promise.all([
+    getCount(query(collection(db, 'oneriler'), where('durum', '==', 'bekliyor'))),
+    getCount(query(collection(db, 'hataBildirimleri'), where('durum', '==', 'yeni'))),
+  ]);
+  return { oneri: o.data().count, bildirim: b.data().count };
 }
 
 // ── İçe aktarma (tek seferlik taşıma, yalnızca yönetici) ──
