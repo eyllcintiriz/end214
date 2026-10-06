@@ -14,7 +14,7 @@
     <a href="index.html">Ana Sayfa</a>
     <a href="temel.html">Temel Tanımlar</a>
     <a href="me.html">Merkezi Eğilim Ölçüleri</a>
-    <a href="dag.html">Merkezi Dağılım Ölçüleri</a>
+    <a href="dag.html">Dağılım Ölçüleri</a>
     <a href="grafik.html">Grafikler</a>
     <a href="tahmin.html" class="active">Nokta Tahmini</a>
     <a href="ga.html">Güven Aralığı</a>
@@ -140,7 +140,7 @@
         <button class="sol-btn sol-btn-v" onclick="toggleSolution(this)">&#9658; Çözümü Göster</button>
         <div class="solution solution-v">
           <div class="sol-title sol-title-v">Adım Adım Çözüm</div>
-          <div class="sol-step"><span class="step-n sn-violet">a — 1. moment</span><div class="step-text">&mu;&#8321; = E(X) = &theta;/2<br>Örneklem 1. momenti: m&#8321; = X&#772;<br>&theta;/2 = X&#772; &nbsp;&#8594;&nbsp; <span class="result">&theta;&#770;&#7465; = 2X&#772;</span></div></div>
+          <div class="sol-step"><span class="step-n sn-violet">a — 1. moment</span><div class="step-text">&mu;&#8321; = E(X) = &theta;/2<br>Örneklem 1. momenti: m&#8321; = X&#772;<br>&theta;/2 = X&#772; &nbsp;&#8594;&nbsp; <span class="result">&theta;&#770;<sub>MM</sub> = 2X&#772;</span></div></div>
           <div class="sol-step"><span class="step-n sn-violet">b</span><div class="step-text">E(2X&#772;) = 2·E(X&#772;) = 2·&theta;/2 = &theta;<br><span class="result">&#8594; 2X&#772; yansızdır.</span></div></div>
         </div>
       </div>
@@ -243,10 +243,10 @@
         <button class="sol-btn sol-btn-v" onclick="toggleSolution(this)">&#9658; Çözümü Göster</button>
         <div class="solution solution-v">
           <div class="sol-title sol-title-v">Adım Adım Çözüm</div>
-          <div class="sol-step"><span class="step-n sn-violet">a — 1. moment</span><div class="step-text">&mu;&#8321; = E(X) = &#8747;<sub>0</sub><sup>1</sup> x·(&theta;+1)x<sup>&theta;</sup>dx = (&theta;+1)·[x<sup>&theta;+2</sup>/(&theta;+2)]<sub>0</sub><sup>1</sup> = (&theta;+1)/(&theta;+2)<br>m&#8321; = X&#772; eşitle: (&theta;+1)/(&theta;+2) = X&#772;<br>&theta;+1 = X&#772;(&theta;+2) &nbsp;&#8594;&nbsp; &theta;(1&minus;X&#772;) = 2X&#772;&minus;1<br><span class="result">&theta;&#770;&#7465; = (2X&#772;&minus;1)/(1&minus;X&#772;)</span></div></div>
+          <div class="sol-step"><span class="step-n sn-violet">a — 1. moment</span><div class="step-text">&mu;&#8321; = E(X) = &#8747;<sub>0</sub><sup>1</sup> x·(&theta;+1)x<sup>&theta;</sup>dx = (&theta;+1)·[x<sup>&theta;+2</sup>/(&theta;+2)]<sub>0</sub><sup>1</sup> = (&theta;+1)/(&theta;+2)<br>m&#8321; = X&#772; eşitle: (&theta;+1)/(&theta;+2) = X&#772;<br>&theta;+1 = X&#772;(&theta;+2) &nbsp;&#8594;&nbsp; &theta;(1&minus;X&#772;) = 2X&#772;&minus;1<br><span class="result">&theta;&#770;<sub>MM</sub> = (2X&#772;&minus;1)/(1&minus;X&#772;)</span></div></div>
           <div class="sol-step"><span class="step-n sn-violet">b — Olabilirlik</span><div class="step-text">L(&theta;) = &#8719;<sup>n</sup><sub>i=1</sub> (&theta;+1)x&#7522;<sup>&theta;</sup> = (&theta;+1)<sup>n</sup> &#8719;x&#7522;<sup>&theta;</sup></div></div>
           <div class="sol-step"><span class="step-n sn-violet">b — Log-olabilirlik</span><div class="step-text">&#8467;(&theta;) = n ln(&theta;+1) + &theta;&#8721;ln(x&#7522;)</div></div>
-          <div class="sol-step"><span class="step-n sn-violet">b — Türev &amp; çözüm</span><div class="step-text">d&#8467;/d&theta; = n/(&theta;+1) + &#8721;ln(x&#7522;) = 0<br><span class="result">&theta;&#770;&#7461; = &minus;1 &minus; n/&#8721;ln(X&#7522;) = &minus;1 &minus; 1/&#x305;(ln X)</span></div></div>
+          <div class="sol-step"><span class="step-n sn-violet">b — Türev &amp; çözüm</span><div class="step-text">d&#8467;/d&theta; = n/(&theta;+1) + &#8721;ln(x&#7522;) = 0<br><span class="result">&theta;&#770;<sub>EÇO</sub> = &minus;1 &minus; n/&#8721;ln(X&#7522;) = &minus;1 &minus; 1/<span style="text-decoration:overline">ln X</span></span></div></div>
         </div>
       </div>
     </div>
@@ -277,10 +277,10 @@
         <button class="sol-btn sol-btn-v" onclick="toggleSolution(this)">&#9658; Çözümü Göster</button>
         <div class="solution solution-v">
           <div class="sol-title sol-title-v">Adım Adım Çözüm</div>
-          <div class="sol-step"><span class="step-n sn-violet">a — Momentler</span><div class="step-text">&mu;&#8321; = E(X) = &mu; &nbsp;&#8594;&nbsp; m&#8321; = X&#772; eşitle: <span class="result">&mu;&#770;&#7465; = X&#772;</span><br>E(X&#772;) = &mu; &#8594; yansızdır ✓</div></div>
+          <div class="sol-step"><span class="step-n sn-violet">a — Momentler</span><div class="step-text">&mu;&#8321; = E(X) = &mu; &nbsp;&#8594;&nbsp; m&#8321; = X&#772; eşitle: <span class="result">&mu;&#770;<sub>MM</sub> = X&#772;</span><br>E(X&#772;) = &mu; &#8594; yansızdır ✓</div></div>
           <div class="sol-step"><span class="step-n sn-violet">b — Olabilirlik</span><div class="step-text">L(&mu;) = &#8719;<sup>n</sup><sub>i=1</sub> (1/&mu;) e<sup>&minus;x&#7522;/&mu;</sup> = (1/&mu;<sup>n</sup>) e<sup>&minus;(1/&mu;)&#8721;x&#7522;</sup></div></div>
           <div class="sol-step"><span class="step-n sn-violet">b — Log-olabilirlik</span><div class="step-text">&#8467;(&mu;) = &minus;n ln&mu; &minus; (1/&mu;)&#8721;x&#7522;</div></div>
-          <div class="sol-step"><span class="step-n sn-violet">b — Türev &amp; çözüm</span><div class="step-text">d&#8467;/d&mu; = &minus;n/&mu; + &#8721;x&#7522;/&mu;² = 0 &nbsp;&#8594;&nbsp; &mu; = &#8721;x&#7522;/n &nbsp;&#8594;&nbsp; <span class="result">&mu;&#770;&#7461; = X&#772;</span><br>Her iki yöntem aynı sonucu vermektedir.</div></div>
+          <div class="sol-step"><span class="step-n sn-violet">b — Türev &amp; çözüm</span><div class="step-text">d&#8467;/d&mu; = &minus;n/&mu; + &#8721;x&#7522;/&mu;² = 0 &nbsp;&#8594;&nbsp; &mu; = &#8721;x&#7522;/n &nbsp;&#8594;&nbsp; <span class="result">&mu;&#770;<sub>EÇO</sub> = X&#772;</span><br>Her iki yöntem aynı sonucu vermektedir.</div></div>
           <div class="sol-step"><span class="step-n sn-violet">c — Tutarlılık</span><div class="step-text">Büyük Sayılar Yasası gereği X&#772; &#8594;<sup>p</sup> E(X) = &mu; ve Var(X&#772;) = &mu;²/n &#8594; 0.<br><span class="result">&#8594; X&#772; tutarlı tahmin edicidir.</span></div></div>
         </div>
       </div>
@@ -411,8 +411,8 @@
           <div class="sol-title sol-title-v">Ad&#305;m Ad&#305;m &#199;&#246;z&uuml;m</div>
           <div class="sol-step"><span class="step-n sn-violet">a &mdash; Olabilirlik</span><div class="step-text">L(&theta;) = &#8719;<sup>n</sup><sub>i=1</sub> &theta; x&#7522;<sup>&theta;&minus;1</sup> = &theta;<sup>n</sup> &#8719;x&#7522;<sup>&theta;&minus;1</sup></div></div>
           <div class="sol-step"><span class="step-n sn-violet">a &mdash; Log-olabilirlik</span><div class="step-text">&#8467;(&theta;) = n ln&theta; + (&theta;&minus;1)&#8721;ln(x&#7522;)</div></div>
-          <div class="sol-step"><span class="step-n sn-violet">a &mdash; T&uuml;rev &amp; &ccedil;oz&uuml;m</span><div class="step-text">d&#8467;/d&theta; = n/&theta; + &#8721;ln(x&#7522;) = 0<br><span class="result">&theta;&#770;&#7461; = &minus;n/&#8721;ln(X&#7522;)</span></div></div>
-          <div class="sol-step"><span class="step-n sn-violet">b &mdash; 1. moment</span><div class="step-text">&mu;&#8321; = E(X) = &#8747;<sub>0</sub><sup>1</sup> x &middot; &theta;x<sup>&theta;&minus;1</sup>dx = &theta; &middot; [x<sup>&theta;+1</sup>/(&theta;+1)]<sub>0</sub><sup>1</sup> = &theta;/(&theta;+1)<br>m&#8321; = X&#772; e&#351;itle: X&#772;(&theta;+1) = &theta;<br><span class="result">&theta;&#770;&#7465; = X&#772;/(1&minus;X&#772;)</span></div></div>
+          <div class="sol-step"><span class="step-n sn-violet">a &mdash; T&uuml;rev &amp; &ccedil;oz&uuml;m</span><div class="step-text">d&#8467;/d&theta; = n/&theta; + &#8721;ln(x&#7522;) = 0<br><span class="result">&theta;&#770;<sub>EÇO</sub> = &minus;n/&#8721;ln(X&#7522;)</span></div></div>
+          <div class="sol-step"><span class="step-n sn-violet">b &mdash; 1. moment</span><div class="step-text">&mu;&#8321; = E(X) = &#8747;<sub>0</sub><sup>1</sup> x &middot; &theta;x<sup>&theta;&minus;1</sup>dx = &theta; &middot; [x<sup>&theta;+1</sup>/(&theta;+1)]<sub>0</sub><sup>1</sup> = &theta;/(&theta;+1)<br>m&#8321; = X&#772; e&#351;itle: X&#772;(&theta;+1) = &theta;<br><span class="result">&theta;&#770;<sub>MM</sub> = X&#772;/(1&minus;X&#772;)</span></div></div>
         </div>
       </div>
     </div>
@@ -462,7 +462,7 @@
         <div class="f-body">
           L(&theta;) = &#8719;<sub>i</sub> f(x&#7522;; &theta;)<br>
           &#8467;(&theta;) = ln L(&theta;) = &#8721; ln f(x&#7522;; &theta;)<br>
-          <span class="hi">d&#8467;/d&theta; = 0 → &theta;&#770;&#7461;</span><br>
+          <span class="hi">d&#8467;/d&theta; = 0 → &theta;&#770;<sub>EÇO</sub></span><br>
           <span class="dim">d²&#8467;/d&theta;² &lt; 0 doğrulaması</span>
         </div>
       </div>

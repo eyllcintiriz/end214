@@ -14,7 +14,7 @@
     <a href="index.html">Ana Sayfa</a>
     <a href="temel.html">Temel Tanımlar</a>
     <a href="me.html" class="active">Merkezi Eğilim Ölçüleri</a>
-    <a href="dag.html">Merkezi Dağılım Ölçüleri</a>
+    <a href="dag.html">Dağılım Ölçüleri</a>
     <a href="grafik.html">Grafikler</a>
     <a href="tahmin.html">Nokta Tahmini</a>
     <a href="ga.html">Güven Aralığı</a>
@@ -146,8 +146,8 @@
         <button class="sol-btn sol-btn-o" onclick="toggleSolution(this)">&#9658; Çözümü Göster</button>
         <div class="solution solution-o">
           <div class="sol-title sol-title-o">Adım Adım Çözüm</div>
-          <div class="sol-step"><span class="step-n sn-orange">a &mdash; Orta değerler</span><div class="step-text">50, 150, 300, 500, 800, 1500<br>Sınıf genişliği farklı olsa da orta değer her zaman (alt+üst)/2'dir; AO formülü &mu;=&sum;x&#772;&#11338;f/N doğrudan uygulanır, genişlik AO'yu etkilemez.</div></div>
-          <div class="sol-step"><span class="step-n sn-orange">b &mdash; x&#772;&#11338;f tablosu</span><div class="step-text">50&middot;15=750 &nbsp;| 150&middot;35=5250 &nbsp;| 300&middot;80=24000 &nbsp;| 500&middot;50=25000 &nbsp;| 800&middot;30=24000 &nbsp;| 1500&middot;10=15000<br>&sum;x&#772;&#11338;f = 94000</div></div>
+          <div class="sol-step"><span class="step-n sn-orange">a &mdash; Orta değerler</span><div class="step-text">50, 150, 300, 500, 800, 1500<br>Sınıf genişliği farklı olsa da orta değer her zaman (alt+üst)/2'dir; AO formülü &mu;=&sum;x&#772;&#11388;f/N doğrudan uygulanır, genişlik AO'yu etkilemez.</div></div>
+          <div class="sol-step"><span class="step-n sn-orange">b &mdash; x&#772;&#11388;f tablosu</span><div class="step-text">50&middot;15=750 &nbsp;| 150&middot;35=5250 &nbsp;| 300&middot;80=24000 &nbsp;| 500&middot;50=25000 &nbsp;| 800&middot;30=24000 &nbsp;| 1500&middot;10=15000<br>&sum;x&#772;&#11388;f = 94000</div></div>
           <div class="sol-step"><span class="step-n sn-orange">b &mdash; AO</span><div class="step-text">&mu; = 94000/220 = <span class="result">427.3 MWh/yıl</span></div></div>
         </div>
       </div>
@@ -180,7 +180,7 @@
         <div class="solution solution-o">
           <div class="sol-title sol-title-o">Adım Adım Çözüm</div>
           <div class="sol-step"><span class="step-n sn-orange">a &mdash; Sıralama</span><div class="step-text">90, 100, 105, 110, 180<br>a&#8321;, a&#8322;, a&#8323;, a&#8324;, a&#8325;</div></div>
-          <div class="sol-step"><span class="step-n sn-orange">a &mdash; Medyan</span><div class="step-text">N=5 (tek) &rarr; Medyan = a&#8325;&#x208;&#x2085;&#x2083;&#x208;&#x2085;&#x208A;&#x2081;&#x208B;&#x2094;&#x2082;  = a&#8326;&#x2094;&#x2082; = a&#8323;<br>Medyan = a<sub>(5+1)/2</sub> = a<sub>3</sub> = <span class="result">105</span></div></div>
+          <div class="sol-step"><span class="step-n sn-orange">a &mdash; Medyan</span><div class="step-text">N=5 (tek) &rarr; Medyan = a<sub>(N+1)/2</sub><br>Medyan = a<sub>(5+1)/2</sub> = a<sub>3</sub> = <span class="result">105</span></div></div>
           <div class="sol-step"><span class="step-n sn-orange">b &mdash; Medyan</span><div class="step-text">N=10 (çift): Medyan = (a<sub>N/2</sub> + a<sub>(N+2)/2</sub>)/2 = (a<sub>5</sub>+a<sub>6</sub>)/2 = (6+6)/2 = <span class="result">6</span></div></div>
         </div>
       </div>
@@ -302,7 +302,7 @@
         <button class="sol-btn sol-btn-o" onclick="toggleSolution(this)">&#9658; Çözümü Göster</button>
         <div class="solution solution-o">
           <div class="sol-title sol-title-o">Adım Adım Çözüm</div>
-          <div class="sol-step"><span class="step-n sn-orange">a &mdash; AO</span><div class="step-text">x&#772;&#11338;: 10, 20, 30, 40, 50<br>&sum;x&#772;&#11338;f = 10&middot;10+20&middot;20+30&middot;40+40&middot;20+50&middot;10 = 100+400+1200+800+500 = 3000<br>&mu; = 3000/100 = <span class="result">30</span></div></div>
+          <div class="sol-step"><span class="step-n sn-orange">a &mdash; AO</span><div class="step-text">x&#772;&#11388;: 10, 20, 30, 40, 50<br>&sum;x&#772;&#11388;f = 10&middot;10+20&middot;20+30&middot;40+40&middot;20+50&middot;10 = 100+400+1200+800+500 = 3000<br>&mu; = 3000/100 = <span class="result">30</span></div></div>
           <div class="sol-step"><span class="step-n sn-orange">b &mdash; Medyan</span><div class="step-text">N/2=50. Birikimli: 1&ndash;10, 11&ndash;30, 31&ndash;70 ← medyan sınıfı, 71&ndash;90, 91&ndash;100<br>L=25, c=10, f=40, d=30<br>Medyan = 25 + (10/40)(50&minus;30) = 25 + 5 = <span class="result">30</span></div></div>
           <div class="sol-step"><span class="step-n sn-orange">c &mdash; Mod</span><div class="step-text">Mod sınıfı: 25&le;x&lt;35 (f=40). L=25, f&#8347;=20, f&#8320;=20, c=10<br>Mod = 25 + 20/(20+20) &middot; 10 = 25 + 5 = <span class="result">30</span><br>AO = Medyan = Mod = 30: Dağılım simetrik (normal) olduğunda üç merkezi eğilim ölçüsü birbirine eşittir.</div></div>
         </div>
@@ -344,7 +344,7 @@
         <button class="sol-btn sol-btn-o" onclick="toggleSolution(this)">&#9658; Çözümü Göster</button>
         <div class="solution solution-o">
           <div class="sol-title sol-title-o">Adım Adım Çözüm</div>
-          <div class="sol-step"><span class="step-n sn-orange">a &mdash; AO</span><div class="step-text">x&#772;&#11338;: 95, 105, 115, 125, 135, 145<br>&sum;x&#772;&#11338;f = 95&middot;30+105&middot;105+115&middot;30+125&middot;20+135&middot;10+145&middot;5<br>= 2850+11025+3450+2500+1350+725 = 21900<br>&mu; = 21900/200 = <span class="result">109.5 gr</span></div></div>
+          <div class="sol-step"><span class="step-n sn-orange">a &mdash; AO</span><div class="step-text">x&#772;&#11388;: 95, 105, 115, 125, 135, 145<br>&sum;x&#772;&#11388;f = 95&middot;30+105&middot;105+115&middot;30+125&middot;20+135&middot;10+145&middot;5<br>= 2850+11025+3450+2500+1350+725 = 21900<br>&mu; = 21900/200 = <span class="result">109.5 gr</span></div></div>
           <div class="sol-step"><span class="step-n sn-orange">b &mdash; Medyan</span><div class="step-text">N/2=100. Birikimli: 1&ndash;30, 31&ndash;135 ← medyan sınıfı, 136&ndash;165, &hellip;<br>L=100, c=10, f=105, d=30<br>Medyan = 100 + (10/105)(100&minus;30) = 100 + 6.67 = <span class="result">106.67 gr</span></div></div>
           <div class="sol-step"><span class="step-n sn-orange">c &mdash; Mod</span><div class="step-text">Mod sınıfı: 100&le;x&lt;110 (f=105). L=100, f&#8347;=30, f&#8320;=30, c=10<br>Mod = 100 + 30/(30+30) &middot; 10 = 100 + 5 = <span class="result">105 gr</span><br><br>Doğrulama: <span class="result">Mod(105) &lt; Medyan(106.67) &lt; AO(109.5)</span> ✓<br>Sağa çarpık dağılımda az sayıda büyük değer (aşırı dolum) AO'yu yukarı çeker; mod en küçük, AO en büyük konumdadır. Kalite kontrolde medyan daha güvenilir referanstır.</div></div>
         </div>
@@ -384,7 +384,7 @@
         <button class="sol-btn sol-btn-o" onclick="toggleSolution(this)">&#9658; Çözümü Göster</button>
         <div class="solution solution-o">
           <div class="sol-title sol-title-o">Adım Adım Çözüm</div>
-          <div class="sol-step"><span class="step-n sn-orange">a &mdash; AO</span><div class="step-text">&sum;x&#772;&#11338;f = 105&middot;5+115&middot;10+125&middot;20+135&middot;50+145&middot;15<br>= 525+1150+2500+6750+2175 = 13100<br>&mu; = 13100/100 = <span class="result">131 mm</span></div></div>
+          <div class="sol-step"><span class="step-n sn-orange">a &mdash; AO</span><div class="step-text">&sum;x&#772;&#11388;f = 105&middot;5+115&middot;10+125&middot;20+135&middot;50+145&middot;15<br>= 525+1150+2500+6750+2175 = 13100<br>&mu; = 13100/100 = <span class="result">131 mm</span></div></div>
           <div class="sol-step"><span class="step-n sn-orange">a &mdash; Medyan</span><div class="step-text">N/2=50. Birikimli: 1&ndash;5, 6&ndash;15, 16&ndash;35, 36&ndash;85 ← medyan sınıfı, 86&ndash;100<br>L=130, c=10, f=50, d=35<br>Medyan = 130 + (10/50)(50&minus;35) = 130 + 3 = <span class="result">133 mm</span></div></div>
           <div class="sol-step"><span class="step-n sn-orange">a &mdash; Mod</span><div class="step-text">Mod sınıfı: 130&le;x&lt;140 (f=50). L=130, f&#8347;=15, f&#8320;=20, c=10<br>Mod = 130 + 20/(20+15) &middot; 10 = 130 + 5.71 = <span class="result">135.71 mm</span></div></div>
           <div class="sol-step"><span class="step-n sn-orange">b</span><div class="step-text"><span class="result">AO(131) &lt; Medyan(133) &lt; Mod(135.71)</span> ✓<br>Sola çarpık dağılımda az sayıda küçük değer (tolerans dışı düşük çaplı rulmanlar) AO'yu aşağı çeker; mod en büyük, AO en küçük konumdadır. Üretim sürecinin büyük çoğunluğu nominal çap değerine yakın, fakat sol kuyrukta ıskarta parçalar mevcuttur.</div></div>
@@ -429,7 +429,7 @@
           <div class="sol-step"><span class="step-n sn-orange">a &mdash; Medyan</span><div class="step-text">N/2 = 75. Birikimli: 1&ndash;12, 13&ndash;45, 46&ndash;100 ← medyan sınıfı, 101&ndash;130, 131&ndash;150<br>L=12, c=4, f=55, d=45<br>Medyan = 12 + (4/55)(75&minus;45) = 12 + 120/55 = 12 + 2.18 = <span class="result">14.18 ay</span></div></div>
           <div class="sol-step"><span class="step-n sn-orange">b &mdash; Mod sınıfı</span><div class="step-text">En büyük çokluk f=55 ile 12&le;x&lt;16 sınıfı → Mod sınıfı: 12&le;x&lt;16</div></div>
           <div class="sol-step"><span class="step-n sn-orange">b &mdash; Formül 1</span><div class="step-text">L=12, f&#8347;=30 (bir sonraki), f&#8320;=33 (bir önceki), c=4<br>Mod = 12 + 30/(30+33) &middot; 4 = 12 + 120/63 = 12 + 1.90 = <span class="result">13.90 ay</span></div></div>
-          <div class="sol-step"><span class="step-n sn-orange">c &mdash; AO</span><div class="step-text">x&#772;&#11338;: 6, 10, 14, 18, 22<br>&sum;x&#772;&#11338;f = 6&middot;12+10&middot;33+14&middot;55+18&middot;30+22&middot;20 = 72+330+770+540+440 = 2152<br>&mu; = 2152/150 = <span class="result">14.35 ay</span><br>Mod(&asymp;13.9) &lt; Medyan(14.18) &lt; AO(14.35): Hafif sağa çarpık dağılım; bir kısım projenin gecikmesi ortalamayı yukarı çekmektedir.</div></div>
+          <div class="sol-step"><span class="step-n sn-orange">c &mdash; AO</span><div class="step-text">x&#772;&#11388;: 6, 10, 14, 18, 22<br>&sum;x&#772;&#11388;f = 6&middot;12+10&middot;33+14&middot;55+18&middot;30+22&middot;20 = 72+330+770+540+440 = 2152<br>&mu; = 2152/150 = <span class="result">14.35 ay</span><br>Mod(&asymp;13.9) &lt; Medyan(14.18) &lt; AO(14.35): Hafif sağa çarpık dağılım; bir kısım projenin gecikmesi ortalamayı yukarı çekmektedir.</div></div>
         </div>
       </div>
     </div>
@@ -519,8 +519,8 @@
         <div class="f-title">Aritmetik Ortalama</div>
         <div class="f-body">
           <span class="hi">Basit dizi:</span> &mu; = (1/N)&sum;X&#7522;<br>
-          <span class="hi">Çokluk dağılımı:</span> &mu; = (1/N)&sum;x&#772;&#11338;f&#11338;<br>
-          <span class="dim">x&#772;&#11338;: sınıf orta değeri = (alt+üst)/2<br>Sınıf genişliği AO'yu etkilemez.</span>
+          <span class="hi">Çokluk dağılımı:</span> &mu; = (1/N)&sum;x&#772;&#11388;f&#11388;<br>
+          <span class="dim">x&#772;&#11388;: sınıf orta değeri = (alt+üst)/2<br>Sınıf genişliği AO'yu etkilemez.</span>
         </div>
       </div>
 

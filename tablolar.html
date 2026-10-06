@@ -107,7 +107,7 @@
     <a href="index.html">Ana Sayfa</a>
     <a href="temel.html">Temel Tanımlar</a>
     <a href="me.html">Merkezi Eğilim Ölçüleri</a>
-    <a href="dag.html">Merkezi Dağılım Ölçüleri</a>
+    <a href="dag.html">Dağılım Ölçüleri</a>
     <a href="grafik.html">Grafikler</a>
     <a href="tahmin.html">Nokta Tahmini</a>
     <a href="ga.html">Güven Aralığı</a>
@@ -199,9 +199,9 @@
   </div>
 
   <!-- ══════════════════════════════════════
-       T3: t DAĞILIMI TABLOSU
+       T2: t DAĞILIMI TABLOSU
   ══════════════════════════════════════ -->
-  <div class="section-heading sh-blue">T3 — t Dağılımı Kritik Değerleri &nbsp;<span style="font-family:var(--mono);font-size:.8rem;color:var(--muted);font-weight:400">P(T ≤ t)</span></div>
+  <div class="section-heading sh-blue">T2 — t Dağılımı Kritik Değerleri &nbsp;<span style="font-family:var(--mono);font-size:.8rem;color:var(--muted);font-weight:400">P(T ≤ t)</span></div>
 
   <p class="tablo-note"><strong>Nasıl okunur:</strong> Satır = serbestlik derecesi (s.d. = df = n − 1) &nbsp;|&nbsp; Sütun = kümülatif olasılık P. Örneğin df=10, %95 çift kuyruk (α=0.05) için: satır 10, sütun .975 → <strong>2.228</strong>.<br>
   Tek kuyruk α=0.05 → sütun .95. Çift kuyruk α=0.05 → sütun .975. Çift kuyruk α=0.01 → sütun .995.</p>
@@ -226,8 +226,8 @@
       </thead>
       <tbody>
         <tr><td class="t-head">1</td><td>0.325</td><td>1.000</td><td>3.078</td><td>6.314</td><td class="hi-val">12.706</td><td>31.821</td><td>63.657</td><td>318.31</td></tr>
-        <tr><td class="t-head">2</td><td>0.289</td><td>0.816</td><td>1.886</td><td>2.920</td><td class="hi-val">4.303</td><td>6.965</td><td>9.925</td><td>22.326</td></tr>
-        <tr><td class="t-head">3</td><td>0.277</td><td>0.765</td><td>1.638</td><td>2.353</td><td class="hi-val">3.182</td><td>4.541</td><td>5.841</td><td>10.213</td></tr>
+        <tr><td class="t-head">2</td><td>0.289</td><td>0.816</td><td>1.886</td><td>2.920</td><td class="hi-val">4.303</td><td>6.965</td><td>9.925</td><td>22.327</td></tr>
+        <tr><td class="t-head">3</td><td>0.277</td><td>0.765</td><td>1.638</td><td>2.353</td><td class="hi-val">3.182</td><td>4.541</td><td>5.841</td><td>10.215</td></tr>
         <tr><td class="t-head">4</td><td>0.271</td><td>0.741</td><td>1.533</td><td>2.132</td><td class="hi-val">2.776</td><td>3.747</td><td>4.604</td><td>7.173</td></tr>
         <tr><td class="t-head">5</td><td>0.267</td><td>0.727</td><td>1.476</td><td>2.015</td><td class="hi-val">2.571</td><td>3.365</td><td>4.032</td><td>5.893</td></tr>
         <tr><td class="t-head">6</td><td>0.265</td><td>0.718</td><td>1.440</td><td>1.943</td><td class="hi-val">2.447</td><td>3.143</td><td>3.707</td><td>5.208</td></tr>
@@ -255,7 +255,35 @@
         <tr><td class="t-head">28</td><td>0.256</td><td>0.683</td><td>1.313</td><td>1.701</td><td class="hi-val">2.048</td><td>2.467</td><td>2.763</td><td>3.408</td></tr>
         <tr><td class="t-head">29</td><td>0.256</td><td>0.683</td><td>1.311</td><td>1.699</td><td class="hi-val">2.045</td><td>2.462</td><td>2.756</td><td>3.396</td></tr>
         <tr class="hi-row"><td class="t-head">30</td><td>0.256</td><td>0.683</td><td>1.310</td><td>1.697</td><td class="hi-val">2.042</td><td>2.457</td><td>2.750</td><td>3.385</td></tr>
+        <tr><td class="t-head">31</td><td>0.256</td><td>0.682</td><td>1.309</td><td>1.696</td><td class="hi-val">2.040</td><td>2.453</td><td>2.744</td><td>3.375</td></tr>
+        <tr><td class="t-head">32</td><td>0.255</td><td>0.682</td><td>1.309</td><td>1.694</td><td class="hi-val">2.037</td><td>2.449</td><td>2.738</td><td>3.365</td></tr>
+        <tr><td class="t-head">33</td><td>0.255</td><td>0.682</td><td>1.308</td><td>1.692</td><td class="hi-val">2.035</td><td>2.445</td><td>2.733</td><td>3.356</td></tr>
+        <tr><td class="t-head">34</td><td>0.255</td><td>0.682</td><td>1.307</td><td>1.691</td><td class="hi-val">2.032</td><td>2.441</td><td>2.728</td><td>3.348</td></tr>
+        <tr><td class="t-head">35</td><td>0.255</td><td>0.682</td><td>1.306</td><td>1.690</td><td class="hi-val">2.030</td><td>2.438</td><td>2.724</td><td>3.340</td></tr>
+        <tr><td class="t-head">36</td><td>0.255</td><td>0.681</td><td>1.306</td><td>1.688</td><td class="hi-val">2.028</td><td>2.434</td><td>2.719</td><td>3.333</td></tr>
+        <tr><td class="t-head">37</td><td>0.255</td><td>0.681</td><td>1.305</td><td>1.687</td><td class="hi-val">2.026</td><td>2.431</td><td>2.715</td><td>3.326</td></tr>
+        <tr><td class="t-head">38</td><td>0.255</td><td>0.681</td><td>1.304</td><td>1.686</td><td class="hi-val">2.024</td><td>2.429</td><td>2.712</td><td>3.319</td></tr>
+        <tr><td class="t-head">39</td><td>0.255</td><td>0.681</td><td>1.304</td><td>1.685</td><td class="hi-val">2.023</td><td>2.426</td><td>2.708</td><td>3.313</td></tr>
         <tr><td class="t-head">40</td><td>0.255</td><td>0.681</td><td>1.303</td><td>1.684</td><td class="hi-val">2.021</td><td>2.423</td><td>2.704</td><td>3.307</td></tr>
+        <tr><td class="t-head">41</td><td>0.255</td><td>0.681</td><td>1.303</td><td>1.683</td><td class="hi-val">2.020</td><td>2.421</td><td>2.701</td><td>3.301</td></tr>
+        <tr><td class="t-head">42</td><td>0.255</td><td>0.680</td><td>1.302</td><td>1.682</td><td class="hi-val">2.018</td><td>2.418</td><td>2.698</td><td>3.296</td></tr>
+        <tr><td class="t-head">43</td><td>0.255</td><td>0.680</td><td>1.302</td><td>1.681</td><td class="hi-val">2.017</td><td>2.416</td><td>2.695</td><td>3.291</td></tr>
+        <tr><td class="t-head">44</td><td>0.255</td><td>0.680</td><td>1.301</td><td>1.680</td><td class="hi-val">2.015</td><td>2.414</td><td>2.692</td><td>3.286</td></tr>
+        <tr><td class="t-head">45</td><td>0.255</td><td>0.680</td><td>1.301</td><td>1.679</td><td class="hi-val">2.014</td><td>2.412</td><td>2.690</td><td>3.281</td></tr>
+        <tr><td class="t-head">46</td><td>0.255</td><td>0.680</td><td>1.300</td><td>1.679</td><td class="hi-val">2.013</td><td>2.410</td><td>2.687</td><td>3.277</td></tr>
+        <tr><td class="t-head">47</td><td>0.255</td><td>0.680</td><td>1.300</td><td>1.678</td><td class="hi-val">2.012</td><td>2.408</td><td>2.685</td><td>3.273</td></tr>
+        <tr><td class="t-head">48</td><td>0.255</td><td>0.680</td><td>1.299</td><td>1.677</td><td class="hi-val">2.011</td><td>2.407</td><td>2.682</td><td>3.269</td></tr>
+        <tr><td class="t-head">49</td><td>0.255</td><td>0.680</td><td>1.299</td><td>1.677</td><td class="hi-val">2.010</td><td>2.405</td><td>2.680</td><td>3.265</td></tr>
+        <tr><td class="t-head">50</td><td>0.255</td><td>0.679</td><td>1.299</td><td>1.676</td><td class="hi-val">2.009</td><td>2.403</td><td>2.678</td><td>3.261</td></tr>
+        <tr><td class="t-head">51</td><td>0.255</td><td>0.679</td><td>1.298</td><td>1.675</td><td class="hi-val">2.008</td><td>2.402</td><td>2.676</td><td>3.258</td></tr>
+        <tr><td class="t-head">52</td><td>0.255</td><td>0.679</td><td>1.298</td><td>1.675</td><td class="hi-val">2.007</td><td>2.400</td><td>2.674</td><td>3.255</td></tr>
+        <tr><td class="t-head">53</td><td>0.255</td><td>0.679</td><td>1.298</td><td>1.674</td><td class="hi-val">2.006</td><td>2.399</td><td>2.672</td><td>3.251</td></tr>
+        <tr><td class="t-head">54</td><td>0.255</td><td>0.679</td><td>1.297</td><td>1.674</td><td class="hi-val">2.005</td><td>2.397</td><td>2.670</td><td>3.248</td></tr>
+        <tr><td class="t-head">55</td><td>0.255</td><td>0.679</td><td>1.297</td><td>1.673</td><td class="hi-val">2.004</td><td>2.396</td><td>2.668</td><td>3.245</td></tr>
+        <tr><td class="t-head">56</td><td>0.255</td><td>0.679</td><td>1.297</td><td>1.673</td><td class="hi-val">2.003</td><td>2.395</td><td>2.667</td><td>3.242</td></tr>
+        <tr><td class="t-head">57</td><td>0.255</td><td>0.679</td><td>1.297</td><td>1.672</td><td class="hi-val">2.002</td><td>2.394</td><td>2.665</td><td>3.239</td></tr>
+        <tr><td class="t-head">58</td><td>0.255</td><td>0.679</td><td>1.296</td><td>1.672</td><td class="hi-val">2.002</td><td>2.392</td><td>2.663</td><td>3.237</td></tr>
+        <tr><td class="t-head">59</td><td>0.254</td><td>0.679</td><td>1.296</td><td>1.671</td><td class="hi-val">2.001</td><td>2.391</td><td>2.662</td><td>3.234</td></tr>
         <tr><td class="t-head">60</td><td>0.254</td><td>0.679</td><td>1.296</td><td>1.671</td><td class="hi-val">2.000</td><td>2.390</td><td>2.660</td><td>3.232</td></tr>
         <tr><td class="t-head">120</td><td>0.254</td><td>0.677</td><td>1.289</td><td>1.658</td><td class="hi-val">1.980</td><td>2.358</td><td>2.617</td><td>3.160</td></tr>
         <tr class="hi-row"><td class="t-head">∞</td><td>0.253</td><td>0.674</td><td>1.282</td><td>1.645</td><td class="hi-val">1.960</td><td>2.326</td><td>2.576</td><td>3.090</td></tr>
