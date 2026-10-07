@@ -913,3 +913,31 @@ main.yonetim { max-width: 1200px; }
 .oneri-no.genel { color: var(--muted); background: rgba(255,255,255,.04); border-color: var(--border); }
 .panel .bildirim-mesaj { color: var(--text); font-size: .92rem; line-height: 1.65; white-space: pre-line; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: .8rem 1rem; margin: .8rem 0 0; }
 a.dugme { display: inline-block; text-decoration: none; }
+
+/* ── Yönetim paneli: duyurular, ders bilgileri, ayarlar ── */
+.panel .ys-aciklama { margin: 0; flex: 1; min-width: 220px; }
+.ys-form input.genis { max-width: none; }
+.ys-form textarea { width: 100%; padding: .6rem .75rem; background: var(--surface); color: var(--text); border: 1px solid var(--border);
+  border-radius: var(--radius); font: inherit; font-size: .92rem; line-height: 1.6; resize: vertical; }
+.ys-form textarea:focus { outline: none; border-color: var(--amber); }
+.ys-form input[type="date"] { max-width: 200px; color-scheme: dark; }
+.panel .ys-ipucu { font-size: .75rem; margin: .3rem 0 0; }
+.panel .ys-ipucu.uyari { color: var(--red); }
+.ys-duzen { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1.5rem; }
+.ys-onizleme { padding-top: .75rem; }
+.ys-onizleme h4 { font-family: var(--mono); font-size: .68rem; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); font-weight: 400; margin-bottom: .5rem; }
+.ys-duyurular { display: flex; flex-direction: column; gap: 1.1rem; margin-top: 1rem; }
+.ys-duyuru .oneri-dugmeler { margin-top: .5rem; }
+.ys-duyuru .oneri-dugmeler .dugme { padding: .4rem .9rem; font-size: .82rem; }
+.ys-bolum { border-top: 1px solid var(--border); margin-top: 1.25rem; padding-top: 1rem; }
+.ys-bolum h3 { font-family: var(--serif); font-weight: 400; font-size: 1.1rem; color: var(--text); }
+.ys-satirlar { display: flex; flex-direction: column; gap: .5rem; margin-top: .75rem; }
+.ys-satirlar:empty { display: none; }
+.ys-satir { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; }
+.ys-satir input { flex: 1 1 160px; max-width: none; }
+.ys-satir input.dar { flex: 0 1 150px; }
+.ys-satir-sil { background: none; border: 1px solid var(--border); border-radius: var(--radius); color: var(--muted); cursor: pointer;
+  font: inherit; font-size: .8rem; padding: .45rem .65rem; }
+.ys-satir-sil:hover { color: var(--red); border-color: rgba(232,109,109,.45); }
+.panel .ys-ekle { display: inline-block; margin: .6rem 0 0; color: var(--amber); }
+@media (max-width: 900px) { .ys-duzen { grid-template-columns: 1fr; } }

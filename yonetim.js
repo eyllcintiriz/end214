@@ -7,7 +7,7 @@ const mesaj = (el, metin, tur) => { el.textContent = metin; el.className = 'mesa
 
 let v;
 try {
-  v = await import('./veri-katmani.js?v=7ead5441');
+  v = await import('./veri-katmani.js?v=4164fa65');
 } catch (e) {
   $('yukleniyor').innerHTML = '<p class="mesaj hata">Veritabanına bağlanılamadı. İnternet bağlantınızı kontrol edip sayfayı yenileyin.</p>';
   throw e;
@@ -19,7 +19,10 @@ const SEKMELER = [
   ['formuller', 'Formül Kartları'], ['duyurular', 'Duyurular'], ['ders', 'Ders Bilgileri'],
   ['ayarlar', 'Ayarlar'], ['kurulum', 'Kurulum'],
 ];
-const BOLUMLER = { oneriler: onerilerBolumu, bildirimler: bildirimlerBolumu, kurulum: kurulumBolumu };  // sonraki dilimlerde diğer bölümler eklenecek
+const BOLUMLER = {  // sonraki dilimlerde sorular ve formül kartları eklenecek
+  oneriler: onerilerBolumu, bildirimler: bildirimlerBolumu, duyurular: duyurularBolumu, ders: dersBolumu,
+  ayarlar: ayarlarBolumu, kurulum: kurulumBolumu,
+};
 const kurulanlar = new Set();
 
 function sekmeleriKur() {
@@ -571,4 +574,268 @@ async function bildirimlerBolumu(kutu) {
   }
 
   await yukle();
+}
+
+// ── Form yardımcıları (duyurular, ders bilgileri, ayarlar) ──
+// Kaydedilmemiş değişiklik varken sayfa kapatılır ya da yenilenirse tarayıcı uyarır.
+const kaydedilmemis = new Set();
+window.addEventListener('beforeunload', e => { if (kaydedilmemis.size) { e.preventDefault(); e.returnValue = ''; } });
+
+let alanNo = 0;
+// Etiketli giriş alanı. tur: 'textarea' ya da input türü ('text', 'date', 'url', 'email')
+function alanEkle(ust, etiket, tur = 'text', ipucu = '') {
+  const g = tur === 'textarea' ? el('textarea') : el('input');
+  if (tur !== 'textarea') g.type = tur;
+  g.id = 'ys-alan-' + (++alanNo);
+  const l = el('label', '', etiket); l.htmlFor = g.id;
+  ust.appendChild(l); ust.appendChild(g);
+  if (ipucu) ust.appendChild(el('p', 'ys-ipucu', ipucu));
+  return g;
+}
+const dugmeYap = (yazi, sinif = '') => { const b = el('button', ('dugme ' + sinif).trim(), yazi); b.type = 'button'; return b; };
+
+// Satır ekle-sil listesi (sınavlar, değerlendirme, kaynaklar). sutunlar: [{ ad, etiket, tur?, dar? }]
+function satirListesi(ust, sutunlar, degerler, ekleYazi, degisti) {
+  const govde = el('div', 'ys-satirlar');
+  const ekle = el('button', 'baglanti ys-ekle', ekleYazi); ekle.type = 'button';
+  ust.appendChild(govde); ust.appendChild(ekle);
+  const satirEkle = (deger = {}) => {
+    const satir = el('div', 'ys-satir');
+    for (const s of sutunlar) {
+      const g = el('input'); g.type = s.tur || 'text';
+      g.placeholder = s.etiket; g.setAttribute('aria-label', s.etiket); g.dataset.ad = s.ad;
+      if (s.dar) g.classList.add('dar');
+      if (s.ad === 'yuzde') g.inputMode = 'decimal';
+      g.value = deger[s.ad] != null ? deger[s.ad] : '';
+      satir.appendChild(g);
+    }
+    const sil = el('button', 'ys-satir-sil', '✕'); sil.type = 'button'; sil.title = 'Satırı sil'; sil.setAttribute('aria-label', 'Satırı sil');
+    sil.addEventListener('click', () => { satir.remove(); degisti(); });
+    satir.appendChild(sil);
+    govde.appendChild(satir);
+    return satir;
+  };
+  (degerler || []).forEach(d => satirEkle(d));
+  ekle.addEventListener('click', () => { satirEkle().querySelector('input').focus(); });
+  return { oku: () => [...govde.children].map(satir => Object.fromEntries([...satir.querySelectorAll('input')].map(g => [g.dataset.ad, g.value]))) };
+}
+
+// ── Duyurular ──
+// Liste, sitedeki duyuru kartlarıyla (ortak.js duyuruKarti) aynı görünür; formda yazarken önizleme anında güncellenir.
+async function duyurularBolumu(kutu) {
+  kutu.innerHTML = '';
+  const ust = el('div', 'oneri-ust');
+  ust.appendChild(el('p', 'ys-aciklama', 'Duyurular en yeni üstte sıralanır. Ana sayfada son 3 duyuru, Duyurular sayfasında hepsi görünür.'));
+  const yeniBtn = dugmeYap('+ Yeni duyuru');
+  yeniBtn.addEventListener('click', () => formAc(null));
+  ust.appendChild(yeniBtn);
+  const formKutu = el('div'), listeMesaj = el('div', 'mesaj'), liste = el('div', 'ys-duyurular');
+  kutu.appendChild(ust); kutu.appendChild(formKutu); kutu.appendChild(listeMesaj); kutu.appendChild(liste);
+  let tum = [], acikId = null;
+
+  async function yukle() {
+    liste.innerHTML = '<p class="bos-mesaj">Yükleniyor…</p>';
+    try { tum = await v.duyurular(); }
+    catch (e) { liste.innerHTML = ''; liste.appendChild(el('p', 'mesaj hata', 'Duyurular yüklenemedi: ' + v.hataMetni(e))); return; }
+    ciz();
+  }
+
+  function ciz() {
+    liste.innerHTML = '';
+    if (!tum.length) { liste.appendChild(el('p', 'bos-mesaj', 'Henüz duyuru yok. "+ Yeni duyuru" ile ilk duyuruyu ekleyebilirsiniz.')); return; }
+    for (const d of tum) {
+      const sar = el('div', 'ys-duyuru');
+      sar.appendChild(window.duyuruKarti(d));
+      const dugmeler = el('div', 'oneri-dugmeler'), m = el('div', 'mesaj');
+      const duzenle = dugmeYap('Düzenle', 'dugme-ikincil'), sil = dugmeYap('Sil', 'dugme-tehlike');
+      duzenle.addEventListener('click', () => formAc(d));
+      sil.addEventListener('click', async () => {
+        if (!confirm(`"${d.baslik}" duyurusu kalıcı olarak silinecek. Devam edilsin mi?`)) return;
+        duzenle.disabled = sil.disabled = true;
+        try {
+          await v.duyuruSil(d.id);
+          if (acikId === d.id) formuKapat();
+          tum = tum.filter(x => x.id !== d.id);
+          mesaj(listeMesaj, 'Duyuru silindi.', 'tamam');
+          ciz();
+        } catch (e) { mesaj(m, v.hataMetni(e), 'hata'); duzenle.disabled = sil.disabled = false; }
+      });
+      dugmeler.appendChild(duzenle); dugmeler.appendChild(sil);
+      sar.appendChild(dugmeler); sar.appendChild(m);
+      liste.appendChild(sar);
+    }
+  }
+
+  function formuKapat() { kaydedilmemis.delete('duyuru'); formKutu.innerHTML = ''; acikId = null; }
+
+  // d: düzenlenecek duyuru, null: yeni duyuru
+  function formAc(d) {
+    if (kaydedilmemis.has('duyuru') && !confirm('Açık formdaki kaydedilmemiş değişiklikler kaybolacak. Devam edilsin mi?')) return;
+    formuKapat();
+    acikId = d ? d.id : null;
+    mesaj(listeMesaj, '');
+    const panel = el('div', 'panel ys-form');
+    panel.appendChild(el('h2', '', d ? 'Duyuruyu düzenle' : 'Yeni duyuru'));
+    const duzen = el('div', 'ys-duzen'), sol = el('div'), sag = el('div', 'ys-onizleme');
+    const tarih = alanEkle(sol, 'Tarih', 'date');
+    const baslik = alanEkle(sol, 'Başlık'); baslik.classList.add('genis'); baslik.maxLength = 200;
+    const metin = alanEkle(sol, 'Metin', 'textarea', 'Düz yazı. Satır sonları sitede aynen korunur.'); metin.rows = 6;
+    const link = alanEkle(sol, 'Bağlantı (isteğe bağlı)', 'url', 'Örneğin bir Drive dosyası ya da sayfa. https:// ile başlamalı.'); link.classList.add('genis');
+    const linkUyari = el('p', 'ys-ipucu uyari', 'Bağlantı https:// ile başlamalı; bu haliyle sitede gösterilmez.'); linkUyari.hidden = true;
+    sol.appendChild(linkUyari);
+    const linkYazi = alanEkle(sol, 'Bağlantı yazısı (isteğe bağlı)', 'text', 'Boş bırakılırsa "Bağlantıyı aç" yazar.');
+    const gecerliTarih = d && d.tarih instanceof Date && !isNaN(d.tarih);
+    tarih.value = window.gunYazi(gecerliTarih ? d.tarih : new Date());
+    if (d) { baslik.value = d.baslik || ''; metin.value = d.metin || ''; link.value = d.link || ''; linkYazi.value = d.linkYazi || ''; }
+
+    // Gün değişmediyse eski zaman aynen kalır; yeni gün seçilirse o anki saat eklenir
+    // (aynı gün eklenen duyurular eklenme sırasıyla dizilsin)
+    const tarihHesapla = () => {
+      const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(tarih.value);
+      if (!m) return new Date(NaN);
+      if (gecerliTarih && window.gunYazi(d.tarih) === tarih.value) return d.tarih;
+      const simdi = new Date();
+      return new Date(+m[1], m[2] - 1, +m[3], simdi.getHours(), simdi.getMinutes(), simdi.getSeconds());
+    };
+    const veri = () => ({ tarih: tarihHesapla(), baslik: baslik.value, metin: metin.value, link: link.value, linkYazi: linkYazi.value });
+
+    sag.appendChild(el('h4', '', 'Önizleme · sitede böyle görünecek'));
+    const onizKutu = el('div', 'duyuru-liste');
+    sag.appendChild(onizKutu);
+    const onizle = () => {
+      const x = veri();
+      x.baslik = x.baslik.trim() || '(başlık)'; x.metin = x.metin.trim(); x.link = x.link.trim(); x.linkYazi = x.linkYazi.trim();
+      onizKutu.innerHTML = '';
+      onizKutu.appendChild(window.duyuruKarti(x));
+      linkUyari.hidden = !x.link || /^(https?:|mailto:)/i.test(x.link);
+    };
+
+    const dugmeler = el('div', 'oneri-dugmeler'), m = el('div', 'mesaj');
+    const kaydet = dugmeYap(d ? 'Değişiklikleri kaydet' : 'Duyuruyu yayınla'), vazgec = dugmeYap('Vazgeç', 'dugme-ikincil');
+    kaydet.addEventListener('click', async () => {
+      kaydet.disabled = vazgec.disabled = true; mesaj(m, 'Kaydediliyor…');
+      try {
+        if (d) await v.duyuruGuncelle(d.id, veri()); else await v.duyuruEkle(veri());
+        formuKapat();
+        mesaj(listeMesaj, d ? 'Duyuru güncellendi.' : 'Duyuru yayınlandı; sitede hemen görünür.', 'tamam');
+        await yukle();
+      } catch (e) { mesaj(m, v.hataMetni(e), 'hata'); kaydet.disabled = vazgec.disabled = false; }
+    });
+    vazgec.addEventListener('click', () => {
+      if (kaydedilmemis.has('duyuru') && !confirm('Kaydedilmemiş değişiklikler kaybolacak. Vazgeçilsin mi?')) return;
+      formuKapat();
+    });
+    dugmeler.appendChild(kaydet); dugmeler.appendChild(vazgec);
+
+    duzen.appendChild(sol); duzen.appendChild(sag);
+    panel.appendChild(duzen); panel.appendChild(dugmeler); panel.appendChild(m);
+    panel.addEventListener('input', () => { kaydedilmemis.add('duyuru'); onizle(); });
+    formKutu.appendChild(panel);
+    onizle();
+    if (panel.scrollIntoView) panel.scrollIntoView({ block: 'start', behavior: 'smooth' });
+    baslik.focus();
+  }
+
+  await yukle();
+}
+
+// ── Ders bilgileri (site/ders) ──
+// Boş bırakılan her bölüm sitede "Henüz eklenmedi." olarak görünür; hiçbir bilgi tahmin edilip doldurulmaz.
+async function dersBolumu(kutu) {
+  kutu.innerHTML = '<p class="bos-mesaj">Yükleniyor…</p>';
+  let ders;
+  try { ders = await v.dersBilgileri(); }
+  catch (e) { kutu.innerHTML = ''; kutu.appendChild(el('p', 'mesaj hata', 'Ders bilgileri yüklenemedi: ' + v.hataMetni(e))); return; }
+  kutu.innerHTML = '';
+  const panel = el('div', 'panel ys-form');
+  panel.appendChild(el('p', '', 'Bu bilgiler sitedeki Ders Bilgileri sayfasında görünür. Boş bıraktığınız bölümlerde sitede "Henüz eklenmedi." yazar.'));
+  const bolum = baslik => { const b = el('div', 'ys-bolum'); b.appendChild(el('h3', '', baslik)); panel.appendChild(b); return b; };
+  const degisti = () => { kaydedilmemis.add('ders'); toplamGuncelle(); };
+
+  const genel = bolum('Ders hakkında');
+  const tanim = alanEkle(genel, 'Dersin tanımı', 'textarea'); tanim.rows = 4; tanim.value = ders.tanim || '';
+  const dersSaatleri = alanEkle(genel, 'Ders saatleri'); dersSaatleri.classList.add('genis'); dersSaatleri.value = ders.dersSaatleri || '';
+  const derslik = alanEkle(genel, 'Derslik'); derslik.value = ders.derslik || '';
+
+  const sinavlar = satirListesi(bolum('Sınav tarihleri'), [
+    { ad: 'ad', etiket: 'Sınav adı' }, { ad: 'tarih', etiket: 'Tarih', tur: 'date', dar: true },
+    { ad: 'saat', etiket: 'Saat', dar: true }, { ad: 'yer', etiket: 'Yer' },
+  ], ders.sinavlar, '+ Sınav ekle', degisti);
+
+  const degBolum = bolum('Değerlendirme');
+  const degerlendirme = satirListesi(degBolum, [
+    { ad: 'ad', etiket: 'Kalem (ör. Arasınav)' }, { ad: 'yuzde', etiket: 'Yüzde', dar: true },
+  ], ders.degerlendirme, '+ Satır ekle', degisti);
+  const toplam = el('p', 'ys-ipucu'); degBolum.appendChild(toplam);
+  function toplamGuncelle() {
+    const sayilar = degerlendirme.oku().filter(k => k.yuzde.trim()).map(k => Number(k.yuzde.trim().replace(',', '.')));
+    const t = sayilar.reduce((a, b) => a + b, 0), yuz = Math.abs(t - 100) < 1e-9;
+    toplam.textContent = !sayilar.length ? '' : isNaN(t) ? 'Yüzdelerden biri sayı değil.' : `Toplam: %${+t.toFixed(2)}` + (yuz ? ' ✓' : ' (100 değil)');
+    toplam.classList.toggle('uyari', sayilar.length > 0 && (isNaN(t) || !yuz));
+  }
+
+  const kaynaklar = satirListesi(bolum('Kaynaklar'), [{ ad: 'metin', etiket: 'Kaynak (kitap, ders notu, bağlantı…)' }],
+    (ders.kaynaklar || []).map(k => ({ metin: k })), '+ Kaynak ekle', degisti);
+
+  const il = bolum('İletişim'), i = ders.iletisim || {};
+  il.appendChild(el('p', 'ys-ipucu', 'Öğretim üyesinin adı sayfada zaten yazılı.'));
+  const eposta = alanEkle(il, 'E-posta', 'email'); eposta.value = i.eposta || '';
+  const ofis = alanEkle(il, 'Ofis'); ofis.value = i.ofis || '';
+  const ofisSaatleri = alanEkle(il, 'Ofis saatleri'); ofisSaatleri.classList.add('genis'); ofisSaatleri.value = i.ofisSaatleri || '';
+
+  const dugmeler = el('div', 'oneri-dugmeler'), m = el('div', 'mesaj');
+  const kaydet = dugmeYap('Kaydet');
+  const sayfa = el('a', 'dugme dugme-ikincil', 'Ders Bilgileri sayfasını aç →'); sayfa.href = 'ders.html'; sayfa.target = '_blank'; sayfa.rel = 'noopener';
+  kaydet.addEventListener('click', async () => {
+    kaydet.disabled = true; mesaj(m, 'Kaydediliyor…');
+    try {
+      await v.dersBilgileriniKaydet({
+        tanim: tanim.value, dersSaatleri: dersSaatleri.value, derslik: derslik.value,
+        sinavlar: sinavlar.oku(), degerlendirme: degerlendirme.oku(), kaynaklar: kaynaklar.oku().map(k => k.metin),
+        iletisim: { eposta: eposta.value, ofis: ofis.value, ofisSaatleri: ofisSaatleri.value },
+      });
+      kaydedilmemis.delete('ders');
+      mesaj(m, 'Kaydedildi. Ders Bilgileri sayfasında hemen görünür.', 'tamam');
+    } catch (e) { mesaj(m, v.hataMetni(e), 'hata'); }
+    finally { kaydet.disabled = false; }
+  });
+  dugmeler.appendChild(kaydet); dugmeler.appendChild(sayfa);
+  panel.appendChild(dugmeler); panel.appendChild(m);
+  panel.addEventListener('input', degisti);
+  kutu.appendChild(panel);
+  toplamGuncelle();
+}
+
+// ── Ayarlar (site/ayarlar) ──
+// Boş alan: sayfalardaki sabit yazı kalır (aşağıdaki STATIK ile aynı).
+const STATIK = { donem: 'Bahar 2025–2026', kurum: 'TOBB ETÜ Mühendislik Fakültesi Endüstri Mühendisliği Bölümü' };
+async function ayarlarBolumu(kutu) {
+  kutu.innerHTML = '<p class="bos-mesaj">Yükleniyor…</p>';
+  let ayar;
+  try { ayar = await v.siteAyarlariTaze(); }
+  catch (e) { kutu.innerHTML = ''; kutu.appendChild(el('p', 'mesaj hata', 'Ayarlar yüklenemedi: ' + v.hataMetni(e))); return; }
+  kutu.innerHTML = '';
+  const panel = el('div', 'panel ys-form');
+  panel.appendChild(el('h2', '', 'Site ayarları'));
+  const donem = alanEkle(panel, 'Dönem', 'text', `Sayfaların altında ve ana sayfanın üstünde görünür. Boş bırakılırsa şu anki yazı kalır: "${STATIK.donem}".`);
+  const kurum = alanEkle(panel, 'Kurum / bölüm yazısı', 'text', `Sayfaların altında görünür. Boş bırakılırsa şu anki yazı kalır: "${STATIK.kurum}".`);
+  const drive = alanEkle(panel, 'Google Drive klasörü linki', 'url', 'Ana sayfadaki "📁 Ders Materyalleri (Google Drive)" düğmesi bu linke gider. Boşsa düğme görünmez.');
+  kurum.classList.add('genis'); drive.classList.add('genis');
+  donem.value = ayar.donem || ''; kurum.value = ayar.kurum || ''; drive.value = ayar.driveLink || '';
+
+  const dugmeler = el('div', 'oneri-dugmeler'), m = el('div', 'mesaj');
+  const kaydet = dugmeYap('Kaydet');
+  kaydet.addEventListener('click', async () => {
+    kaydet.disabled = true; mesaj(m, 'Kaydediliyor…');
+    try {
+      await v.siteAyarlariniKaydet({ donem: donem.value, kurum: kurum.value, driveLink: drive.value });
+      kaydedilmemis.delete('ayarlar');
+      mesaj(m, 'Kaydedildi. Sizin tarayıcınızda hemen, diğer ziyaretçilerde en geç 15 dakika içinde görünür.', 'tamam');
+    } catch (e) { mesaj(m, v.hataMetni(e), 'hata'); }
+    finally { kaydet.disabled = false; }
+  });
+  dugmeler.appendChild(kaydet);
+  panel.appendChild(dugmeler); panel.appendChild(m);
+  panel.addEventListener('input', () => kaydedilmemis.add('ayarlar'));
+  kutu.appendChild(panel);
 }

@@ -63,10 +63,25 @@ export async function duyurular(adet) {
   return (await getDocs(q)).docs.map(b => ({ id: b.id, ...b.data(), tarih: tarihe(b.data().tarih) }));
 }
 
-/** Site ayarları: { donem, kurum, driveLink }. Yoksa boş nesne. */
+/** Site ayarları: { donem, kurum, driveLink }. Yoksa boş nesne.
+ *  Her sayfada (footer) okunduğu için konular gibi tarayıcıda 15 dakika saklanır. */
+const AYAR_ONBELLEK = 'end214-ayarlar';
 export async function siteAyarlari() {
+  try {
+    const o = JSON.parse(localStorage.getItem(AYAR_ONBELLEK));
+    if (o && Date.now() - o.zaman < KONU_SURE) return o.ayar;
+  } catch (e) { /* önbellek yok ya da bozuk */ }
   const b = await getDoc(doc(db, 'site', 'ayarlar'));
-  return b.exists() ? b.data() : {};
+  const ayar = b.exists() ? b.data() : {};
+  delete ayar.guncellendi;
+  try { localStorage.setItem(AYAR_ONBELLEK, JSON.stringify({ zaman: Date.now(), ayar })); } catch (e) { /* yer yok */ }
+  return ayar;
+}
+
+/** Site ayarları, tarayıcıda saklanan kopyaya bakmadan (yönetim paneli için). */
+export async function siteAyarlariTaze() {
+  try { localStorage.removeItem(AYAR_ONBELLEK); } catch (e) { /* önemli değil */ }
+  return siteAyarlari();
 }
 
 /** Ders bilgileri: { tanim, dersSaatleri, derslik, degerlendirme[{ad, yuzde}], sinavlar[{ad, tarih 'YYYY-AA-GG', saat, yer}],
@@ -156,6 +171,7 @@ export async function hesabiSil(sifre) {
 /** Giriş hata kodunu kullanıcıya gösterilecek Türkçe cümleye çevirir. */
 export function hataMetni(e) {
   const kod = e && e.code || '';
+  if (kod === 'gecersiz') return e.message;  // form denetimi (aşağıda): mesaj zaten Türkçe
   if (/email-already-in-use/.test(kod)) return 'Bu e-posta adresiyle zaten bir hesap var. Giriş yapmayı deneyin.';
   if (/weak-password/.test(kod)) return 'Şifre en az 6 karakter olmalı.';
   if (/invalid-email/.test(kod)) return 'E-posta adresi geçerli görünmüyor.';
@@ -286,6 +302,89 @@ export async function bildirimDurumu(id, durum) {
 /** Bildirimi kalıcı olarak siler. */
 export async function bildirimSil(id) {
   await deleteDoc(doc(db, 'hataBildirimleri', id));
+}
+
+// ── Duyurular, ders bilgileri, site ayarları (yalnızca yönetici yazar) ──
+// Metinler düz yazı olarak saklanır (sitede textContent ile basılır); bağlantılar yalnızca http(s)/mailto.
+
+const gecersiz = mesaj => Object.assign(new Error(mesaj), { code: 'gecersiz' });
+const yazi = (x, en) => String(x == null ? '' : x).trim().slice(0, en);
+const GUN = /^\d{4}-\d{2}-\d{2}$/;
+const EPOSTA = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+function duyuruVerisi(d) {
+  const veri = { tarih: d.tarih, baslik: yazi(d.baslik, 200), metin: yazi(d.metin, 5000),
+                 link: yazi(d.link, 500), linkYazi: yazi(d.linkYazi, 100) };
+  if (!(veri.tarih instanceof Date) || isNaN(veri.tarih)) throw gecersiz('Tarih geçerli değil.');
+  if (!veri.baslik) throw gecersiz('Başlık boş olamaz.');
+  if (veri.link && !/^(https?:|mailto:)/i.test(veri.link)) throw gecersiz('Bağlantı https:// (ya da mailto:) ile başlamalı.');
+  if (!veri.link) veri.linkYazi = '';
+  return veri;
+}
+
+/** Yeni duyuru: { tarih (Date), baslik, metin, link?, linkYazi? }. Yeni duyurunun kimliğini döndürür. */
+export async function duyuruEkle(d) {
+  const r = await addDoc(collection(db, 'duyurular'), { ...duyuruVerisi(d), olusturuldu: serverTimestamp() });
+  return r.id;
+}
+
+/** Duyuruyu günceller (alanlar duyuruEkle ile aynı). */
+export async function duyuruGuncelle(id, d) {
+  await updateDoc(doc(db, 'duyurular', id), { ...duyuruVerisi(d), guncellendi: serverTimestamp() });
+}
+
+/** Duyuruyu kalıcı olarak siler. */
+export async function duyuruSil(id) {
+  await deleteDoc(doc(db, 'duyurular', id));
+}
+
+/** Site ayarlarını kaydeder: { donem, kurum, driveLink }. Boş alan sitede sayfadaki sabit yazının kalması demektir. */
+export async function siteAyarlariniKaydet(a) {
+  const ayar = { donem: yazi(a.donem, 60), kurum: yazi(a.kurum, 200), driveLink: yazi(a.driveLink, 500) };
+  if (ayar.driveLink && !/^https?:\/\//i.test(ayar.driveLink)) throw gecersiz('Drive linki https:// ile başlamalı.');
+  await setDoc(doc(db, 'site', 'ayarlar'), { ...ayar, guncellendi: serverTimestamp() });
+  try { localStorage.removeItem(AYAR_ONBELLEK); } catch (e) { /* önemli değil */ }
+}
+
+/** Ders bilgilerini kaydeder (alanlar dersBilgileri() ile aynı). Boş alanlar ve tamamen boş satırlar kaydedilmez;
+ *  hiçbir değer tamamlanmaz ya da tahmin edilmez. */
+export async function dersBilgileriniKaydet(d) {
+  const veri = {};
+  const ekle = (ad, deger) => { if (deger) veri[ad] = deger; };
+  ekle('tanim', yazi(d.tanim, 3000));
+  ekle('dersSaatleri', yazi(d.dersSaatleri, 300));
+  ekle('derslik', yazi(d.derslik, 200));
+
+  const sinavlar = (d.sinavlar || []).map(s => ({ ad: yazi(s.ad, 100), tarih: yazi(s.tarih, 10), saat: yazi(s.saat, 50), yer: yazi(s.yer, 100) }))
+    .filter(s => s.ad || s.tarih || s.saat || s.yer);
+  for (const s of sinavlar) {
+    if (!s.ad) throw gecersiz('Her sınav satırında sınavın adı olmalı.');
+    if (s.tarih && !GUN.test(s.tarih)) throw gecersiz(`"${s.ad}" sınavının tarihi geçerli değil.`);
+  }
+  if (sinavlar.length) veri.sinavlar = sinavlar;
+
+  const degerlendirme = (d.degerlendirme || []).map(k => ({ ad: yazi(k.ad, 100), yuzde: yazi(k.yuzde, 10) }))
+    .filter(k => k.ad || k.yuzde).map(k => {
+      if (!k.ad) throw gecersiz('Her değerlendirme satırında bir ad olmalı (ör. yüzdenin neye ait olduğu).');
+      if (!k.yuzde) return { ad: k.ad };
+      const n = Number(k.yuzde.replace(',', '.'));
+      if (!isFinite(n) || n < 0 || n > 100) throw gecersiz(`"${k.ad}" için yüzde 0 ile 100 arasında bir sayı olmalı.`);
+      return { ad: k.ad, yuzde: n };
+    });
+  if (degerlendirme.length) veri.degerlendirme = degerlendirme;
+
+  const kaynaklar = (d.kaynaklar || []).map(k => yazi(k, 300)).filter(Boolean);
+  if (kaynaklar.length) veri.kaynaklar = kaynaklar;
+
+  const i = d.iletisim || {}, iletisim = {};
+  if (yazi(i.eposta, 100)) iletisim.eposta = yazi(i.eposta, 100);
+  if (yazi(i.ofis, 100)) iletisim.ofis = yazi(i.ofis, 100);
+  if (yazi(i.ofisSaatleri, 200)) iletisim.ofisSaatleri = yazi(i.ofisSaatleri, 200);
+  if (iletisim.eposta && !EPOSTA.test(iletisim.eposta)) throw gecersiz('E-posta adresi geçerli görünmüyor.');
+  if (Object.keys(iletisim).length) veri.iletisim = iletisim;
+
+  await setDoc(doc(db, 'site', 'ders'), { ...veri, guncellendi: serverTimestamp() });
+  return veri;
 }
 
 // ── İçe aktarma (tek seferlik taşıma, yalnızca yönetici) ──
