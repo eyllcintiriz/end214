@@ -877,7 +877,7 @@ main.yonetim { max-width: 1200px; }
 .of-btn.aktif { color: var(--amber); border-color: rgba(232,184,109,.35); background: rgba(232,184,109,.08); }
 .oneri-liste { display: flex; flex-direction: column; gap: 1.25rem; }
 .oneri-baslik { display: flex; align-items: center; flex-wrap: wrap; gap: .6rem; }
-.oneri-sec { width: 1.05rem; height: 1.05rem; accent-color: var(--amber); }
+.panel .oneri-sec { width: 1.05rem; height: 1.05rem; max-width: none; padding: 0; accent-color: var(--amber); }  /* .panel input genişliğini ezmesin */
 .oneri-no { font-family: var(--mono); font-size: .8rem; color: var(--amber); background: rgba(232,184,109,.1); border: 1px solid rgba(232,184,109,.25); border-radius: 3px; padding: .1rem .5rem; }
 .oneri-ad { font-family: var(--serif); font-size: 1.15rem; color: #fff; }
 .karar-rozet { font-family: var(--mono); font-size: .66rem; letter-spacing: .05em; color: var(--red); border: 1px solid rgba(232,109,109,.45); background: rgba(232,109,109,.1); border-radius: 3px; padding: .12rem .5rem; }
@@ -916,6 +916,7 @@ a.dugme { display: inline-block; text-decoration: none; }
 
 /* ── Yönetim paneli: duyurular, ders bilgileri, ayarlar ── */
 .panel .ys-aciklama { margin: 0; flex: 1; min-width: 220px; }
+.ys-form { scroll-margin-top: 64px; }  /* form açılınca başlığı yapışkan menünün altında kalmasın */
 .ys-form input.genis { max-width: none; }
 .ys-form textarea { width: 100%; padding: .6rem .75rem; background: var(--surface); color: var(--text); border: 1px solid var(--border);
   border-radius: var(--radius); font: inherit; font-size: .92rem; line-height: 1.6; resize: vertical; }
