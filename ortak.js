@@ -261,7 +261,7 @@ function parca(g, yer, uzunluk) {
 var aramaVerisi = null;
 function aramaVerisiniYukle() {
   if (!aramaVerisi) {
-    aramaVerisi = import('./veri-katmani.js?v=7ead5441')
+    aramaVerisi = import('./veri-katmani.js?v=4164fa65')
       .then(function (v) { return v.tumKonular(); })
       .then(function (k) { if (!k.length) throw new Error('boş'); return k; })
       .catch(function () {  // veritabanına ulaşılamazsa depodaki kopya
@@ -379,13 +379,15 @@ function guvenliLink(url) {
 }
 function disLink(a, url) { a.href = url; if (!/^mailto:/i.test(url)) { a.target = '_blank'; a.rel = 'noopener'; } return a; }
 function tarihYazi(t) { return new Intl.DateTimeFormat('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' }).format(t); }
+// Tarihin yerel saate göre günü: 'YYYY-AA-GG' (toISOString UTC'ye çevirir, gece yarısına yakın saatlerde bir gün kayar)
+function gunYazi(t) { var p = function (n) { return (n < 10 ? '0' : '') + n; }; return t.getFullYear() + '-' + p(t.getMonth() + 1) + '-' + p(t.getDate()); }
 function bosMesaj(kutu, metin) { kutu.innerHTML = ''; kutu.appendChild(el('p', 'bos-mesaj', metin)); }
 
 function duyuruKarti(d) {
   var k = el('article', 'duyuru');
   if (d.tarih && !isNaN(d.tarih)) {
     var t = el('time', 'duyuru-tarih', tarihYazi(d.tarih));
-    t.dateTime = d.tarih.toISOString().slice(0, 10);
+    t.dateTime = gunYazi(d.tarih);
     k.appendChild(t);
   }
   k.appendChild(el('h3', 'duyuru-baslik', d.baslik || ''));
@@ -413,6 +415,16 @@ function driveDugmesi(ayar) {
   if (!a || !u) return;
   disLink(a, u);
   a.hidden = false;
+}
+
+// Site ayarları (yönetim panelindeki "Ayarlar"): <span data-ayar="donem|kurum"> içindeki sabit yazının yerine geçer.
+// Ayar boşsa ya da veritabanına ulaşılamazsa sayfadaki sabit yazı olduğu gibi kalır.
+function siteAyarlariniUygula(ayar) {
+  document.querySelectorAll('[data-ayar]').forEach(function (e) {
+    var deger = ayar[e.dataset.ayar];
+    if (typeof deger === 'string' && deger.trim()) e.textContent = deger.trim();
+  });
+  driveDugmesi(ayar);
 }
 
 // Ders Bilgileri sayfası. Girilmemiş bölümlerde "Henüz eklenmedi." yazar; hiçbir bilgi uydurulmaz.
@@ -540,7 +552,7 @@ function bildirPenceresiniKur() {
     if (Date.now() - son < BEKLEME) return durum('Az önce bir bildirim gönderdiniz. Lütfen biraz bekleyip tekrar deneyin.', 'hata');
     gonder.disabled = true;
     durum('Gönderiliyor…');
-    import('./veri-katmani.js?v=7ead5441')
+    import('./veri-katmani.js?v=4164fa65')
       .then(function (v) { return v.hataBildir({ soruId: d.dataset.soruId, sayfa: sayfaAdi(), mesaj: m, eposta: ep }); })
       .then(function () {
         try { localStorage.setItem('end214-son-bildirim', String(Date.now())); } catch (x) { /* önemli değil */ }
@@ -634,7 +646,7 @@ function cozdumTikla(c, dugme) {
   var yeni = !cozulen[c.id];
   if (yeni) cozulen[c.id] = true; else delete cozulen[c.id];
   isaretleriGoster();
-  import('./veri-katmani.js?v=7ead5441')
+  import('./veri-katmani.js?v=4164fa65')
     .then(function (v) { return v.cozulduIsaretle(c.id, yeni); })
     .catch(function () {  // kaydedilemediyse geri al
       if (yeni) delete cozulen[c.id]; else cozulen[c.id] = true;
@@ -666,7 +678,7 @@ function isaretleriGoster() {
 
 // Hesap durumunu bütün sayfalarda izler (menüdeki ad, kartlardaki işaretler, bildirim penceresi)
 function hesabiIzle() {
-  import('./veri-katmani.js?v=7ead5441').then(function (v) {
+  import('./veri-katmani.js?v=4164fa65').then(function (v) {
     v.girisDurumu(function (k) {
       kullanici = k; hesapBilindi = true;
       hesapDugmesiniGuncelle();
@@ -696,7 +708,7 @@ function hesapSayfasi() {
     });
   });
 
-  import('./veri-katmani.js?v=7ead5441').then(function (v) {
+  import('./veri-katmani.js?v=4164fa65').then(function (v) {
     $('#girisForm').addEventListener('submit', function (e) {
       e.preventDefault();
       var m = $('#girisMesaj');
@@ -779,13 +791,17 @@ function sayfayiBaslat() {
   hesapDugmesiniKur();
   footerBildirLinki();
   hesabiIzle();
+  import('./veri-katmani.js?v=4164fa65')
+    .then(function (v) { return v.siteAyarlari(); })
+    .then(siteAyarlariniUygula)
+    .catch(function () {});
   if (document.body.dataset.sayfa === 'hesap') hesapSayfasi();
   var kod = document.body.dataset.konu;
   if (kod) {
     document.body.dataset.icerik = 'yedek';
     kartlaraKimlikVer(); konuSayaclari(); zorlukFiltresiniKur(); kartAltlariniEkle(); bagliKartiAc();
     window.addEventListener('hashchange', bagliKartiAc);
-    import('./veri-katmani.js?v=7ead5441')
+    import('./veri-katmani.js?v=4164fa65')
       .then(function (v) { return v.konuGetir(kod); })
       .then(function (konu) {
         if (!konuyuCiz(konu)) return;
@@ -797,7 +813,7 @@ function sayfayiBaslat() {
       .catch(function (e) { console.warn('END214: veritabanına ulaşılamadı, sayfadaki kayıtlı içerik gösteriliyor.', e); });
   } else if (document.body.dataset.sayfa === 'ana') {
     document.body.dataset.icerik = 'yedek';
-    var vk = import('./veri-katmani.js?v=7ead5441');
+    var vk = import('./veri-katmani.js?v=4164fa65');
     vk.then(function (v) { return v.tumKonular(); })
       .then(function (konular) {
         if (!konular.length) return;
@@ -806,15 +822,14 @@ function sayfayiBaslat() {
       })
       .catch(function (e) { console.warn('END214: veritabanına ulaşılamadı, sayfadaki kayıtlı sayılar gösteriliyor.', e); });
     vk.then(function (v) { return v.duyurular(3); }).then(anaSayfaDuyurulari).catch(function () {});
-    vk.then(function (v) { return v.siteAyarlari(); }).then(driveDugmesi).catch(function () {});
   } else if (document.body.dataset.sayfa === 'duyurular') {
     var liste = document.querySelector('.duyuru-liste');
-    import('./veri-katmani.js?v=7ead5441')
+    import('./veri-katmani.js?v=4164fa65')
       .then(function (v) { return v.duyurular(); })
       .then(function (d) { duyurulariCiz(liste, d); })
       .catch(function () { bosMesaj(liste, 'Duyurular şu an yüklenemedi. İnternet bağlantınızı kontrol edip sayfayı yenileyin.'); });
   } else if (document.body.dataset.sayfa === 'ders') {
-    var vd = import('./veri-katmani.js?v=7ead5441');
+    var vd = import('./veri-katmani.js?v=4164fa65');
     vd.then(function (v) { return v.dersBilgileri(); })
       .then(dersBilgileriniCiz)
       .catch(function () {
