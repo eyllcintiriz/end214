@@ -1,1 +1,4 @@
 __pycache__/
+
+# "Yedeği indir" dosyaları: hata bildirimlerinde öğrenci e-postaları var, depoya girmez
+END214-yedek-*.json
