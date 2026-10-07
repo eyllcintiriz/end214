@@ -7,7 +7,7 @@ const mesaj = (el, metin, tur) => { el.textContent = metin; el.className = 'mesa
 
 let v;
 try {
-  v = await import('./veri-katmani.js?v=4164fa65');
+  v = await import('./veri-katmani.js?v=e6c6c36d');
 } catch (e) {
   $('yukleniyor').innerHTML = '<p class="mesaj hata">Veritabanına bağlanılamadı. İnternet bağlantınızı kontrol edip sayfayı yenileyin.</p>';
   throw e;
@@ -19,9 +19,9 @@ const SEKMELER = [
   ['formuller', 'Formül Kartları'], ['duyurular', 'Duyurular'], ['ders', 'Ders Bilgileri'],
   ['ayarlar', 'Ayarlar'], ['kurulum', 'Kurulum'],
 ];
-const BOLUMLER = {  // sonraki dilimlerde sorular ve formül kartları eklenecek
-  oneriler: onerilerBolumu, bildirimler: bildirimlerBolumu, duyurular: duyurularBolumu, ders: dersBolumu,
-  ayarlar: ayarlarBolumu, kurulum: kurulumBolumu,
+const BOLUMLER = {
+  oneriler: onerilerBolumu, bildirimler: bildirimlerBolumu, sorular: sorularBolumu, formuller: formullerBolumu,
+  duyurular: duyurularBolumu, ders: dersBolumu, ayarlar: ayarlarBolumu, kurulum: kurulumBolumu,
 };
 const kurulanlar = new Set();
 
@@ -78,7 +78,7 @@ async function ozetiGuncelle() {
 
 // Henüz yapılmamış bölümler için
 document.querySelectorAll('[data-bolum]').forEach(k => {
-  if (!k.children.length) k.innerHTML = '<div class="panel"><p>Bu bölüm hazırlanıyor.</p></div>';
+  if (!k.children.length && !BOLUMLER[k.dataset.bolum]) k.innerHTML = '<div class="panel"><p>Bu bölüm hazırlanıyor.</p></div>';
 });
 
 // ── Giriş / çıkış ──
@@ -559,6 +559,7 @@ async function bildirimlerBolumu(kutu) {
     if (b.durum === 'yeni') dugme('Çözüldü olarak işaretle', '', () => islem(async () => { await v.bildirimDurumu(b.id, 'cozuldu'); b.durum = 'cozuldu'; }, 'Çözüldü olarak işaretlendi.'));
     else dugme('Yeniden aç', 'dugme-ikincil', () => islem(async () => { await v.bildirimDurumu(b.id, 'yeni'); b.durum = 'yeni'; }, 'Yeniden açıldı.'));
     if (konu) bag('Soruyu sitede aç →', `${konu.sayfa}#${b.soruId}`);
+    if (konu) dugme('Soruyu düzenle', 'dugme-ikincil', () => soruyuDuzenle(konu.kod, b.soruId));
     else if (b.sayfa && /^[a-z]+\.html$/.test(b.sayfa)) bag('Sayfayı aç →', b.sayfa);
     if (b.eposta && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(b.eposta)) {
       const konuSatiri = 'END214 – ' + (b.soruId ? (soru ? soru.no : b.soruId) + ' hata bildiriminiz' : 'bildiriminiz');
@@ -838,4 +839,420 @@ async function ayarlarBolumu(kutu) {
   panel.appendChild(dugmeler); panel.appendChild(m);
   panel.addEventListener('input', () => kaydedilmemis.add('ayarlar'));
   kutu.appendChild(panel);
+}
+
+// ── Biçim düğmeleri ──
+// En son tıklanan metin kutusunda seçili yazıyı etiketle sarar (seçim yoksa etiketi imlecin yerine koyar).
+const BICIM_TEMEL = [
+  ['Alt simge (log₂, x₁)', 'Seçili yazıyı aşağıda küçük yazar: log₂ tabanı, x₁ gibi. <sub>…</sub>', '<sub>', '</sub>'],
+  ['Üs (x², eˣ)', 'Seçili yazıyı yukarıda küçük yazar: x², eˣ gibi. <sup>…</sup>', '<sup>', '</sup>'],
+  ['Kalın', 'Seçili yazıyı kalın yapar. <strong>…</strong>', '<strong>', '</strong>'],
+];
+const SATIR_SONU = ['↵ Yeni satır', 'İmlecin olduğu yere satır sonu koyar (sitede yeni satıra geçer). <br>', '<br>', ''];
+const BICIM_SORU = [...BICIM_TEMEL, ['Sonuç vurgusu', 'Seçili yazıyı sonuç olarak (yeşil, eşit aralıklı) gösterir. <span class="result">…</span>', '<span class="result">', '</span>'], SATIR_SONU];
+const BICIM_FORMUL = [...BICIM_TEMEL,
+  ['Yeşil vurgu', 'Seçili yazıyı yeşil yapar. <span class="hi">…</span>', '<span class="hi">', '</span>'],
+  ['Mavi vurgu', 'Seçili yazıyı mavi yapar. <span class="hi2">…</span>', '<span class="hi2">', '</span>'],
+  ['Soluk (gri)', 'Seçili yazıyı soluk gri yapar (açıklama notları için). <span class="dim">…</span>', '<span class="dim">', '</span>'], SATIR_SONU];
+
+function bicimCubugu(form, dugmeler) {
+  const cubuk = el('div', 'ys-bicim');
+  cubuk.appendChild(el('span', 'ys-bicim-yazi', 'Biçim:'));
+  let son = null;
+  form.addEventListener('focusin', e => { if (e.target.matches('textarea, input[type="text"]')) son = e.target; });
+  for (const [yazi, ipucu, ac, kapa] of dugmeler) {
+    const b = el('button', 'ys-bicim-btn', yazi); b.type = 'button'; b.title = ipucu;
+    b.addEventListener('mousedown', e => e.preventDefault());  // odak metin kutusunda kalsın
+    b.addEventListener('click', () => {
+      if (!son || !son.isConnected) return;
+      const a = son.selectionStart, z = son.selectionEnd, deger = son.value;
+      son.value = deger.slice(0, a) + ac + deger.slice(a, z) + kapa + deger.slice(z);
+      son.focus();
+      son.setSelectionRange(a + ac.length, z + ac.length);
+      son.dispatchEvent(new window.Event('input', { bubbles: true }));
+    });
+    cubuk.appendChild(b);
+  }
+  return cubuk;
+}
+
+// Küçük kare düğme (↑ ↓ ✕)
+function kucukDugme(yazi, ipucu, sinif = '') {
+  const b = el('button', ('ys-kucuk ' + sinif).trim(), yazi); b.type = 'button'; b.title = ipucu; b.setAttribute('aria-label', ipucu);
+  return b;
+}
+
+// Konu seçici: "Konu 6 · Güven Aralığı"
+function konuSecici(konular) {
+  const sec = el('select', 'ys-sec'); sec.setAttribute('aria-label', 'Konu');
+  for (const k of konular) { const o = el('option', '', `Konu ${k.sira} · ${k.ad}`); o.value = k.kod; sec.appendChild(o); }
+  return sec;
+}
+
+// Değişmeyen metin olduğu gibi kalır (öneri çakışma denetimi birebir karşılaştırır); değişen metin DOMPurify'dan geçer.
+const temizle = (yeni, eski) => (yeni === eski ? eski : window.DOMPurify.sanitize(yeni));
+
+// Şık ya da çözüm adımı listesi: her satırda etiket + metin, ↑ ↓ ✕
+function parcaListesi(ust, baslik, degerler, ekleYazi, yeniEtiket, degisti) {
+  const bolum = el('div', 'ys-parcalar');
+  bolum.appendChild(el('label', '', baslik));
+  const govde = el('div', 'ys-satirlar');
+  const ekle = el('button', 'baglanti ys-ekle', ekleYazi); ekle.type = 'button';
+  bolum.appendChild(govde); bolum.appendChild(ekle);
+  ust.appendChild(bolum);
+  const satirEkle = (p) => {
+    const satir = el('div', 'ys-parca');
+    const etiket = el('input', 'ys-parca-etiket'); etiket.type = 'text'; etiket.value = p.etiket; etiket.setAttribute('aria-label', 'Etiket'); etiket.placeholder = 'Etiket';
+    const metin = el('textarea', 'ys-parca-metin ys-html'); metin.value = p.html; metin.setAttribute('aria-label', baslik + ' metni');
+    metin.rows = Math.min(8, 2 + Math.ceil(p.html.length / 80));
+    const d = el('div', 'ys-parca-dugmeler');
+    const yukari = kucukDugme('↑', 'Yukarı taşı'), asagi = kucukDugme('↓', 'Aşağı taşı'), sil = kucukDugme('✕', 'Sil', 'sil');
+    yukari.addEventListener('click', () => { if (satir.previousElementSibling) { govde.insertBefore(satir, satir.previousElementSibling); degisti(); } });
+    asagi.addEventListener('click', () => { if (satir.nextElementSibling) { govde.insertBefore(satir.nextElementSibling, satir); degisti(); } });
+    sil.addEventListener('click', () => { satir.remove(); degisti(); });
+    d.appendChild(yukari); d.appendChild(asagi); d.appendChild(sil);
+    satir.appendChild(etiket); satir.appendChild(metin); satir.appendChild(d);
+    govde.appendChild(satir);
+    return satir;
+  };
+  degerler.forEach(satirEkle);
+  ekle.addEventListener('click', () => { satirEkle({ etiket: yeniEtiket(govde.children.length), html: '' }).querySelector('textarea').focus(); degisti(); });
+  return { oku: () => [...govde.children].map(x => ({ etiket: x.querySelector('input').value, html: x.querySelector('textarea').value })) };
+}
+
+// ── Sorular ──
+// Konu seçilir, sorular listelenir; düzenleme formunda yazdıkça kart öğrencinin göreceği şekilde önizlenir.
+// Soru numaraları kalıcıdır: silinen sorunun numarası yeniden verilmez, sıralama numaraları değiştirmez.
+let soruHedefi = null, soruAc = null;
+
+// Hata bildiriminden "Soruyu düzenle"
+function soruyuDuzenle(kod, id) {
+  location.hash = 'sorular';
+  sekmeAc();  // sekme hemen açılsın (hashchange olayı sonra gelir, ikinci çağrı bir şey değiştirmez)
+  if (soruAc) soruAc(kod, id);
+  else soruHedefi = { kod, id };  // bölüm kurulurken açılacak
+}
+
+async function sorularBolumu(kutu) {
+  kutu.innerHTML = '<p class="bos-mesaj">Yükleniyor…</p>';
+  let konular, oneriListe;
+  try { [konular, oneriListe] = await Promise.all([v.tumKonularTaze(), v.oneriler()]); }
+  catch (e) { kutu.innerHTML = ''; kutu.appendChild(el('p', 'mesaj hata', 'Sorular yüklenemedi: ' + v.hataMetni(e))); return; }
+  kutu.innerHTML = '';
+  const ust = el('div', 'ys-arac');
+  const konuSec = konuSecici(konular);
+  const ara = el('input', 'ys-ara'); ara.type = 'search'; ara.placeholder = 'Bu konuda ara: numara, başlık, etiket'; ara.setAttribute('aria-label', 'Soru ara');
+  const yeniBtn = dugmeYap('+ Yeni soru');
+  ust.appendChild(konuSec); ust.appendChild(ara); ust.appendChild(yeniBtn);
+  const formKutu = el('div'), listeMesaj = el('div', 'mesaj'), liste = el('div', 'ys-soru-liste');
+  kutu.appendChild(ust); kutu.appendChild(formKutu); kutu.appendChild(listeMesaj); kutu.appendChild(liste);
+
+  let konu = konular[0];
+  const bekleyenOneri = id => oneriListe.some(o => o.durum === 'bekliyor' && o.soruId === id);
+
+  async function konuyuYenile() {
+    const taze = await v.konuGetir(konu.kod);
+    konular[konular.findIndex(k => k.kod === konu.kod)] = konu = taze;
+  }
+
+  function listeCiz() {
+    liste.innerHTML = '';
+    // Türkçe karakterlere duyarsız; yazılan her kelime numara, başlık ya da etikette geçmeli
+    const kelimeler = window.sadelestir(ara.value).s.split(/\s+/).filter(Boolean), q = kelimeler.length > 0, sorular = konu.sorular;
+    const gorunen = sorular.filter(s => {
+      if (!q) return true;
+      const metin = window.sadelestir(window.duzMetin([s.no, s.id, s.baslik, ...s.etiketler.map(e => e.html)].join(' '))).s;
+      return kelimeler.every(k => metin.includes(k));
+    });
+    liste.appendChild(el('p', 'ys-sayi-satir', `${sorular.length} soru` + (q ? ` · aramada ${gorunen.length} sonuç (sıralama düğmeleri aramada kapalı)` : '')));
+    for (const s of gorunen) {
+      const i = sorular.indexOf(s);
+      const satir = el('div', 'ys-soru');
+      const bilgi = el('div', 'ys-soru-bilgi');
+      bilgi.appendChild(el('span', 'oneri-no', s.no));
+      bilgi.appendChild(el('span', 'ys-soru-ad', window.duzMetin(s.baslik)));
+      bilgi.appendChild(el('span', 'badge ' + (window.ZORLUK_SINIF[s.zorluk] || ''), s.zorluk));
+      if (bekleyenOneri(s.id)) bilgi.appendChild(el('span', 'ys-isaret', 'öneri bekliyor'));
+      const d = el('div', 'ys-soru-dugmeler'), m = el('div', 'mesaj');
+      const yukari = kucukDugme('↑', 'Yukarı taşı'), asagi = kucukDugme('↓', 'Aşağı taşı');
+      yukari.disabled = !!q || i === 0; asagi.disabled = !!q || i === sorular.length - 1;
+      const tasi = async yon => {
+        const idler = sorular.map(x => x.id);
+        [idler[i], idler[i + yon]] = [idler[i + yon], idler[i]];
+        liste.querySelectorAll('button').forEach(b => { b.disabled = true; });
+        try { await v.sorulariSirala(konu.kod, idler); await konuyuYenile(); mesaj(listeMesaj, ''); }
+        catch (e) { mesaj(listeMesaj, v.hataMetni(e), 'hata'); }
+        listeCiz();
+      };
+      yukari.addEventListener('click', () => tasi(-1)); asagi.addEventListener('click', () => tasi(1));
+      const duzenle = dugmeYap('Düzenle', 'dugme-ikincil'), sil = dugmeYap('Sil', 'dugme-tehlike');
+      duzenle.addEventListener('click', () => formAc(s));
+      sil.addEventListener('click', async () => {
+        const yazi = `${s.no} "${window.duzMetin(s.baslik)}" kalıcı olarak silinecek.\n\n` +
+          (bekleyenOneri(s.id) ? 'Bu soru için onay bekleyen bir düzeltme önerisi var; silinirse öneri uygulanamaz.\n\n' : '') +
+          `Bu sorunun bağlantısı (${konu.sayfa}#${s.id}) çalışmaz olur; numarası yeni sorulara verilmez. Devam edilsin mi?`;
+        if (!confirm(yazi)) return;
+        liste.querySelectorAll('button').forEach(b => { b.disabled = true; });
+        try {
+          await v.soruSil(konu.kod, s);
+          if (formKutu.dataset.soru === s.id) formuKapat();
+          await konuyuYenile();
+          mesaj(listeMesaj, `${s.no} silindi.`, 'tamam');
+        } catch (e) { mesaj(listeMesaj, v.hataMetni(e), 'hata'); }
+        listeCiz();
+      });
+      const gor = el('a', 'dugme dugme-ikincil', 'Sitede gör →'); gor.href = `${konu.sayfa}#${s.id}`; gor.target = '_blank'; gor.rel = 'noopener';
+      d.appendChild(yukari); d.appendChild(asagi); d.appendChild(duzenle); d.appendChild(gor); d.appendChild(sil);
+      satir.appendChild(bilgi); satir.appendChild(d); satir.appendChild(m);
+      liste.appendChild(satir);
+    }
+  }
+
+  function formuKapat() { kaydedilmemis.delete('soru'); formKutu.innerHTML = ''; delete formKutu.dataset.soru; }
+
+  // Konudaki en sık kullanılan değer (yeni soru için varsayılanlar)
+  const enSik = degerler => { const n = {}; degerler.forEach(x => { n[x] = (n[x] || 0) + 1; }); return Object.keys(n).sort((a, b) => n[b] - n[a])[0]; };
+  const HARF = 'abcdefghijklmnopqrstuvwxyz';
+
+  // s: düzenlenecek soru, null: yeni soru. Form açılamazsa (kullanıcı vazgeçerse) false.
+  function formAc(s) {
+    if (kaydedilmemis.has('soru') && !confirm('Açık formdaki kaydedilmemiş değişiklikler kaybolacak. Devam edilsin mi?')) return false;
+    formuKapat();
+    mesaj(listeMesaj, '');
+    const eski = s ? JSON.parse(JSON.stringify(s)) : null;
+    const kimlik = s ? { id: s.id, no: s.no } : v.yeniSoruKimligi(konu);
+    const ilkEtiket = (konu.sorular.find(x => x.etiketler.length) || { etiketler: [{ sinif: [] }] }).etiketler[0];
+    const etiketSinif = s && s.etiketler.length ? s.etiketler[0].sinif : ilkEtiket.sinif;
+    if (s) formKutu.dataset.soru = s.id;
+
+    const panel = el('div', 'panel ys-form');
+    panel.appendChild(el('h2', '', s ? `${s.no} düzenleniyor` : `Yeni soru · ${kimlik.no}`));
+    if (s && bekleyenOneri(s.id)) {
+      panel.appendChild(el('p', 'ys-uyari', 'Bu soru için onay bekleyen bir düzeltme önerisi var. Önerinin değiştirdiği kısımları burada ' +
+        'değiştirirseniz öneri artık otomatik uygulanamaz. Önce "Düzeltme Önerileri" bölümünden karar vermeniz önerilir.'));
+    }
+    panel.appendChild(el('p', 'ys-ipucu', 'Metinler sitedeki biçimiyle (HTML) duruyor. Biçim düğmeleri en son tıkladığınız kutudaki seçili yazıya uygulanır. ' +
+      'Önce kutudaki yazıyı fareyle seçin, sonra düğmeye basın. Yeni satır için "↵ Yeni satır" düğmesini kullanın (Enter tuşuyla açılan satır sitede görünmez). Yazdıkça sağdaki önizleme güncellenir.'));
+    const degisti = () => { kaydedilmemis.add('soru'); onizle(); };
+    panel.appendChild(bicimCubugu(panel, BICIM_SORU));
+
+    const duzen = el('div', 'ys-duzen'), sol = el('div'), sag = el('div', 'ys-onizleme');
+    const baslik = alanEkle(sol, 'Soru başlığı'); baslik.classList.add('genis');
+    const etiket = alanEkle(sol, 'Konu etiketi', 'text', 'Kartın üstündeki küçük etiket.'); etiket.classList.add('genis');
+    const zl = el('label', '', 'Zorluk'), zorluk = el('select', 'ys-sec');
+    zorluk.id = 'ys-alan-' + (++alanNo); zl.htmlFor = zorluk.id;
+    for (const z of ['Temel', 'Orta', 'İleri']) { const o = el('option', '', z); o.value = z; zorluk.appendChild(o); }
+    sol.appendChild(zl); sol.appendChild(zorluk);
+    const metin = alanEkle(sol, 'Soru metni', 'textarea'); metin.classList.add('ys-html');
+    const siklar = parcaListesi(sol, 'Şıklar', s ? s.siklar : [], '+ Şık ekle', n => HARF[n] + ')', degisti);
+    const cozumBaslik = alanEkle(sol, 'Çözüm başlığı');
+    const adimlar = parcaListesi(sol, 'Çözüm adımları', s ? s.adimlar : [], '+ Adım ekle', n => HARF[n], degisti);
+
+    baslik.value = s ? s.baslik : '';
+    etiket.value = s && s.etiketler.length ? s.etiketler[0].html : '';
+    zorluk.value = s ? s.zorluk : 'Orta';
+    metin.value = s ? s.metin : '';
+    metin.rows = Math.min(14, 3 + Math.ceil(metin.value.length / 80));
+    cozumBaslik.value = s ? s.cozumBaslik : (enSik(konu.sorular.map(x => x.cozumBaslik)) || 'Çözüm');
+
+    // Formdaki hal → soru (boş satırlar atlanır; değişmeyen metinler birebir korunur)
+    const soruOku = () => {
+      const parcalar = (liste, eskiler) => liste.filter(p => p.etiket.trim() || p.html.trim())
+        .map((p, i) => ({ etiket: temizle(p.etiket, eskiler[i] && eskiler[i].etiket), html: temizle(p.html, eskiler[i] && eskiler[i].html) }));
+      const eskiEtiket = eski && eski.etiketler[0];
+      return {
+        id: kimlik.id, no: kimlik.no,
+        baslik: temizle(baslik.value, eski && eski.baslik),
+        etiketler: etiket.value.trim()
+          ? [{ sinif: etiketSinif, html: temizle(etiket.value, eskiEtiket && eskiEtiket.html) }, ...(eski ? eski.etiketler.slice(1) : [])]
+          : [],
+        zorluk: zorluk.value,
+        metin: temizle(metin.value, eski && eski.metin),
+        siklar: parcalar(siklar.oku(), eski ? eski.siklar : []),
+        cozumBaslik: temizle(cozumBaslik.value, eski && eski.cozumBaslik),
+        adimlar: parcalar(adimlar.oku(), eski ? eski.adimlar : []),
+      };
+    };
+
+    sag.appendChild(el('h4', '', 'Önizleme · sitede böyle görünecek'));
+    const onizKutu = el('div');
+    sag.appendChild(onizKutu);
+    function onizle() {
+      onizKutu.innerHTML = '';
+      try { onizKutu.appendChild(kartCiz(soruOku(), konu.stil, [], '')); }
+      catch (e) { onizKutu.appendChild(el('p', 'mesaj hata', 'Önizleme çizilemedi: ' + e.message)); }
+    }
+
+    const dugmeler = el('div', 'oneri-dugmeler'), m = el('div', 'mesaj');
+    const kaydet = dugmeYap(s ? 'Değişiklikleri kaydet' : 'Soruyu ekle'), vazgec = dugmeYap('Vazgeç', 'dugme-ikincil');
+    kaydet.addEventListener('click', async () => {
+      kaydet.disabled = vazgec.disabled = true; mesaj(m, 'Kaydediliyor…');
+      try {
+        const kayit = await v.soruKaydet(konu.kod, soruOku(), eski);
+        formuKapat();
+        await konuyuYenile();
+        ara.value = '';
+        listeCiz();
+        mesaj(listeMesaj, `${kayit.no} ${s ? 'kaydedildi' : 'eklendi'}; sitede hemen görünür.`, 'tamam');
+      } catch (e) { mesaj(m, v.hataMetni(e), 'hata'); kaydet.disabled = vazgec.disabled = false; }
+    });
+    vazgec.addEventListener('click', () => {
+      if (kaydedilmemis.has('soru') && !confirm('Kaydedilmemiş değişiklikler kaybolacak. Vazgeçilsin mi?')) return;
+      formuKapat();
+    });
+    dugmeler.appendChild(kaydet); dugmeler.appendChild(vazgec);
+
+    duzen.appendChild(sol); duzen.appendChild(sag);
+    panel.appendChild(duzen); panel.appendChild(dugmeler); panel.appendChild(m);
+    panel.addEventListener('input', degisti);
+    panel.addEventListener('change', degisti);  // zorluk seçimi
+    formKutu.appendChild(panel);
+    onizle();
+    kaydedilmemis.delete('soru');
+    if (panel.scrollIntoView) panel.scrollIntoView({ block: 'start', behavior: 'smooth' });
+    baslik.focus();
+    return true;
+  }
+
+  konuSec.addEventListener('change', () => {
+    if (kaydedilmemis.has('soru') && !confirm('Açık formdaki kaydedilmemiş değişiklikler kaybolacak. Devam edilsin mi?')) { konuSec.value = konu.kod; return; }
+    formuKapat(); mesaj(listeMesaj, '');
+    konu = konular.find(k => k.kod === konuSec.value);
+    ara.value = '';
+    listeCiz();
+  });
+  ara.addEventListener('input', listeCiz);
+  yeniBtn.addEventListener('click', () => formAc(null));
+
+  soruAc = (kod, id) => {
+    if (konu.kod !== kod) {
+      if (kaydedilmemis.has('soru') && !confirm('Açık formdaki kaydedilmemiş değişiklikler kaybolacak. Devam edilsin mi?')) return;
+      formuKapat();
+      konu = konular.find(k => k.kod === kod) || konu;
+      konuSec.value = konu.kod; ara.value = ''; listeCiz();
+    }
+    const s = konu.sorular.find(x => x.id === id);
+    if (s) formAc(s);
+    else mesaj(listeMesaj, `${id} bu konuda bulunamadı (silinmiş olabilir).`, 'hata');
+  };
+  listeCiz();
+  if (soruHedefi) { const h = soruHedefi; soruHedefi = null; soruAc(h.kod, h.id); }
+}
+
+// ── Formül kartları ──
+// Bir konunun kartları birlikte kaydedilir (ekleme, düzenleme, silme, sıralama); önizleme sitedeki kartla aynıdır.
+async function formullerBolumu(kutu) {
+  kutu.innerHTML = '<p class="bos-mesaj">Yükleniyor…</p>';
+  let konular;
+  try { konular = await v.tumKonularTaze(); }
+  catch (e) { kutu.innerHTML = ''; kutu.appendChild(el('p', 'mesaj hata', 'Formül kartları yüklenemedi: ' + v.hataMetni(e))); return; }
+  kutu.innerHTML = '';
+  const ust = el('div', 'ys-arac');
+  const konuSec = konuSecici(konular), yeniBtn = dugmeYap('+ Yeni formül kartı');
+  ust.appendChild(konuSec); ust.appendChild(yeniBtn);
+  const formKutu = el('div'), listeMesaj = el('div', 'mesaj'), liste = el('div', 'ys-formul-liste');
+  kutu.appendChild(ust); kutu.appendChild(formKutu); kutu.appendChild(listeMesaj); kutu.appendChild(liste);
+  let konu = konular[0];
+
+  const kartHtmlTemiz = f => window.formulKartHtml({ baslik: window.DOMPurify.sanitize(f.baslik), govde: window.DOMPurify.sanitize(f.govde) });
+
+  // Yeni kart listesini kaydeder, konuyu veritabanından tazeler
+  async function kaydet(yeniKartlar, basari) {
+    await v.formulKartlariniKaydet(konu.kod, yeniKartlar, konu.formul.kartlar);
+    const taze = await v.konuGetir(konu.kod);
+    konular[konular.findIndex(k => k.kod === konu.kod)] = konu = taze;
+    mesaj(listeMesaj, basari, 'tamam');
+  }
+
+  function listeCiz() {
+    liste.innerHTML = '';
+    const kartlar = konu.formul.kartlar;
+    liste.appendChild(el('p', 'ys-sayi-satir', `${kartlar.length} formül kartı`));
+    const izgara = el('div', 'formula-grid');
+    kartlar.forEach((f, i) => {
+      const sar = el('div', 'ys-formul');
+      sar.innerHTML = kartHtmlTemiz(f);
+      const d = el('div', 'ys-soru-dugmeler');
+      const yukari = kucukDugme('↑', 'Öne al'), asagi = kucukDugme('↓', 'Sona doğru taşı');
+      yukari.disabled = i === 0; asagi.disabled = i === kartlar.length - 1;
+      const tasi = async yon => {
+        const yeni = kartlar.slice();
+        [yeni[i], yeni[i + yon]] = [yeni[i + yon], yeni[i]];
+        liste.querySelectorAll('button').forEach(b => { b.disabled = true; });
+        try { await kaydet(yeni, ''); } catch (e) { mesaj(listeMesaj, v.hataMetni(e), 'hata'); }
+        listeCiz();
+      };
+      yukari.addEventListener('click', () => tasi(-1)); asagi.addEventListener('click', () => tasi(1));
+      const duzenle = dugmeYap('Düzenle', 'dugme-ikincil'), sil = dugmeYap('Sil', 'dugme-tehlike');
+      duzenle.addEventListener('click', () => formAc(i));
+      sil.addEventListener('click', async () => {
+        if (!confirm(`"${window.duzMetin(f.baslik)}" formül kartı kalıcı olarak silinecek. Devam edilsin mi?`)) return;
+        if (formKutu.dataset.kart != null) formuKapat();
+        liste.querySelectorAll('button').forEach(b => { b.disabled = true; });
+        try { await kaydet(kartlar.filter((_, j) => j !== i), 'Formül kartı silindi.'); } catch (e) { mesaj(listeMesaj, v.hataMetni(e), 'hata'); }
+        listeCiz();
+      });
+      d.appendChild(yukari); d.appendChild(asagi); d.appendChild(duzenle); d.appendChild(sil);
+      sar.appendChild(d);
+      izgara.appendChild(sar);
+    });
+    liste.appendChild(izgara);
+  }
+
+  function formuKapat() { kaydedilmemis.delete('formul'); formKutu.innerHTML = ''; delete formKutu.dataset.kart; }
+
+  // i: düzenlenecek kartın sırası, null: yeni kart
+  function formAc(i) {
+    if (kaydedilmemis.has('formul') && !confirm('Açık formdaki kaydedilmemiş değişiklikler kaybolacak. Devam edilsin mi?')) return;
+    formuKapat(); mesaj(listeMesaj, '');
+    const eski = i == null ? null : konu.formul.kartlar[i];
+    if (i != null) formKutu.dataset.kart = i;
+    const panel = el('div', 'panel ys-form');
+    panel.appendChild(el('h2', '', eski ? 'Formül kartını düzenle' : 'Yeni formül kartı'));
+    panel.appendChild(el('p', 'ys-ipucu', 'Metin sitedeki biçimiyle (HTML) duruyor. Önce kutudaki yazıyı fareyle seçin, sonra düğmeye basın. Yeni satır için "↵ Yeni satır" düğmesini kullanın.'));
+    panel.appendChild(bicimCubugu(panel, BICIM_FORMUL));
+    const duzen = el('div', 'ys-duzen'), sol = el('div'), sag = el('div', 'ys-onizleme');
+    const baslik = alanEkle(sol, 'Kart başlığı'); baslik.classList.add('genis');
+    const govde = alanEkle(sol, 'Kart içeriği', 'textarea'); govde.classList.add('ys-html');
+    baslik.value = eski ? eski.baslik : ''; govde.value = eski ? eski.govde : '';
+    govde.rows = Math.min(16, 4 + Math.ceil(govde.value.length / 70));
+    sag.appendChild(el('h4', '', 'Önizleme · sitede böyle görünecek'));
+    const oniz = el('div', 'formula-grid ys-tek');
+    sag.appendChild(oniz);
+    const kart = () => ({ baslik: temizle(baslik.value, eski && eski.baslik), govde: temizle(govde.value, eski && eski.govde) });
+    const onizle = () => { oniz.innerHTML = kartHtmlTemiz(kart()); };
+
+    const dugmeler = el('div', 'oneri-dugmeler'), m = el('div', 'mesaj');
+    const kaydetBtn = dugmeYap(eski ? 'Değişiklikleri kaydet' : 'Kartı ekle'), vazgec = dugmeYap('Vazgeç', 'dugme-ikincil');
+    kaydetBtn.addEventListener('click', async () => {
+      kaydetBtn.disabled = vazgec.disabled = true; mesaj(m, 'Kaydediliyor…');
+      const yeni = konu.formul.kartlar.slice();
+      if (i == null) yeni.push(kart()); else yeni[i] = kart();
+      try {
+        await kaydet(yeni, eski ? 'Formül kartı kaydedildi; sitede hemen görünür.' : 'Formül kartı eklendi; sitede hemen görünür.');
+        formuKapat(); listeCiz();
+      } catch (e) { mesaj(m, v.hataMetni(e), 'hata'); kaydetBtn.disabled = vazgec.disabled = false; }
+    });
+    vazgec.addEventListener('click', () => {
+      if (kaydedilmemis.has('formul') && !confirm('Kaydedilmemiş değişiklikler kaybolacak. Vazgeçilsin mi?')) return;
+      formuKapat();
+    });
+    dugmeler.appendChild(kaydetBtn); dugmeler.appendChild(vazgec);
+    duzen.appendChild(sol); duzen.appendChild(sag);
+    panel.appendChild(duzen); panel.appendChild(dugmeler); panel.appendChild(m);
+    panel.addEventListener('input', () => { kaydedilmemis.add('formul'); onizle(); });
+    formKutu.appendChild(panel);
+    onizle();
+    if (panel.scrollIntoView) panel.scrollIntoView({ block: 'start', behavior: 'smooth' });
+    baslik.focus();
+  }
+
+  konuSec.addEventListener('change', () => {
+    if (kaydedilmemis.has('formul') && !confirm('Açık formdaki kaydedilmemiş değişiklikler kaybolacak. Devam edilsin mi?')) { konuSec.value = konu.kod; return; }
+    formuKapat(); mesaj(listeMesaj, '');
+    konu = konular.find(k => k.kod === konuSec.value);
+    listeCiz();
+  });
+  yeniBtn.addEventListener('click', () => formAc(null));
+  listeCiz();
 }

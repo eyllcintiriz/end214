@@ -941,3 +941,50 @@ a.dugme { display: inline-block; text-decoration: none; }
 .ys-satir-sil:hover { color: var(--red); border-color: rgba(232,109,109,.45); }
 .panel .ys-ekle { display: inline-block; margin: .6rem 0 0; color: var(--amber); }
 @media (max-width: 900px) { .ys-duzen { grid-template-columns: 1fr; } }
+
+/* ── Yönetim paneli: sorular ve formül kartları ── */
+.ys-arac { display: flex; flex-wrap: wrap; align-items: center; gap: .6rem; margin-bottom: 1rem; }
+.ys-arac .dugme { margin-top: 0; margin-left: auto; }
+.ys-sec, .ys-ara { padding: .55rem .75rem; background: var(--surface); color: var(--text); border: 1px solid var(--border);
+  border-radius: var(--radius); font: inherit; font-size: .88rem; }
+.ys-sec:focus, .ys-ara:focus { outline: none; border-color: var(--amber); }
+.ys-ara { flex: 1 1 220px; max-width: 380px; }
+.ys-form .ys-sec { display: block; }
+.panel .ys-sayi-satir, .ys-sayi-satir { font-size: .75rem; color: var(--muted); margin: 0 0 .5rem; }
+.ys-soru-liste { display: flex; flex-direction: column; gap: .5rem; }
+.ys-soru { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: .7rem .9rem;
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .5rem 1rem; }
+.ys-soru > .mesaj { flex-basis: 100%; margin-top: 0; }
+.ys-soru-bilgi { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; min-width: 0; flex: 1 1 320px; }
+.ys-soru-ad { font-size: .9rem; color: var(--text); }
+.ys-isaret { font-family: var(--mono); font-size: .65rem; color: var(--amber); border: 1px dashed rgba(232,184,109,.45); border-radius: 3px; padding: .08rem .45rem; }
+.ys-soru-dugmeler { display: flex; flex-wrap: wrap; align-items: center; gap: .35rem; }
+.ys-soru-dugmeler .dugme { margin-top: 0; padding: .35rem .8rem; font-size: .8rem; }
+.ys-kucuk { background: none; border: 1px solid var(--border); border-radius: var(--radius); color: var(--muted); cursor: pointer;
+  font: inherit; font-size: .8rem; line-height: 1; padding: .42rem .55rem; }
+.ys-kucuk:hover:not(:disabled) { color: var(--amber); border-color: rgba(232,184,109,.4); }
+.ys-kucuk.sil:hover:not(:disabled) { color: var(--red); border-color: rgba(232,109,109,.45); }
+.ys-kucuk:disabled { opacity: .35; cursor: default; }
+.ys-bicim { position: sticky; top: 64px; z-index: 5; display: flex; flex-wrap: wrap; align-items: center; gap: .35rem;
+  background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: .45rem .6rem; margin: .5rem 0 1rem; }
+.ys-bicim-yazi { font-size: .72rem; color: var(--muted); margin-right: .2rem; }
+.ys-bicim-btn { background: var(--surface); border: 1px solid var(--border); border-radius: 4px; color: var(--text); cursor: pointer;
+  font-family: var(--sans); font-size: .78rem; padding: .32rem .65rem; }
+.ys-bicim-btn:hover { border-color: var(--amber); color: var(--amber); }
+.panel .ys-uyari { color: var(--amber); font-size: .84rem; border-left: 2px solid var(--amber); padding-left: .8rem; }
+.ys-parcalar { margin-top: .25rem; }
+.ys-parca { display: grid; grid-template-columns: 110px minmax(0, 1fr) auto; gap: .5rem; align-items: start; }
+.panel .ys-parca input.ys-parca-etiket { max-width: none; font-size: .85rem; padding: .5rem .6rem; }
+.ys-form textarea.ys-html { font-family: var(--mono); font-size: .8rem; line-height: 1.55; }
+.ys-parca-dugmeler { display: flex; gap: .25rem; }
+.ys-form .ys-onizleme .q-card { cursor: default; }
+.ys-form .ys-onizleme .q-header { pointer-events: none; }
+.ys-formul-liste .formula-grid { margin-top: .25rem; }
+.ys-formul { display: flex; flex-direction: column; gap: .5rem; }
+.ys-formul > .f-card { flex: 1; }
+.formula-grid.ys-tek { grid-template-columns: 1fr; }
+@media (max-width: 600px) {
+  .ys-parca { grid-template-columns: 1fr; }
+  .ys-arac .dugme { margin-left: 0; }
+  .ys-bicim { top: 56px; }
+}

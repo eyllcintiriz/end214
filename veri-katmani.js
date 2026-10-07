@@ -171,7 +171,7 @@ export async function hesabiSil(sifre) {
 /** Giriş hata kodunu kullanıcıya gösterilecek Türkçe cümleye çevirir. */
 export function hataMetni(e) {
   const kod = e && e.code || '';
-  if (kod === 'gecersiz') return e.message;  // form denetimi (aşağıda): mesaj zaten Türkçe
+  if (['gecersiz', 'cakisma', 'bulunamadi'].includes(kod)) return e.message;  // bu dosyanın kendi hataları: mesaj zaten Türkçe
   if (/email-already-in-use/.test(kod)) return 'Bu e-posta adresiyle zaten bir hesap var. Giriş yapmayı deneyin.';
   if (/weak-password/.test(kod)) return 'Şifre en az 6 karakter olmalı.';
   if (/invalid-email/.test(kod)) return 'E-posta adresi geçerli görünmüyor.';
@@ -385,6 +385,107 @@ export async function dersBilgileriniKaydet(d) {
 
   await setDoc(doc(db, 'site', 'ders'), { ...veri, guncellendi: serverTimestamp() });
   return veri;
+}
+
+// ── Sorular ve formül kartları (konular/{kod}; yalnızca yönetici yazar) ──
+// Bir konunun bütün soruları tek belgede dizi olarak durur. Her yazma belgeyi okuyup değiştiren tek bir işlemdir (transaction).
+// "eski": panelin düzenlemeye başlarken okuduğu hal. Kayıt o arada başka yerden değiştiyse (ör. bir öneri onaylandıysa)
+// üzerine yazılmaz, 'cakisma' hatası verilir.
+
+// Anahtar sırasından bağımsız karşılaştırma (Firestore alanları farklı sırayla döndürebilir)
+const kanonik = x => Array.isArray(x) ? '[' + x.map(kanonik).join(',') + ']'
+  : x && typeof x === 'object' ? '{' + Object.keys(x).sort().map(k => JSON.stringify(k) + ':' + kanonik(x[k])).join(',') + '}'
+  : JSON.stringify(x);
+const cakismaHatasi = () => kararHatasi('cakisma', 'Bu kayıt, siz düzenlerken başka bir yerden değiştirilmiş (örneğin bir öneri onaylanmış). Sayfayı yenileyip tekrar deneyin; yazdıklarınızı kaydetmeden önce bir yere kopyalayın.');
+
+async function konuIslemi(kod, fn) {
+  await runTransaction(db, async tx => {
+    const ref = doc(db, 'konular', kod), b = await tx.get(ref);
+    if (!b.exists()) throw kararHatasi('bulunamadi', 'Konu bulunamadı.');
+    tx.update(ref, { ...fn(b.data()), guncellendi: serverTimestamp() });
+  });
+  konuOnbelleginiTemizle();
+}
+
+const ZORLUKLAR = ['Temel', 'Orta', 'İleri'];
+const bosMu = h => !String(h == null ? '' : h).replace(/<[^>]*>|&nbsp;/g, '').trim();
+function soruyuDenetle(s) {
+  if (!/^[A-Z]+-\d+$/.test(s.id) || typeof s.no !== 'string') throw gecersiz('Soru kimliği geçersiz.');
+  if (bosMu(s.baslik)) throw gecersiz('Soru başlığı boş olamaz.');
+  if (!ZORLUKLAR.includes(s.zorluk)) throw gecersiz('Zorluk Temel, Orta ya da İleri olmalı.');
+  if (bosMu(s.metin)) throw gecersiz('Soru metni boş olamaz.');
+  if (!Array.isArray(s.etiketler) || !Array.isArray(s.siklar) || !Array.isArray(s.adimlar)) throw gecersiz('Soru verisi eksik.');
+  if (s.siklar.some(p => bosMu(p.html))) throw gecersiz('Boş şık var; doldurun ya da silin.');
+  if (s.adimlar.some(a => bosMu(a.html))) throw gecersiz('Boş çözüm adımı var; doldurun ya da silin.');
+}
+
+// Konudaki en büyük soru numarası (silinmiş sorular dahil: konu.sonSoruNo)
+const soruNumarasi = id => +((/-(\d+)$/.exec(id) || [])[1] || 0);
+const sonNumara = k => Math.max(k.sonSoruNo || 0, 0, ...k.sorular.map(s => soruNumarasi(s.id)));
+
+/** Konudaki yeni soru için sıradaki kimlik: { id: 'GA-19', no: 'GA–19' }. Silinmiş soruların numaraları yeniden kullanılmaz
+ *  (bağlantılar ve öğrencilerin "Çözdüm" işaretleri numaraya bağlı). */
+export function yeniSoruKimligi(k) {
+  const on = ((k.sorular[0] && /^([A-Z]+)-/.exec(k.sorular[0].id)) || [])[1] || String(k.kod).toUpperCase();
+  const n = String(sonNumara(k) + 1).padStart(2, '0');
+  return { id: `${on}-${n}`, no: `${on}–${n}` };
+}
+
+/** Soruyu kaydeder ve kaydedilen hali döndürür. eski: düzenlenen sorunun okunduğu hal; yeni soruda null
+ *  (yeni soru konunun sonuna eklenir, kimliği burada verilir). */
+export async function soruKaydet(kod, soru, eski) {
+  let sonuc;
+  await konuIslemi(kod, k => {
+    const sorular = k.sorular;
+    if (eski) {
+      const i = sorular.findIndex(s => s.id === eski.id);
+      if (i < 0) throw kararHatasi('bulunamadi', 'Soru bulunamadı (silinmiş olabilir).');
+      if (kanonik(sorular[i]) !== kanonik(eski)) throw cakismaHatasi();
+      sonuc = { ...soru, id: eski.id, no: eski.no };
+      soruyuDenetle(sonuc);
+      sorular[i] = sonuc;
+      return { sorular };
+    }
+    const kimlik = yeniSoruKimligi(k);
+    sonuc = { ...soru, ...kimlik };
+    soruyuDenetle(sonuc);
+    sorular.push(sonuc);
+    return { sorular, sonSoruNo: soruNumarasi(kimlik.id) };
+  });
+  return sonuc;
+}
+
+/** Soruyu siler. Numarası yeniden kullanılmaz. */
+export async function soruSil(kod, eski) {
+  await konuIslemi(kod, k => {
+    const i = k.sorular.findIndex(s => s.id === eski.id);
+    if (i < 0) throw kararHatasi('bulunamadi', 'Soru bulunamadı (zaten silinmiş olabilir).');
+    if (kanonik(k.sorular[i]) !== kanonik(eski)) throw cakismaHatasi();
+    const son = sonNumara(k);
+    k.sorular.splice(i, 1);
+    return { sorular: k.sorular, sonSoruNo: son };
+  });
+}
+
+/** Soruların sırasını değiştirir. idler: konudaki bütün soru kimlikleri, yeni sırasıyla. */
+export async function sorulariSirala(kod, idler) {
+  await konuIslemi(kod, k => {
+    const mevcut = k.sorular.map(s => s.id);
+    if (mevcut.length !== idler.length || [...mevcut].sort().join() !== [...idler].sort().join()) throw cakismaHatasi();
+    return { sorular: idler.map(id => k.sorular.find(s => s.id === id)) };
+  });
+}
+
+/** Konunun formül kartlarını (ekleme, düzenleme, silme, sıralama sonrası) tümüyle kaydeder.
+ *  eskiKartlar: panelin okuduğu hal. Her kart: { baslik, govde }. */
+export async function formulKartlariniKaydet(kod, kartlar, eskiKartlar) {
+  for (const f of kartlar) {
+    if (bosMu(f.baslik) || bosMu(f.govde)) throw gecersiz('Formül kartının başlığı ve içeriği boş olamaz.');
+  }
+  await konuIslemi(kod, k => {
+    if (kanonik(k.formul.kartlar) !== kanonik(eskiKartlar)) throw cakismaHatasi();
+    return { formul: { ...k.formul, kartlar: kartlar.map(f => ({ baslik: f.baslik, govde: f.govde })) } };
+  });
 }
 
 // ── İçe aktarma (tek seferlik taşıma, yalnızca yönetici) ──
