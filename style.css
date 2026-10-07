@@ -886,7 +886,7 @@ main.yonetim { max-width: 1200px; }
 .durum-rozet.onaylandi { color: var(--teal); }
 .durum-rozet.reddedildi { color: var(--red); }
 .panel .oneri-gerekce { color: var(--text); font-size: .88rem; border-left: 2px solid var(--amber); padding-left: .8rem; margin: .8rem 0 1rem; }
-.karsilastir { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.karsilastir { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1rem; }
 .karsilastir h4, .fark-liste h4, .oneri-duzen h4 { font-family: var(--mono); font-size: .68rem; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); font-weight: 400; margin-bottom: .5rem; }
 .karsilastir-kart .q-card { cursor: default; }
 .karsilastir-kart .q-header { pointer-events: none; }
@@ -905,7 +905,7 @@ main.yonetim { max-width: 1200px; }
 .panel .oneri-ipucu { font-size: .75rem; font-family: var(--mono); }
 .oneri-ta { width: 100%; padding: .55rem .7rem; background: var(--surface); color: var(--text); border: 1px solid var(--border); border-radius: var(--radius); font-family: var(--mono); font-size: .78rem; line-height: 1.55; resize: vertical; }
 .oneri-ta:focus { outline: none; border-color: var(--amber); }
-@media (max-width: 900px) { .karsilastir { grid-template-columns: 1fr; } }
+@media (max-width: 900px) { .karsilastir { grid-template-columns: minmax(0, 1fr); } }
 
 /* ── Yönetim paneli: hata bildirimleri ── */
 .bildirim-liste { display: flex; flex-direction: column; gap: 1rem; margin-top: 1rem; }
@@ -965,7 +965,7 @@ a.dugme { display: inline-block; text-decoration: none; }
 .ys-kucuk:hover:not(:disabled) { color: var(--amber); border-color: rgba(232,184,109,.4); }
 .ys-kucuk.sil:hover:not(:disabled) { color: var(--red); border-color: rgba(232,109,109,.45); }
 .ys-kucuk:disabled { opacity: .35; cursor: default; }
-.ys-bicim { position: sticky; top: 64px; z-index: 5; display: flex; flex-wrap: wrap; align-items: center; gap: .35rem;
+.ys-bicim { position: sticky; top: 46px; z-index: 5; display: flex; flex-wrap: wrap; align-items: center; gap: .35rem;
   background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: .45rem .6rem; margin: .5rem 0 1rem; }
 .ys-bicim-yazi { font-size: .72rem; color: var(--muted); margin-right: .2rem; }
 .ys-bicim-btn { background: var(--surface); border: 1px solid var(--border); border-radius: 4px; color: var(--text); cursor: pointer;
@@ -986,5 +986,5 @@ a.dugme { display: inline-block; text-decoration: none; }
 @media (max-width: 600px) {
   .ys-parca { grid-template-columns: 1fr; }
   .ys-arac .dugme { margin-left: 0; }
-  .ys-bicim { top: 56px; }
+  .ys-bicim { top: 44px; }
 }

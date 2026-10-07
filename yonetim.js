@@ -1056,7 +1056,7 @@ async function sorularBolumu(kutu) {
         'değiştirirseniz öneri artık otomatik uygulanamaz. Önce "Düzeltme Önerileri" bölümünden karar vermeniz önerilir.'));
     }
     panel.appendChild(el('p', 'ys-ipucu', 'Metinler sitedeki biçimiyle (HTML) duruyor. Biçim düğmeleri en son tıkladığınız kutudaki seçili yazıya uygulanır. ' +
-      'Önce kutudaki yazıyı fareyle seçin, sonra düğmeye basın. Yeni satır için "↵ Yeni satır" düğmesini kullanın (Enter tuşuyla açılan satır sitede görünmez). Yazdıkça sağdaki önizleme güncellenir.'));
+      'Önce kutudaki yazıyı fareyle seçin, sonra düğmeye basın. Yeni satır için "↵ Yeni satır" düğmesini kullanın (Enter tuşuyla açılan satır sitede görünmez). Yazdıkça önizleme (geniş ekranda sağda, telefonda formun altında) güncellenir.'));
     const degisti = () => { kaydedilmemis.add('soru'); onizle(); };
     panel.appendChild(bicimCubugu(panel, BICIM_SORU));
 
