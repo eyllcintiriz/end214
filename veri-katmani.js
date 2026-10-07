@@ -488,6 +488,30 @@ export async function formulKartlariniKaydet(kod, kartlar, eskiKartlar) {
   });
 }
 
+// ── Yedek (yalnızca yönetici) ──
+
+// Firestore zaman damgaları ve tarihler → ISO metin (JSON dosyasına yazılabilsin)
+const duzVeri = x => x && typeof x.toDate === 'function' ? x.toDate().toISOString()
+  : x instanceof Date ? (isNaN(x) ? null : x.toISOString())
+  : Array.isArray(x) ? x.map(duzVeri)
+  : x && typeof x === 'object' ? Object.fromEntries(Object.entries(x).map(([k, d]) => [k, duzVeri(d)]))
+  : x;
+
+/** Bütün içerik tek nesnede: konular (veri/konular.json ile aynı biçim), öneriler, duyurular, hata bildirimleri,
+ *  site ayarları ve ders bilgileri. Öğrenci hesapları ve "Çözdüm" verileri alınmaz (kişisel veri; yönetici de okuyamaz). */
+export async function yedekVerisi() {
+  const oku = async ad => (await getDocs(collection(db, ad))).docs.map(b => ({ id: b.id, ...b.data() }));
+  const [konular, oneriler, duyurular, hataBildirimleri, site] =
+    await Promise.all(['konular', 'oneriler', 'duyurular', 'hataBildirimleri', 'site'].map(oku));
+  const belge = id => { const b = site.find(x => x.id === id); if (!b) return {}; const { id: _, ...veri } = b; return veri; };
+  return duzVeri({
+    surum: 1, tur: 'END214 yedek', tarih: new Date(),
+    konular: konular.map(({ id, ...k }) => k).sort((a, b) => a.sira - b.sira),
+    oneriler, duyurular, hataBildirimleri,
+    site: { ayarlar: belge('ayarlar'), ders: belge('ders') },
+  });
+}
+
 // ── İçe aktarma (tek seferlik taşıma, yalnızca yönetici) ──
 
 /** Veritabanında zaten bulunan konu ve öneri kimlikleri (üzerine yazmadan önce uyarmak için). */

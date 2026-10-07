@@ -7,7 +7,7 @@ const mesaj = (el, metin, tur) => { el.textContent = metin; el.className = 'mesa
 
 let v;
 try {
-  v = await import('./veri-katmani.js?v=e6c6c36d');
+  v = await import('./veri-katmani.js?v=9d77551c');
 } catch (e) {
   $('yukleniyor').innerHTML = '<p class="mesaj hata">Veritabanına bağlanılamadı. İnternet bağlantınızı kontrol edip sayfayı yenileyin.</p>';
   throw e;
@@ -17,11 +17,11 @@ try {
 const SEKMELER = [
   ['oneriler', 'Düzeltme Önerileri'], ['bildirimler', 'Hata Bildirimleri'], ['sorular', 'Sorular'],
   ['formuller', 'Formül Kartları'], ['duyurular', 'Duyurular'], ['ders', 'Ders Bilgileri'],
-  ['ayarlar', 'Ayarlar'], ['kurulum', 'Kurulum'],
+  ['ayarlar', 'Ayarlar'], ['yedek', 'Yedek'],
 ];
 const BOLUMLER = {
   oneriler: onerilerBolumu, bildirimler: bildirimlerBolumu, sorular: sorularBolumu, formuller: formullerBolumu,
-  duyurular: duyurularBolumu, ders: dersBolumu, ayarlar: ayarlarBolumu, kurulum: kurulumBolumu,
+  duyurular: duyurularBolumu, ders: dersBolumu, ayarlar: ayarlarBolumu, yedek: yedekBolumu,
 };
 const kurulanlar = new Set();
 
@@ -121,7 +121,30 @@ $('sifremiUnuttum').addEventListener('click', async () => {
 
 document.querySelectorAll('[data-cikis]').forEach(b => b.addEventListener('click', () => v.cikisYap()));
 
-// ── Kurulum: tek seferlik içe aktarma ──
+// ── Yedek: bütün içeriği tek JSON dosyası olarak indir ──
+async function yedekBolumu() {
+  $('yedekIndir').addEventListener('click', async () => {
+    const dugme = $('yedekIndir'), m = $('yedekMesaj');
+    dugme.disabled = true; mesaj(m, 'Veriler okunuyor…');
+    try {
+      const yedek = await v.yedekVerisi();
+      const ad = `END214-yedek-${window.gunYazi(new Date())}.json`;
+      const url = URL.createObjectURL(new Blob([JSON.stringify(yedek, null, 1)], { type: 'application/json' }));
+      const a = document.createElement('a');
+      a.href = url; a.download = ad;
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 10000);
+      const soru = yedek.konular.reduce((t, k) => t + k.sorular.length, 0);
+      const formul = yedek.konular.reduce((t, k) => t + k.formul.kartlar.length, 0);
+      mesaj(m, `${ad} indirildi: ${yedek.konular.length} konu, ${soru} soru, ${formul} formül kartı, ` +
+        `${yedek.oneriler.length} öneri, ${yedek.duyurular.length} duyuru, ${yedek.hataBildirimleri.length} hata bildirimi.`, 'tamam');
+    } catch (e) { mesaj(m, 'Yedek alınamadı: ' + v.hataMetni(e), 'hata'); }
+    finally { dugme.disabled = false; }
+  });
+  kurulumBolumu();
+}
+
+// ── İlk kurulum: tek seferlik içe aktarma (Yedek sekmesinde, "Gelişmiş" altında) ──
 // Anahtar sırasından bağımsız karşılaştırma (Firestore alanları farklı sırayla döndürebilir)
 const kanonik = x => Array.isArray(x) ? '[' + x.map(kanonik).join(',') + ']'
   : x && typeof x === 'object' ? '{' + Object.keys(x).sort().map(k => JSON.stringify(k) + ':' + kanonik(x[k])).join(',') + '}'
@@ -150,7 +173,8 @@ async function kurulumBolumu() {
       const mevcut = await v.mevcutKayitlar(konular, oneriler);
       if (mevcut.konular.length || mevcut.oneriler.length) {
         const devam = confirm(`Veritabanında zaten ${mevcut.konular.length} konu ve ${mevcut.oneriler.length} öneri var.\n\n` +
-          'Devam ederseniz bunların üzerine dosyadaki hali yazılır; panelden yapılmış değişiklikler ve öneri kararları kaybolur.\n\nYine de devam edilsin mi?');
+          'Devam ederseniz bunların üzerine dosyadaki ilk hal yazılır; panelden yapılmış BÜTÜN değişiklikler (soru düzenlemeleri, yeni sorular, ' +
+          'formül kartları, öneri kararları) kaybolur. Önce yedeği indirdiğinizden emin olun.\n\nYine de devam edilsin mi?');
         if (!devam) { mesaj(m, 'İptal edildi. Hiçbir şey yazılmadı.'); return; }
       }
       mesaj(m, 'Yazılıyor…');

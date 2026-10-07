@@ -71,16 +71,29 @@
     <section data-bolum="duyurular" hidden></section>
     <section data-bolum="ders" hidden></section>
     <section data-bolum="ayarlar" hidden></section>
-    <section data-bolum="kurulum" hidden>
+    <section data-bolum="yedek" hidden>
       <div class="panel">
-        <h2>Verileri içe aktar (tek seferlik)</h2>
-        <p>Sitenin sorularını ve formül kartlarını (<code>veri/konular.json</code>) ve hesap düzeltme önerilerini
-          (<code>veri/oneriler.json</code>) veritabanına yükler. <strong>Yalnızca ilk kurulumda bir kez çalıştırılır;</strong>
-          veriler zaten yüklendi. Tekrar çalıştırılırsa panelden yapılan değişikliklerin üzerine yazar.</p>
-        <p id="dosyaOzet">Dosyalar okunuyor…</p>
-        <button class="dugme" type="button" id="iceAktar" disabled>İçe aktar</button>
-        <div class="mesaj" id="aktarMesaj"></div>
+        <h2>Yedeği indir</h2>
+        <p>Sitenin bütün içeriğini (sorular, formül kartları, düzeltme önerileri, duyurular, ders bilgileri, ayarlar ve
+          hata bildirimleri) tek bir dosya olarak bilgisayarınıza indirir. Arada bir, özellikle büyük değişikliklerden önce
+          indirip saklamanız önerilir. Öğrenci hesapları ve "Çözdüm" işaretleri yedeğe girmez.</p>
+        <p><strong>Dosyayı kimseyle paylaşmayın ve internete (GitHub dahil) yüklemeyin:</strong> hata bildirimlerinde
+          öğrencilerin adları ve e-posta adresleri bulunabilir.</p>
+        <button class="dugme" type="button" id="yedekIndir">Yedeği indir</button>
+        <div class="mesaj" id="yedekMesaj"></div>
       </div>
+      <details class="panel">
+        <summary>Gelişmiş: ilk kurulum (veritabanını dosyadan doldurma)</summary>
+        <p>Sitenin sorularını ve formül kartlarını (<code>veri/konular.json</code>) ve hesap düzeltme önerilerini
+          (<code>veri/oneriler.json</code>) veritabanına yükler. <strong>Yalnızca ilk kurulumda bir kez çalıştırılır;
+          veriler zaten yüklendi.</strong></p>
+        <p class="ys-uyari">Tekrar çalıştırılırsa panelden yapılan bütün değişikliklerin (soru düzenlemeleri, yeni sorular,
+          formül kartları, öneri kararları) üzerine ilk haller yazılır ve bu değişiklikler kaybolur. Emin değilseniz kullanmayın;
+          gerekiyorsa önce yukarıdan yedeği indirin.</p>
+        <p id="dosyaOzet">Dosyalar okunuyor…</p>
+        <button class="dugme dugme-tehlike" type="button" id="iceAktar" disabled>İçe aktar</button>
+        <div class="mesaj" id="aktarMesaj"></div>
+      </details>
     </section>
   </div>
 </main>
@@ -90,8 +103,8 @@
 </footer>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.4.16/purify.min.js" integrity="sha512-flQmhkXNRQ3iUfvtdCobtpMjCb6kE+zLnTiAulAQJ3WykVfy84JvCMOo6vhwWXHTXjR25h9Zj+LyGFRWKjRoag==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<script src="ortak.js?v=f2e46ed8"></script>
+<script src="ortak.js?v=4f1771e6"></script>
 <script src="firebase-ayar.js?v=987a2a63"></script>
-<script type="module" src="yonetim.js?v=677040b5"></script>
+<script type="module" src="yonetim.js?v=073b44da"></script>
 </body>
 </html>
