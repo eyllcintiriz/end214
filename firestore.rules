@@ -57,9 +57,19 @@ service cloud.firestore {
         && request.resource.data.durum == 'yeni';
     }
 
-    // Öğrenci verisi (çözdüğüm sorular, ilerleme): her öğrenci yalnızca kendi belgesini okur ve yazar
+    // Öğrenci verisi (çözdüğüm sorular, ilerleme): her öğrenci yalnızca kendi belgesini okur, yazar ve siler.
+    // Yazılabilecek alanlar sınırlı: ad (≤80), cozulen ({'GA-04': true, …}, en çok 500 soru), oluşturma/güncelleme tarihi.
+    // Böylece kimse kendi belgesine büyük ya da ilgisiz veri yığamaz.
+    function ogrenciVerisi(d) {
+      return d.keys().hasOnly(['ad', 'cozulen', 'olusturuldu', 'guncellendi'])
+        && (!('ad' in d) || (d.ad is string && d.ad.size() <= 80))
+        && (!('cozulen' in d) || (d.cozulen is map && d.cozulen.size() <= 500))
+        && (!('olusturuldu' in d) || d.olusturuldu is timestamp)
+        && (!('guncellendi' in d) || d.guncellendi is timestamp);
+    }
     match /ogrenciler/{uid} {
-      allow read, write: if request.auth != null && request.auth.uid == uid;
+      allow read, delete: if request.auth != null && request.auth.uid == uid;
+      allow create, update: if request.auth != null && request.auth.uid == uid && ogrenciVerisi(request.resource.data);
     }
 
     // Yönetici listesi: herkes yalnızca KENDİ kaydının olup olmadığını görebilir (panel girişi için);
