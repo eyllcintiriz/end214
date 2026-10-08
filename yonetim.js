@@ -7,7 +7,7 @@ const mesaj = (el, metin, tur) => { el.textContent = metin; el.className = 'mesa
 
 let v;
 try {
-  v = await import('./veri-katmani.js?v=862f0688');
+  v = await import('./veri-katmani.js?v=3e9ebbdc');
 } catch (e) {
   $('yukleniyor').innerHTML = '<p class="mesaj hata">Veritabanına bağlanılamadı. İnternet bağlantınızı kontrol edip sayfayı yenileyin.</p>';
   throw e;
@@ -164,58 +164,6 @@ async function yedekBolumu() {
         `${yedek.oneriler.length} öneri, ${yedek.duyurular.length} duyuru, ${yedek.hataBildirimleri.length} hata bildirimi.`, 'tamam');
     } catch (e) { mesaj(m, 'Yedek alınamadı: ' + v.hataMetni(e), 'hata'); }
     finally { dugme.disabled = false; }
-  });
-  kurulumBolumu();
-}
-
-// ── İlk kurulum: tek seferlik içe aktarma (Yedek sekmesinde, "Gelişmiş" altında) ──
-
-async function kurulumBolumu() {
-  let konular, oneriler;
-  try {
-    [konular, oneriler] = await Promise.all([
-      fetch('veri/konular.json').then(r => { if (!r.ok) throw new Error(r.status); return r.json(); }).then(d => d.konular),
-      fetch('veri/oneriler.json').then(r => { if (!r.ok) throw new Error(r.status); return r.json(); }).then(d => d.oneriler),
-    ]);
-    const soru = konular.reduce((t, k) => t + k.sorular.length, 0);
-    const formul = konular.reduce((t, k) => t + k.formul.kartlar.length, 0);
-    $('dosyaOzet').textContent = `Dosyada: ${konular.length} konu, ${soru} soru, ${formul} formül kartı, ${oneriler.length} düzeltme önerisi.`;
-    $('iceAktar').disabled = false;
-  } catch (e) {
-    $('dosyaOzet').textContent = 'Veri dosyaları okunamadı (' + e.message + ').';
-  }
-
-  $('iceAktar').addEventListener('click', async () => {
-    const dugme = $('iceAktar'), m = $('aktarMesaj');
-    dugme.disabled = true;
-    try {
-      mesaj(m, 'Veritabanındaki mevcut kayıtlar kontrol ediliyor…');
-      const mevcut = await v.mevcutKayitlar(konular, oneriler);
-      if (mevcut.konular.length || mevcut.oneriler.length) {
-        const devam = confirm(`Veritabanında zaten ${mevcut.konular.length} konu ve ${mevcut.oneriler.length} öneri var.\n\n` +
-          'Devam ederseniz bunların üzerine dosyadaki ilk hal yazılır; panelden yapılmış BÜTÜN değişiklikler (soru düzenlemeleri, yeni sorular, ' +
-          'formül kartları, öneri kararları) kaybolur. Önce yedeği indirdiğinizden emin olun.\n\nYine de devam edilsin mi?');
-        if (!devam) { mesaj(m, 'İptal edildi. Hiçbir şey yazılmadı.'); return; }
-      }
-      mesaj(m, 'Yazılıyor…');
-      const sonuc = await v.iceAktar(konular, oneriler);
-
-      // Doğrulama: her konuyu veritabanından geri okuyup dosyayla karşılaştır
-      mesaj(m, 'Yazıldı. Doğrulanıyor…');
-      let ayni = 0;
-      for (const k of konular) {
-        const db = await v.konuGetir(k.kod);
-        if (db) { delete db.guncellendi; if (v.kanonik(db) === v.kanonik(k)) ayni++; }
-      }
-      mesaj(m, `${sonuc.konu} konu ve ${sonuc.oneri} öneri veritabanına yazıldı.\n` +
-        `Doğrulama: ${ayni}/${konular.length} konu veritabanından geri okundu ve dosyayla birebir aynı` + (ayni === konular.length ? ' ✓' : ' ✗'),
-        ayni === konular.length ? 'tamam' : 'hata');
-      ozetiGuncelle();
-    } catch (err) {
-      mesaj(m, 'Hata: ' + v.hataMetni(err), 'hata');
-    } finally {
-      dugme.disabled = false;
-    }
   });
 }
 

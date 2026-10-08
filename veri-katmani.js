@@ -10,7 +10,7 @@ import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.19.0/fireba
 // Firestore'un "lite" sürümü: canlı bağlantı kanalı açmaz, her okuma tek bir istektir (daha küçük ve hızlı).
 import {
   getFirestore, doc, getDoc, getDocs, addDoc, setDoc, deleteDoc, deleteField, collection, query, orderBy, limit,
-  where, getCount, writeBatch, runTransaction, updateDoc, serverTimestamp
+  where, getCount, runTransaction, updateDoc, serverTimestamp
 } from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore-lite.js';
 import {
   getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut, sendPasswordResetEmail,
@@ -510,26 +510,4 @@ export async function yedekVerisi() {
     oneriler, duyurular, hataBildirimleri,
     site: { ayarlar: belge('ayarlar'), ders: belge('ders') },
   });
-}
-
-// ── İçe aktarma (tek seferlik taşıma, yalnızca yönetici) ──
-
-/** Veritabanında zaten bulunan konu ve öneri kimlikleri (üzerine yazmadan önce uyarmak için). */
-export async function mevcutKayitlar(konular, oneriler) {
-  const varMi = async (yol, id) => (await getDoc(doc(db, yol, id))).exists();
-  const k = await Promise.all(konular.map(x => varMi('konular', x.kod)));
-  const o = await Promise.all(oneriler.map(x => varMi('oneriler', x.id)));
-  return {
-    konular: konular.filter((_, i) => k[i]).map(x => x.kod),
-    oneriler: oneriler.filter((_, i) => o[i]).map(x => x.id),
-  };
-}
-
-/** veri/konular.json → konular/{kod}, veri/oneriler.json → oneriler/{id}. Hepsi tek seferde yazılır ya da hiçbiri yazılmaz. */
-export async function iceAktar(konular, oneriler) {
-  const b = writeBatch(db);
-  for (const k of konular) b.set(doc(db, 'konular', k.kod), { ...k, guncellendi: serverTimestamp() });
-  for (const o of oneriler) b.set(doc(db, 'oneriler', o.id), { ...o, olusturuldu: serverTimestamp() });
-  await b.commit();
-  return { konu: konular.length, oneri: oneriler.length };
 }
