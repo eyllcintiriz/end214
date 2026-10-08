@@ -785,6 +785,7 @@ footer strong { color: var(--amber); }
 .dugme { margin-top: 1rem; padding: .6rem 1.2rem; background: rgba(232,184,109,.1); color: var(--amber);
   border: 1px solid rgba(232,184,109,.35); border-radius: var(--radius); font: inherit; font-size: .9rem; font-weight: 600; cursor: pointer; }
 .dugme:hover { background: rgba(232,184,109,.18); }
+a.dugme { display: inline-block; text-decoration: none; margin-right: .5rem; }
 .dugme:disabled { opacity: .5; cursor: wait; }
 .dugme-ikincil { background: none; color: var(--muted); border-color: var(--border); font-weight: 400; }
 .baglanti { background: none; border: none; color: var(--muted); font: inherit; font-size: .8rem; text-decoration: underline; cursor: pointer; margin-left: .75rem; }

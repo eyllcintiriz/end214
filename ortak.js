@@ -721,7 +721,9 @@ function hesapSayfasi() {
       var m = $('#girisMesaj');
       mesaj(m, 'Giriş yapılıyor…');
       v.girisYap($('#girisEposta').value.trim(), $('#girisSifre').value)
-        .then(function () { $('#girisSifre').value = ''; mesaj(m, ''); geriDon(); })
+        .then(function () { $('#girisSifre').value = ''; mesaj(m, ''); return v.yoneticiMi().catch(function () { return false; }); })
+        // yönetici (hoca) giriş yapınca doğrudan yönetim paneline geçer
+        .then(function (yonetici) { if (yonetici) location.href = 'admin.html'; else geriDon(); })
         .catch(function (err) { mesaj(m, v.hataMetni(err), 'hata'); });
     });
     $('#sifremiUnuttum').addEventListener('click', function () {
@@ -760,6 +762,8 @@ function hesapSayfasi() {
       goster('ogrenci');
       $('[data-ad]').textContent = (kullanici && kullanici.ad) || '';
       $('[data-eposta]').textContent = (kullanici && kullanici.eposta) || '';
+      $('#panelLinki').hidden = true;
+      v.yoneticiMi().then(function (y) { $('#panelLinki').hidden = !y; }).catch(function () {});
       var liste = $('.ilerleme-liste');
       Promise.all([v.tumKonular(), v.cozulenler()]).then(function (r) {
         var konular = r[0], coz = r[1], toplam = 0, toplamCoz = 0;
