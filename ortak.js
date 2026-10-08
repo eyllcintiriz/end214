@@ -382,6 +382,13 @@ function tarihYazi(t) { return new Intl.DateTimeFormat('tr-TR', { day: 'numeric'
 // Tarihin yerel saate göre günü: 'YYYY-AA-GG' (toISOString UTC'ye çevirir, gece yarısına yakın saatlerde bir gün kayar)
 function gunYazi(t) { var p = function (n) { return (n < 10 ? '0' : '') + n; }; return t.getFullYear() + '-' + p(t.getMonth() + 1) + '-' + p(t.getDate()); }
 function bosMesaj(kutu, metin) { kutu.innerHTML = ''; kutu.appendChild(el('p', 'bos-mesaj', metin)); }
+// Veritabanı belirli sürede cevap vermezse istek hata sayılır (sayfa "yükleniyor"da kalmasın)
+var ZAMAN_ASIMI = 15 * 1000;
+function zamanSinirli(p) {
+  return Promise.race([p, new Promise(function (_, hata) {
+    setTimeout(function () { hata(new Error('zaman-asimi')); }, ZAMAN_ASIMI);
+  })]);
+}
 
 function duyuruKarti(d) {
   var k = el('article', 'duyuru');
@@ -825,13 +832,12 @@ function sayfayiBaslat() {
     vk.then(function (v) { return v.duyurular(3); }).then(anaSayfaDuyurulari).catch(function () {});
   } else if (document.body.dataset.sayfa === 'duyurular') {
     var liste = document.querySelector('.duyuru-liste');
-    import('./veri-katmani.js?v=862f0688')
-      .then(function (v) { return v.duyurular(); })
+    zamanSinirli(import('./veri-katmani.js?v=862f0688').then(function (v) { return v.duyurular(); }))
       .then(function (d) { duyurulariCiz(liste, d); })
       .catch(function () { bosMesaj(liste, 'Duyurular şu an yüklenemedi. İnternet bağlantınızı kontrol edip sayfayı yenileyin.'); });
   } else if (document.body.dataset.sayfa === 'ders') {
     var vd = import('./veri-katmani.js?v=862f0688');
-    vd.then(function (v) { return v.dersBilgileri(); })
+    zamanSinirli(vd.then(function (v) { return v.dersBilgileri(); }))
       .then(dersBilgileriniCiz)
       .catch(function () {
         document.querySelectorAll('[data-alan]:not([data-alan="konular"]):not([data-alan="iletisim"])').forEach(function (k) {
