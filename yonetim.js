@@ -37,8 +37,29 @@ function sekmeleriKur() {
   window.addEventListener('hashchange', sekmeAc);
 }
 
+// Siteden gelen kısayollar sekmenin ardından hedefi de taşır: #sorular/ga/GA-04, #sorular/ga/yeni, #formuller/ga, #duyurular/yeni.
+// Hedef, bölüm kurulunca açılır; adres çubuğunda yalnızca sekme adı kalır.
+const hedefAcicilar = {};
+let bekleyenHedef = null;
+function hedefIste(ad, ek) {
+  if (hedefAcicilar[ad]) hedefAcicilar[ad](ek); else bekleyenHedef = { ad, ek };
+}
+function hedefKaydet(ad, fn) {
+  hedefAcicilar[ad] = fn;
+  if (bekleyenHedef && bekleyenHedef.ad === ad) { const h = bekleyenHedef; bekleyenHedef = null; fn(h.ek); }
+}
+
+// Siteden gelindiyse "Siteye Dön" geldiği sayfaya (ör. ga.html#GA-04) götürür; yalnızca bu sitenin bir sayfası olabilir
+const donus = new URLSearchParams(location.search).get('donus') || '';
+if (/^[a-z]+\.html(#[A-Za-z]+-\d+)?$/.test(donus)) {
+  const geri = document.querySelector('.topnav .nav-links a');
+  if (geri) { geri.href = donus; geri.textContent = '← Siteye Dön'; }
+}
+
 function sekmeAc() {
-  const ad = SEKMELER.some(s => s[0] === location.hash.slice(1)) ? location.hash.slice(1) : 'oneriler';
+  const [ilk, ...ek] = decodeURIComponent(location.hash.slice(1)).split('/');
+  const ad = SEKMELER.some(s => s[0] === ilk) ? ilk : 'oneriler';
+  if (ek.length) history.replaceState(null, '', location.pathname + location.search + '#' + ad);
   document.querySelectorAll('.ys-btn').forEach(b => {
     b.classList.toggle('aktif', b.dataset.sekme === ad);
     b.setAttribute('aria-selected', b.dataset.sekme === ad);
@@ -48,6 +69,14 @@ function sekmeAc() {
     kurulanlar.add(ad);
     BOLUMLER[ad](document.querySelector(`[data-bolum="${ad}"]`));
   }
+  if (ek.length) hedefIste(ad, ek);
+}
+
+// Kaydettikten sonra: "… sitede hemen görünür. Sitede gör →"
+function basariMesaji(kutu, metin, adres) {
+  mesaj(kutu, metin + ' ', 'tamam');
+  const a = el('a', '', 'Sitede gör →'); a.href = adres;
+  kutu.appendChild(a);
 }
 
 // Açılıştaki özet ve sekmelerdeki sayı rozetleri
@@ -733,7 +762,7 @@ async function duyurularBolumu(kutu) {
       try {
         if (d) await v.duyuruGuncelle(d.id, veri()); else await v.duyuruEkle(veri());
         formuKapat();
-        mesaj(listeMesaj, d ? 'Duyuru güncellendi.' : 'Duyuru yayınlandı; sitede hemen görünür.', 'tamam');
+        basariMesaji(listeMesaj, d ? 'Duyuru güncellendi.' : 'Duyuru yayınlandı; sitede hemen görünür.', 'duyurular.html');
         await yukle();
       } catch (e) { mesaj(m, v.hataMetni(e), 'hata'); kaydet.disabled = vazgec.disabled = false; }
     });
@@ -752,6 +781,7 @@ async function duyurularBolumu(kutu) {
     baslik.focus();
   }
 
+  hedefKaydet('duyurular', ([ne]) => { if (ne === 'yeni') formAc(null); });
   await yukle();
 }
 
@@ -938,14 +968,11 @@ function parcaListesi(ust, baslik, degerler, ekleYazi, yeniEtiket, degisti) {
 // ── Sorular ──
 // Konu seçilir, sorular listelenir; düzenleme formunda yazdıkça kart öğrencinin göreceği şekilde önizlenir.
 // Soru numaraları kalıcıdır: silinen sorunun numarası yeniden verilmez, sıralama numaraları değiştirmez.
-let soruHedefi = null, soruAc = null;
-
 // Hata bildiriminden "Soruyu düzenle"
 function soruyuDuzenle(kod, id) {
   location.hash = 'sorular';
   sekmeAc();  // sekme hemen açılsın (hashchange olayı sonra gelir, ikinci çağrı bir şey değiştirmez)
-  if (soruAc) soruAc(kod, id);
-  else soruHedefi = { kod, id };  // bölüm kurulurken açılacak
+  hedefIste('sorular', [kod, id]);
 }
 
 async function sorularBolumu(kutu) {
@@ -1117,7 +1144,7 @@ async function sorularBolumu(kutu) {
         await konuyuYenile();
         ara.value = '';
         listeCiz();
-        mesaj(listeMesaj, `${kayit.no} ${s ? 'kaydedildi' : 'eklendi'}; sitede hemen görünür.`, 'tamam');
+        basariMesaji(listeMesaj, `${kayit.no} ${s ? 'kaydedildi' : 'eklendi'}; sitede hemen görünür.`, `${konu.sayfa}#${kayit.id}`);
       } catch (e) { mesaj(m, v.hataMetni(e), 'hata'); kaydet.disabled = vazgec.disabled = false; }
     });
     vazgec.addEventListener('click', () => {
@@ -1148,17 +1175,19 @@ async function sorularBolumu(kutu) {
   ara.addEventListener('input', listeCiz);
   yeniBtn.addEventListener('click', () => formAc(null));
 
-  soruAc = (kod, id) => {
+  listeCiz();
+  // [kod, id]: o soruyu düzenle; [kod, 'yeni']: o konuda yeni soru
+  hedefKaydet('sorular', ([kod, id]) => {
+    if (!konular.some(k => k.kod === kod)) return;
     if (konu.kod !== kod) {
       if (kaydedilmemis.has('soru') && !confirm('Açık formdaki kaydedilmemiş değişiklikler kaybolacak. Devam edilsin mi?')) return;
       formuKapat();
-      konu = konular.find(k => k.kod === kod) || konu;
+      konu = konular.find(k => k.kod === kod);
       konuSec.value = konu.kod; ara.value = '';
+      listeCiz();
     }
-    duzenlemeAc(id);
-  };
-  listeCiz();
-  if (soruHedefi) { const h = soruHedefi; soruHedefi = null; soruAc(h.kod, h.id); }
+    if (id === 'yeni') formAc(null); else if (id) duzenlemeAc(id);
+  });
 }
 
 // ── Formül kartları ──
@@ -1280,4 +1309,9 @@ async function formullerBolumu(kutu) {
   });
   yeniBtn.addEventListener('click', () => formAc(null));
   listeCiz();
+  hedefKaydet('formuller', ([kod]) => {
+    if (konu.kod === kod || !konular.some(k => k.kod === kod)) return;
+    konuSec.value = kod;
+    konuSec.dispatchEvent(new Event('change'));
+  });
 }

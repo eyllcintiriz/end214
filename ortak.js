@@ -605,6 +605,7 @@ function kartAltlariniEkle() {
     govde.appendChild(satir);
   });
   isaretleriGoster();
+  kartDuzenleLinkleri();
 }
 
 function footerBildirLinki() {
@@ -690,10 +691,76 @@ function hesabiIzle() {
       kullanici = k; hesapBilindi = true;
       hesapDugmesiniGuncelle();
       document.dispatchEvent(new CustomEvent('end214-hesap'));
-      if (!k) { cozulen = {}; isaretleriGoster(); return; }
+      if (!k) { cozulen = {}; isaretleriGoster(); yonetici = false; yoneticiKaydet(null); yoneticiKisayollariniGoster(); return; }
       if (document.body.dataset.konu) v.cozulenler().then(function (c) { cozulen = c; isaretleriGoster(); }).catch(function () {});
+      yoneticiMiBak(v, k).then(function (y) { if (kullanici === k) { yonetici = y; yoneticiKisayollariniGoster(); } }).catch(function () {});
     });
   }).catch(function () { /* veritabanına ulaşılamıyor: herkes misafir */ });
+}
+
+// ── Yönetici kısayolları ──
+// Giriş yapan yöneticiyse menüde "⚙ Panel", içerik sayfalarının üstünde bir şerit ve her soruda "✎ Düzenle" görünür.
+// Hepsi panelin ilgili ekranını açar (ör. admin.html?donus=ga.html%23GA-04#sorular/ga/GA-04); düzenleme panelde yapılır.
+// Öğrenciler bunları görmez; görünür yapılsalar bile veritabanı kuralları yöneticiden başkasının yazmasına izin vermez.
+var yonetici = false, YONETICI_ANAHTAR = 'end214-yonetici';
+
+// Sonuç tarayıcı sekmesi açık kaldıkça saklanır (her sayfada veritabanı okunmasın): "uid:1" ya da "uid:0"
+function yoneticiKaydet(uid, y) {
+  try { if (uid) sessionStorage.setItem(YONETICI_ANAHTAR, uid + ':' + (y ? 1 : 0)); else sessionStorage.removeItem(YONETICI_ANAHTAR); } catch (x) { /* önemli değil */ }
+}
+function yoneticiMiBak(v, k) {
+  var kayit = null;
+  try { kayit = sessionStorage.getItem(YONETICI_ANAHTAR); } catch (x) { /* tarayıcı izin vermiyor */ }
+  if (kayit === k.uid + ':1' || kayit === k.uid + ':0') return Promise.resolve(kayit === k.uid + ':1');
+  return v.yoneticiMi().then(function (y) { yoneticiKaydet(k.uid, y); return y; });
+}
+
+function panelAdresi(hedef, donus) { return 'admin.html?donus=' + encodeURIComponent(donus || sayfaAdi()) + '#' + hedef; }
+
+function yoneticiKisayollariniGoster() {
+  document.querySelectorAll('.yonetici-ogesi').forEach(function (e) { e.remove(); });
+  if (!yonetici) return;
+  var hd = document.querySelector('.topnav .hesap-dugme');
+  if (hd) {
+    var p = el('a', 'panel-dugme yonetici-ogesi');
+    p.href = panelAdresi('oneriler');
+    p.innerHTML = '<span aria-hidden="true">⚙</span><span class="panel-dugme-yazi">Panel</span>';
+    p.setAttribute('aria-label', 'Yönetim Paneli');
+    hd.insertAdjacentElement('afterend', p);
+  }
+  var kod = document.body.dataset.konu, sayfa = document.body.dataset.sayfa, main = document.querySelector('main'), kisayol = [];
+  if (kod) kisayol = [['+ Yeni soru', 'sorular/' + kod + '/yeni'], ['✎ Formül kartları', 'formuller/' + kod]];
+  else if (sayfa === 'ana') kisayol = [['+ Yeni duyuru', 'duyurular/yeni'], ['✎ Site ayarları', 'ayarlar']];
+  else if (sayfa === 'duyurular') kisayol = [['+ Yeni duyuru', 'duyurular/yeni']];
+  else if (sayfa === 'ders') kisayol = [['✎ Ders bilgilerini düzenle', 'ders']];
+  if (main && kisayol.length) {
+    var serit = el('div', 'yonetici-serit yonetici-ogesi');
+    serit.appendChild(el('span', 'yonetici-serit-etiket', 'Yönetici'));
+    kisayol.concat([['⚙ Yönetim Paneli', 'oneriler']]).forEach(function (k) {
+      var a = el('a', 'ys-kisayol', k[0]);
+      a.href = panelAdresi(k[1]);
+      serit.appendChild(a);
+    });
+    serit.appendChild(el('span', 'yonetici-serit-not', 'Bu şeridi yalnızca siz görüyorsunuz.'));
+    main.insertBefore(serit, main.firstChild);
+    // Bağlantıyla açılan soruya (ör. ga.html#GA-04) kayma sürerken şerit eklenirse kayma yarıda kalır: yeniden kaydır
+    var c = location.hash && document.getElementById(decodeURIComponent(location.hash.slice(1)));
+    if (c && c.classList.contains('q-card') && c.classList.contains('open')) c.scrollIntoView({ block: 'start' });
+  }
+  kartDuzenleLinkleri();
+}
+
+// Her sorunun altında, "⚠ Hata bildir"in yanında "✎ Düzenle"
+function kartDuzenleLinkleri() {
+  var kod = document.body.dataset.konu;
+  if (!yonetici || !kod) return;
+  document.querySelectorAll('.questions-grid > .q-card .kart-alt').forEach(function (satir) {
+    if (satir.querySelector('.duzenle-link')) return;
+    var c = satir.closest('.q-card');
+    var a = el('a', 'duzenle-link yonetici-ogesi', '✎ Düzenle');
+    a.href = panelAdresi('sorular/' + kod + '/' + c.id, sayfaAdi() + '#' + c.id);
+    satir.insertBefore(a, satir.querySelector('.bildir-link'));
+  });
 }
 
 // ── Hesap sayfası (hesap.html) ──
@@ -721,7 +788,7 @@ function hesapSayfasi() {
       var m = $('#girisMesaj');
       mesaj(m, 'Giriş yapılıyor…');
       v.girisYap($('#girisEposta').value.trim(), $('#girisSifre').value)
-        .then(function () { $('#girisSifre').value = ''; mesaj(m, ''); return v.yoneticiMi().catch(function () { return false; }); })
+        .then(function () { $('#girisSifre').value = ''; mesaj(m, ''); yoneticiKaydet(null); return v.yoneticiMi().catch(function () { return false; }); })
         // yönetici (hoca) giriş yapınca doğrudan yönetim paneline geçer
         .then(function (yonetici) { if (yonetici) location.href = 'admin.html'; else geriDon(); })
         .catch(function (err) { mesaj(m, v.hataMetni(err), 'hata'); });
@@ -763,7 +830,7 @@ function hesapSayfasi() {
       $('[data-ad]').textContent = (kullanici && kullanici.ad) || '';
       $('[data-eposta]').textContent = (kullanici && kullanici.eposta) || '';
       $('#panelLinki').hidden = true;
-      v.yoneticiMi().then(function (y) { $('#panelLinki').hidden = !y; }).catch(function () {});
+      v.yoneticiMi().then(function (y) { $('#panelLinki').hidden = !y; if (kullanici) yoneticiKaydet(kullanici.uid, y); }).catch(function () {});
       var liste = $('.ilerleme-liste');
       Promise.all([v.tumKonular(), v.cozulenler()]).then(function (r) {
         var konular = r[0], coz = r[1], toplam = 0, toplamCoz = 0;

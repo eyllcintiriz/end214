@@ -802,6 +802,26 @@ a.dugme { display: inline-block; text-decoration: none; margin-right: .5rem; }
   transition: color .18s, border-color .18s;
 }
 .hesap-dugme:hover, .hesap-dugme.active { color: var(--amber); border-color: rgba(232,184,109,.35); }
+/* Yönetici kısayolları (yalnızca yönetici giriş yapınca görünür) */
+.panel-dugme {
+  display: flex; align-items: center; gap: .4rem; flex-shrink: 0; text-decoration: none;
+  color: var(--amber); font-size: .72rem; padding: .26rem .55rem; border: 1px solid rgba(232,184,109,.35); border-radius: 4px;
+}
+.panel-dugme:hover { background: rgba(232,184,109,.08); }
+.yonetici-serit {
+  display: flex; flex-wrap: wrap; align-items: center; gap: .5rem .6rem; margin-bottom: 1.5rem; padding: .7rem .9rem;
+  border: 1px dashed rgba(232,184,109,.35); border-radius: var(--radius); background: rgba(232,184,109,.04);
+}
+.yonetici-serit-etiket { font-family: var(--mono); font-size: .68rem; letter-spacing: .08em; text-transform: uppercase; color: var(--amber); }
+.ys-kisayol {
+  font-size: .8rem; text-decoration: none; color: var(--text); padding: .3rem .7rem;
+  border: 1px solid var(--border); border-radius: 4px; transition: color .18s, border-color .18s;
+}
+.ys-kisayol:hover { color: var(--amber); border-color: rgba(232,184,109,.35); }
+.yonetici-serit-not { font-size: .72rem; color: var(--muted); margin-left: auto; }
+.kart-alt .duzenle-link { margin-left: auto; font-size: .72rem; color: var(--amber); text-decoration: none; }
+.kart-alt .duzenle-link:hover { text-decoration: underline; }
+.kart-alt .duzenle-link + .bildir-link { margin-left: 0; }
 .kart-alt { display: flex; align-items: center; gap: .8rem; flex-wrap: wrap; margin-top: 1rem; }
 .kart-alt .bildir-link { margin: 0 0 0 auto; }
 .cozdum-dugme {
@@ -843,7 +863,8 @@ details.tehlike > summary { color: var(--red); }
 .taslak-isaret { font-family: var(--mono); font-size: .72rem !important; color: var(--amber) !important; border: 1px dashed rgba(232,184,109,.4); border-radius: 4px; padding: .4rem .6rem; }
 .aydinlatma strong { color: var(--text); font-weight: 600; }
 @media (max-width: 600px) {
-  .hesap-dugme-yazi { display: none; }
+  .hesap-dugme-yazi, .panel-dugme-yazi { display: none; }
+  .yonetici-serit-not { margin-left: 0; }
 }
 
 /* ── Yönetim paneli: karşılama, özet, sekmeler ── */
