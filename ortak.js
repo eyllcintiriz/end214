@@ -768,7 +768,13 @@ function gecerliDonus(d) { return /^[a-z]+\.html(#[A-Za-z]+-\d+)?$/.test(d || ''
 
 function hesapSayfasi() {
   var $ = function (s) { return document.querySelector(s); };
-  var goster = function (d) { document.querySelectorAll('[data-durum]').forEach(function (b) { b.hidden = b.dataset.durum !== d; }); };
+  // Giriş yapınca başlıktaki "Öğrenci Hesabı" yerine "Hoş geldiniz" yazar, hesap açma açıklaması gizlenir
+  var etiket = $('.page-header .topic-tag'), aciklama = $('.page-header .subtitle'), ilkEtiket = etiket && etiket.textContent;
+  var goster = function (d) {
+    document.querySelectorAll('[data-durum]').forEach(function (b) { b.hidden = b.dataset.durum !== d; });
+    if (etiket) etiket.textContent = d === 'ogrenci' ? 'END 214 · Hoş geldiniz' : ilkEtiket;
+    if (aciklama) aciklama.hidden = d === 'ogrenci';
+  };
   var mesaj = function (kutu, metin, tur) { kutu.textContent = metin; kutu.className = 'mesaj' + (tur ? ' ' + tur : ''); };
   var donus = new URLSearchParams(location.search).get('donus') || '';
   var geriDon = function () { if (gecerliDonus(donus)) location.href = donus; };
