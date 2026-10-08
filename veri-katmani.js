@@ -180,6 +180,7 @@ export function hataMetni(e) {
   if (/requires-recent-login/.test(kod)) return 'Güvenlik için çıkış yapıp yeniden giriş yapın, sonra tekrar deneyin.';
   if (/too-many-requests/.test(kod)) return 'Çok fazla deneme yapıldı. Biraz bekleyip tekrar deneyin.';
   if (/network-request-failed|unavailable/.test(kod)) return 'İnternet bağlantısı kurulamadı.';
+  if (/resource-exhausted|quota-exceeded/.test(kod)) return 'Sitenin bugünkü ücretsiz kullanım sınırı doldu. Yarın sabah kendiliğinden düzelir. Bu sık oluyorsa "Veritabanı Gerekirse Nasıl Yükseltilir?" notuna bakın.';
   if (/permission-denied/.test(kod)) return 'Bu işlem için yetkiniz yok.';
   return 'Beklenmeyen bir hata oluştu' + (kod ? ' (' + kod + ')' : '') + '.';
 }
