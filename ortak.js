@@ -782,15 +782,23 @@ function hesapSayfasi() {
   });
 
   import('./veri-katmani.js?v=010ccf69').then(function (v) {
+    // Giriş sürerken öğrenci ekranı çizilmez: yönetici (hoca) doğrudan yönetim paneline geçer, öğrenci ekranı arada görünmez
+    var girisSuruyor = false;
     $('#girisForm').addEventListener('submit', function (e) {
       e.preventDefault();
       var m = $('#girisMesaj');
       mesaj(m, 'Giriş yapılıyor…');
+      girisSuruyor = true;
       v.girisYap($('#girisEposta').value.trim(), $('#girisSifre').value)
-        .then(function () { $('#girisSifre').value = ''; mesaj(m, ''); yoneticiKaydet(null); return v.yoneticiMi().catch(function () { return false; }); })
-        // yönetici (hoca) giriş yapınca doğrudan yönetim paneline geçer
-        .then(function (yonetici) { if (yonetici) location.href = 'admin.html'; else geriDon(); })
-        .catch(function (err) { mesaj(m, v.hataMetni(err), 'hata'); });
+        .then(function () { yoneticiKaydet(null); return v.yoneticiMi().catch(function () { return false; }); })
+        .then(function (yonetici) {
+          if (yonetici) { location.href = 'admin.html'; return; }
+          girisSuruyor = false;
+          $('#girisSifre').value = ''; mesaj(m, '');
+          if (kullanici) ogrenciGoster();
+          geriDon();
+        })
+        .catch(function (err) { girisSuruyor = false; mesaj(m, v.hataMetni(err), 'hata'); });
     });
     $('#sifremiUnuttum').addEventListener('click', function () {
       var ep = $('#girisEposta').value.trim(), m = $('#girisMesaj');
@@ -850,7 +858,7 @@ function hesapSayfasi() {
       }).catch(function () { bosMesaj(liste, 'İlerleme şu an yüklenemedi.'); });
     }
 
-    document.addEventListener('end214-hesap', function () { if (kullanici) ogrenciGoster(); else goster('misafir'); });
+    document.addEventListener('end214-hesap', function () { if (girisSuruyor) return; if (kullanici) ogrenciGoster(); else goster('misafir'); });
     if (hesapBilindi) { if (kullanici) ogrenciGoster(); else goster('misafir'); }
   }).catch(function () {
     $('[data-durum="yukleniyor"]').innerHTML = '';
