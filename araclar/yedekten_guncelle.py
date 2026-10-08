@@ -12,7 +12,8 @@ Ne yapar?
   2. Her konu sayfasında kartları tek tek karşılaştırır. Veritabanıyla aynı olan kart ve önündeki
      yorum (<!-- GA-04 -->, iç notlar) harfi harfine olduğu gibi kalır; yalnızca değişen ya da yeni
      kartlar kart_html() ile (sitenin JS'iyle birebir aynı) yeniden yazılır. Silinen kartlar çıkar.
-  3. Ana sayfadaki sabit sayıları (konu kartlarındaki "18 SORU · 6 FORMÜL KARTI", toplamlar) günceller.
+  3. Ana sayfadaki sabit sayıları (konu kartlarındaki "18 SORU · 6 FORMÜL KARTI", toplamlar) ve
+     Ders Bilgileri sayfasındaki konu listesinin soru sayılarını ("18 soru") günceller.
   4. Yazdıktan sonra her sayfayı yeniden okuyup bütün kartların veritabanıyla aynı olduğunu doğrular.
 
 Kullanım (depo kök klasöründen; .venv içinde beautifulsoup4 kurulu):
@@ -166,6 +167,18 @@ def ana_sayfa(konular, yaz, rapor):
     return yeni != html
 
 
+def ders_sayfasi(konular, yaz, rapor):
+    html = open('ders.html', encoding='utf-8').read()
+    yeni = html
+    for k in konular:
+        desen = re.compile(r'(<a href="' + re.escape(k['sayfa']) + r'">[^<]*</a><span class="konu-sayi">)\d+ soru(</span>)')
+        yeni = desen.sub(lambda m: f'{m.group(1)}{len(k["sorular"])} soru{m.group(2)}', yeni, count=1)
+    rapor.append('ders.html: ' + ('soru sayıları güncellenecek' if yeni != html else 'soru sayıları aynı'))
+    if yaz and yeni != html:
+        open('ders.html', 'w', encoding='utf-8').write(yeni)
+    return yeni != html
+
+
 def main():
     if len(sys.argv) < 2:
         sys.exit(__doc__)
@@ -187,6 +200,8 @@ def main():
                 open(k['sayfa'], 'w', encoding='utf-8').write(yeni)
         rapor.append('  ✓ ' + ('güncellendi, doğrulandı' if yaz and (d1 or d2) else 'güncellenecek' if d1 or d2 else 'zaten aynı'))
     if ana_sayfa(konular, yaz, rapor):
+        degisen_sayfa += 1
+    if ders_sayfasi(konular, yaz, rapor):
         degisen_sayfa += 1
     print('\n'.join(rapor))
     if hata:

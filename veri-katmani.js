@@ -171,7 +171,7 @@ export async function hesabiSil(sifre) {
 /** Giriş hata kodunu kullanıcıya gösterilecek Türkçe cümleye çevirir. */
 export function hataMetni(e) {
   const kod = e && e.code || '';
-  if (['gecersiz', 'cakisma', 'bulunamadi'].includes(kod)) return e.message;  // bu dosyanın kendi hataları: mesaj zaten Türkçe
+  if (['gecersiz', 'cakisma', 'bulunamadi', 'zaten-karar', 'yol-yok'].includes(kod)) return e.message;  // bu dosyanın kendi hataları: mesaj zaten Türkçe
   if (/email-already-in-use/.test(kod)) return 'Bu e-posta adresiyle zaten bir hesap var. Giriş yapmayı deneyin.';
   if (/weak-password/.test(kod)) return 'Şifre en az 6 karakter olmalı.';
   if (/invalid-email/.test(kod)) return 'E-posta adresi geçerli görünmüyor.';
@@ -214,7 +214,7 @@ export function degisiklikleriUygula(soru, degisiklikler, alan = 'yeni') {
   for (const d of degisiklikler) {
     const p = yolParcalari(d.yol), son = p.pop();
     const hedef = p.reduce((h, x) => (h == null ? undefined : h[x]), kopya);
-    if (hedef == null || !(son in hedef)) throw Object.assign(new Error('yol yok: ' + d.yol), { code: 'yol-yok' });
+    if (hedef == null || !(son in hedef)) throw Object.assign(new Error('Önerinin değiştirdiği kısım soruda bulunamadı (' + d.yol + ').'), { code: 'yol-yok' });
     hedef[son] = d[alan];
   }
   return kopya;
@@ -392,8 +392,8 @@ export async function dersBilgileriniKaydet(d) {
 // "eski": panelin düzenlemeye başlarken okuduğu hal. Kayıt o arada başka yerden değiştiyse (ör. bir öneri onaylandıysa)
 // üzerine yazılmaz, 'cakisma' hatası verilir.
 
-// Anahtar sırasından bağımsız karşılaştırma (Firestore alanları farklı sırayla döndürebilir)
-const kanonik = x => Array.isArray(x) ? '[' + x.map(kanonik).join(',') + ']'
+/** Anahtar sırasından bağımsız metin karşılığı (Firestore alanları farklı sırayla döndürebilir); iki kayıt aynı mı diye bakmak için. */
+export const kanonik = x => Array.isArray(x) ? '[' + x.map(kanonik).join(',') + ']'
   : x && typeof x === 'object' ? '{' + Object.keys(x).sort().map(k => JSON.stringify(k) + ':' + kanonik(x[k])).join(',') + '}'
   : JSON.stringify(x);
 const cakismaHatasi = () => kararHatasi('cakisma', 'Bu kayıt, siz düzenlerken başka bir yerden değiştirilmiş (örneğin bir öneri onaylanmış). Sayfayı yenileyip tekrar deneyin; yazdıklarınızı kaydetmeden önce bir yere kopyalayın.');

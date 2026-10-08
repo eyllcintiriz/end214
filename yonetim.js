@@ -7,7 +7,7 @@ const mesaj = (el, metin, tur) => { el.textContent = metin; el.className = 'mesa
 
 let v;
 try {
-  v = await import('./veri-katmani.js?v=9d77551c');
+  v = await import('./veri-katmani.js?v=862f0688');
 } catch (e) {
   $('yukleniyor').innerHTML = '<p class="mesaj hata">Veritabanına bağlanılamadı. İnternet bağlantınızı kontrol edip sayfayı yenileyin.</p>';
   throw e;
@@ -76,11 +76,6 @@ async function ozetiGuncelle() {
   }
 }
 
-// Henüz yapılmamış bölümler için
-document.querySelectorAll('[data-bolum]').forEach(k => {
-  if (!k.children.length && !BOLUMLER[k.dataset.bolum]) k.innerHTML = '<div class="panel"><p>Bu bölüm hazırlanıyor.</p></div>';
-});
-
 // ── Giriş / çıkış ──
 let panelKuruldu = false;
 v.girisDurumu(async k => {
@@ -145,10 +140,6 @@ async function yedekBolumu() {
 }
 
 // ── İlk kurulum: tek seferlik içe aktarma (Yedek sekmesinde, "Gelişmiş" altında) ──
-// Anahtar sırasından bağımsız karşılaştırma (Firestore alanları farklı sırayla döndürebilir)
-const kanonik = x => Array.isArray(x) ? '[' + x.map(kanonik).join(',') + ']'
-  : x && typeof x === 'object' ? '{' + Object.keys(x).sort().map(k => JSON.stringify(k) + ':' + kanonik(x[k])).join(',') + '}'
-  : JSON.stringify(x);
 
 async function kurulumBolumu() {
   let konular, oneriler;
@@ -185,7 +176,7 @@ async function kurulumBolumu() {
       let ayni = 0;
       for (const k of konular) {
         const db = await v.konuGetir(k.kod);
-        if (db) { delete db.guncellendi; if (kanonik(db) === kanonik(k)) ayni++; }
+        if (db) { delete db.guncellendi; if (v.kanonik(db) === v.kanonik(k)) ayni++; }
       }
       mesaj(m, `${sonuc.konu} konu ve ${sonuc.oneri} öneri veritabanına yazıldı.\n` +
         `Doğrulama: ${ayni}/${konular.length} konu veritabanından geri okundu ve dosyayla birebir aynı` + (ayni === konular.length ? ' ✓' : ' ✗'),
@@ -346,7 +337,7 @@ async function onerilerBolumu(kutu) {
     let tamam = 0; const hatalar = [];
     for (const o of secilenler) {
       mesaj(topluMesaj, `Onaylanıyor… ${tamam + hatalar.length + 1} / ${secilenler.length}`);
-      try { await v.oneriyiOnayla(o); tamam++; } catch (e) { hatalar.push(`${o.soruId}: ${e.message}`); }
+      try { await v.oneriyiOnayla(o); tamam++; } catch (e) { hatalar.push(`${o.soruId}: ${v.hataMetni(e)}`); }
     }
     toplu.disabled = false;
     mesaj(topluMesaj, `${tamam} öneri onaylandı.` + (hatalar.length ? `\nOnaylanamayanlar:\n${hatalar.join('\n')}` : ''), hatalar.length ? 'hata' : 'tamam');
@@ -432,7 +423,7 @@ async function onerilerBolumu(kutu) {
       dugmeler.querySelectorAll('button').forEach(b => { b.disabled = true; });
       mesaj(m, bekleme);
       try { await fn(); mesaj(m, basari, 'tamam'); setTimeout(async () => { await yukle(); ozetiGuncelle(); }, 900); }
-      catch (e) { mesaj(m, e.message || v.hataMetni(e), 'hata'); dugmeler.querySelectorAll('button').forEach(b => { b.disabled = false; }); }
+      catch (e) { mesaj(m, v.hataMetni(e), 'hata'); dugmeler.querySelectorAll('button').forEach(b => { b.disabled = false; }); }
     };
 
     if (o.durum === 'bekliyor') {
@@ -473,7 +464,7 @@ async function onerilerBolumu(kutu) {
         kaydet.addEventListener('click', async () => {
           kaydet.disabled = vazgec.disabled = true; mesaj(m, 'Onaylanıyor…');
           try { await v.oneriyiOnayla(o, sonHal()); mesaj(m, 'Düzenlenmiş hali onaylandı; soru sitede güncellendi.', 'tamam'); setTimeout(async () => { await yukle(); ozetiGuncelle(); }, 900); }
-          catch (e) { mesaj(m, e.message || v.hataMetni(e), 'hata'); kaydet.disabled = vazgec.disabled = false; }
+          catch (e) { mesaj(m, v.hataMetni(e), 'hata'); kaydet.disabled = vazgec.disabled = false; }
         });
         vazgec.addEventListener('click', () => {
           duzen.hidden = true; dugmeler.hidden = false; mesaj(m, '');
@@ -512,7 +503,7 @@ async function bildirimlerBolumu(kutu) {
   async function yukle() {
     liste.innerHTML = '<p class="bos-mesaj">Yükleniyor…</p>';
     try {
-      [tum, konular] = await Promise.all([v.hataBildirimleri(), v.tumKonular()]);
+      [tum, konular] = await Promise.all([v.hataBildirimleri(), v.tumKonularTaze()]);
     } catch (e) {
       liste.innerHTML = ''; liste.appendChild(el('p', 'mesaj hata', 'Bildirimler yüklenemedi: ' + v.hataMetni(e)));
       return;
@@ -1010,7 +1001,7 @@ async function sorularBolumu(kutu) {
       };
       yukari.addEventListener('click', () => tasi(-1)); asagi.addEventListener('click', () => tasi(1));
       const duzenle = dugmeYap('Düzenle', 'dugme-ikincil'), sil = dugmeYap('Sil', 'dugme-tehlike');
-      duzenle.addEventListener('click', () => formAc(s));
+      duzenle.addEventListener('click', () => duzenlemeAc(s.id));
       sil.addEventListener('click', async () => {
         const yazi = `${s.no} "${window.duzMetin(s.baslik)}" kalıcı olarak silinecek.\n\n` +
           (bekleyenOneri(s.id) ? 'Bu soru için onay bekleyen bir düzeltme önerisi var; silinirse öneri uygulanamaz.\n\n' : '') +
@@ -1033,6 +1024,15 @@ async function sorularBolumu(kutu) {
   }
 
   function formuKapat() { kaydedilmemis.delete('soru'); formKutu.innerHTML = ''; delete formKutu.dataset.soru; }
+
+  // Düzenleme her zaman sorunun veritabanındaki son haliyle açılır (bu arada başka sekmede bir öneri onaylanmış olabilir)
+  async function duzenlemeAc(id) {
+    try { await konuyuYenile(); } catch (e) { mesaj(listeMesaj, v.hataMetni(e), 'hata'); return; }
+    listeCiz();
+    const s = konu.sorular.find(x => x.id === id);
+    if (s) formAc(s);
+    else mesaj(listeMesaj, `${id} bu konuda bulunamadı (silinmiş olabilir).`, 'hata');
+  }
 
   // Konudaki en sık kullanılan değer (yeni soru için varsayılanlar)
   const enSik = degerler => { const n = {}; degerler.forEach(x => { n[x] = (n[x] || 0) + 1; }); return Object.keys(n).sort((a, b) => n[b] - n[a])[0]; };
@@ -1153,11 +1153,9 @@ async function sorularBolumu(kutu) {
       if (kaydedilmemis.has('soru') && !confirm('Açık formdaki kaydedilmemiş değişiklikler kaybolacak. Devam edilsin mi?')) return;
       formuKapat();
       konu = konular.find(k => k.kod === kod) || konu;
-      konuSec.value = konu.kod; ara.value = ''; listeCiz();
+      konuSec.value = konu.kod; ara.value = '';
     }
-    const s = konu.sorular.find(x => x.id === id);
-    if (s) formAc(s);
-    else mesaj(listeMesaj, `${id} bu konuda bulunamadı (silinmiş olabilir).`, 'hata');
+    duzenlemeAc(id);
   };
   listeCiz();
   if (soruHedefi) { const h = soruHedefi; soruHedefi = null; soruAc(h.kod, h.id); }
@@ -1176,7 +1174,8 @@ async function formullerBolumu(kutu) {
   ust.appendChild(konuSec); ust.appendChild(yeniBtn);
   const formKutu = el('div'), listeMesaj = el('div', 'mesaj'), liste = el('div', 'ys-formul-liste');
   kutu.appendChild(ust); kutu.appendChild(formKutu); kutu.appendChild(listeMesaj); kutu.appendChild(liste);
-  let konu = konular[0];
+  let konu = konular[0], acikKart = null;  // acikKart: formda düzenlenen kartın okunduğu hal
+  const ayniKart = (a, b) => a.baslik === b.baslik && a.govde === b.govde;
 
   const kartHtmlTemiz = f => window.formulKartHtml({ baslik: window.DOMPurify.sanitize(f.baslik), govde: window.DOMPurify.sanitize(f.govde) });
 
@@ -1211,7 +1210,7 @@ async function formullerBolumu(kutu) {
       duzenle.addEventListener('click', () => formAc(i));
       sil.addEventListener('click', async () => {
         if (!confirm(`"${window.duzMetin(f.baslik)}" formül kartı kalıcı olarak silinecek. Devam edilsin mi?`)) return;
-        if (formKutu.dataset.kart != null) formuKapat();
+        if (acikKart && ayniKart(acikKart, f)) formuKapat();
         liste.querySelectorAll('button').forEach(b => { b.disabled = true; });
         try { await kaydet(kartlar.filter((_, j) => j !== i), 'Formül kartı silindi.'); } catch (e) { mesaj(listeMesaj, v.hataMetni(e), 'hata'); }
         listeCiz();
@@ -1223,14 +1222,14 @@ async function formullerBolumu(kutu) {
     liste.appendChild(izgara);
   }
 
-  function formuKapat() { kaydedilmemis.delete('formul'); formKutu.innerHTML = ''; delete formKutu.dataset.kart; }
+  function formuKapat() { kaydedilmemis.delete('formul'); formKutu.innerHTML = ''; acikKart = null; }
 
   // i: düzenlenecek kartın sırası, null: yeni kart
   function formAc(i) {
     if (kaydedilmemis.has('formul') && !confirm('Açık formdaki kaydedilmemiş değişiklikler kaybolacak. Devam edilsin mi?')) return;
     formuKapat(); mesaj(listeMesaj, '');
     const eski = i == null ? null : konu.formul.kartlar[i];
-    if (i != null) formKutu.dataset.kart = i;
+    acikKart = eski;
     const panel = el('div', 'panel ys-form');
     panel.appendChild(el('h2', '', eski ? 'Formül kartını düzenle' : 'Yeni formül kartı'));
     panel.appendChild(el('p', 'ys-ipucu', 'Metin sitedeki biçimiyle (HTML) duruyor. Önce kutudaki yazıyı fareyle seçin, sonra düğmeye basın. Yeni satır için "↵ Yeni satır" düğmesini kullanın.'));
@@ -1250,8 +1249,10 @@ async function formullerBolumu(kutu) {
     const kaydetBtn = dugmeYap(eski ? 'Değişiklikleri kaydet' : 'Kartı ekle'), vazgec = dugmeYap('Vazgeç', 'dugme-ikincil');
     kaydetBtn.addEventListener('click', async () => {
       kaydetBtn.disabled = vazgec.disabled = true; mesaj(m, 'Kaydediliyor…');
-      const yeni = konu.formul.kartlar.slice();
-      if (i == null) yeni.push(kart()); else yeni[i] = kart();
+      // Form açıkken kartların sırası değişmiş ya da başka kart silinmiş olabilir: düzenlenen kart içeriğiyle bulunur
+      const yeni = konu.formul.kartlar.slice(), j = eski ? yeni.findIndex(f => ayniKart(f, eski)) : -1;
+      if (eski && j < 0) { mesaj(m, 'Bu kart bu arada değiştirilmiş ya da silinmiş. Yazdıklarınızı kopyalayıp formu kapatın, sonra tekrar deneyin.', 'hata'); kaydetBtn.disabled = vazgec.disabled = false; return; }
+      if (eski) yeni[j] = kart(); else yeni.push(kart());
       try {
         await kaydet(yeni, eski ? 'Formül kartı kaydedildi; sitede hemen görünür.' : 'Formül kartı eklendi; sitede hemen görünür.');
         formuKapat(); listeCiz();
