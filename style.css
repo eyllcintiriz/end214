@@ -818,7 +818,6 @@ a.dugme { display: inline-block; text-decoration: none; margin-right: .5rem; }
   border: 1px solid var(--border); border-radius: 4px; transition: color .18s, border-color .18s;
 }
 .ys-kisayol:hover { color: var(--amber); border-color: rgba(232,184,109,.35); }
-.yonetici-serit-not { font-size: .72rem; color: var(--muted); margin-left: auto; }
 .kart-alt .duzenle-link { margin-left: auto; font-size: .72rem; color: var(--amber); text-decoration: none; }
 .kart-alt .duzenle-link:hover { text-decoration: underline; }
 .kart-alt .duzenle-link + .bildir-link { margin-left: 0; }
@@ -864,7 +863,6 @@ details.tehlike > summary { color: var(--red); }
 .aydinlatma strong { color: var(--text); font-weight: 600; }
 @media (max-width: 600px) {
   .hesap-dugme-yazi, .panel-dugme-yazi { display: none; }
-  .yonetici-serit-not { margin-left: 0; }
 }
 
 /* ── Yönetim paneli: karşılama, özet, sekmeler ── */

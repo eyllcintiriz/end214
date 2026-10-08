@@ -741,7 +741,6 @@ function yoneticiKisayollariniGoster() {
       a.href = panelAdresi(k[1]);
       serit.appendChild(a);
     });
-    serit.appendChild(el('span', 'yonetici-serit-not', 'Bu şeridi yalnızca siz görüyorsunuz.'));
     main.insertBefore(serit, main.firstChild);
     // Bağlantıyla açılan soruya (ör. ga.html#GA-04) kayma sürerken şerit eklenirse kayma yarıda kalır: yeniden kaydır
     var c = location.hash && document.getElementById(decodeURIComponent(location.hash.slice(1)));
